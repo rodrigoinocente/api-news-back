@@ -1,0 +1,17 @@
+{
+  "name": "api-news",
+  "version": "1.0.0",
+  "description": "Starting with MERN",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index",
+    "dev": "nodemon index"
+  },
+  "keywords": [],
+  "author": "Rodrigo Inocente",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.19.2",
+    "nodemon": "^3.1.0"
+  }
+}
