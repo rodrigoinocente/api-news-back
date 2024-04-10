@@ -8,4 +8,13 @@ const findByEmail = (email) => User.findOne().where("email").equals(email);
 
 const findById = (id) => User.findById(id);
 
-module.exports = { create, findAllUser, findByEmail, findById };
+const update = (id,
+    name,
+    username,
+    email,
+    password) => User.findOneAndUpdate(
+        { _id: id },
+        { name, username, email, password }
+    );
+
+module.exports = { create, findAllUser, findByEmail, findById, update };
