@@ -1,5 +1,4 @@
-const userService = require("../services/user.service")
-const mongoose = require("mongoose")
+const userService = require("../services/user.service");
 
 const create = async (req, res) => {
     const { name, username, email, password } = req.body;
@@ -7,7 +6,7 @@ const create = async (req, res) => {
     if (!name || !username || !email || !password) {
         res.status(400).send({ message: "Submit all fields for registration" });
     }
-
+    
     const user = await userService.create(req.body);
 
     if (!user) {
@@ -48,19 +47,8 @@ const findByEmail = async (req, res) => {
 }
 
 const findById = async (req, res) => {
-    const id = req.params.id;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(400).send({ message: "Invalid ID" });
-    }
-
-    const user = await userService.findById(id);
-
-
-    if (!user) {
-        return res.status(400).send({ message: "User not found by ID" });
-    }
-
+    const user = req.user;
     res.send(user);
 }
 
@@ -71,25 +59,7 @@ const update = async (req, res) => {
         res.status(400).send({ message: "Submit at least one fields for update" });
     }
 
-    const id = req.params.id;
-
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(400).send({ message: "Invalid ID" });
-    }
-
-    const user = await userService.findById(id);
-
-    if (!user) {
-        return res.status(400).send({ message: "User not found" });
-    }
-//checking if the new email is unique in the database.
-    if (email) {
-        const existingUser = await userService.findByEmail(email);
-        
-        if (existingUser && existingUser._id !== id) {
-            return res.status(400).send({ message: "The provided email is already in use" });
-        }
-    }
+    const id = req.id;
 
     await userService.update(
         id,
