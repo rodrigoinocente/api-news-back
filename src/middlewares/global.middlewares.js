@@ -1,40 +1,46 @@
-const userService = require("../services/user.service");
-const mongoose = require("mongoose");
+import userService from "../services/user.service.js";
+import mongoose from "mongoose";
 
 const validId = (req, res, next) => {
-    const id = req.params.id;
+    try {
+        const id = req.params.id;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(400).send({ message: "Invalid ID" });
-    }
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).send({ message: "Invalid ID" });
+        }
 
-    next();
+        next();
+    } catch (err) { res.status(500).send({ message: err.message }) }
 };
 
 const validUser = async (req, res, next) => {
-    const id = req.params.id;
+    try {
+        const id = req.params.id;
 
-    const user = await userService.findById(id);
+        const user = await userService.findById(id);
 
-    if (!user) {
-        return res.status(400).send({ message: "User not found by ID" });
-    }
+        if (!user) {
+            return res.status(400).send({ message: "User not found by ID" });
+        }
 
-    req.id = id;
-    req.user = user;
-    next();
+        req.id = id;
+        req.user = user;
+        next();
+    } catch (err) { res.status(500).send({ message: err.message }) }
 };
 
 //Error handling: if the email already has a registration
 const validEmail = async (req, res, next) => {
-    const { email } = req.body;
+    try {
+        const { email } = req.body;
 
-    const existingEmail = await userService.findByEmail(email);
-    if (existingEmail) {
-        return res.status(400).send({ message: "The provided email is already in use" });
-    }
+        const existingEmail = await userService.findByEmail(email);
+        if (existingEmail) {
+            return res.status(400).send({ message: "The provided email is already in use" });
+        }
 
-    next();
+        next();
+    } catch (err) { res.status(500).send({ message: err.message }) }
 }
 
-module.exports = { validId, validUser, validEmail };
+export { validId, validUser, validEmail };

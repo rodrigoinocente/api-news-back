@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Starting with MERN",
   "main": "index.js",
+  "type" : "module",
   "scripts": {
     "start": "node index",
     "dev": "nodemon index"
