@@ -19,7 +19,9 @@ const loginService = async (req, res) => {
             return res.status(404).send({ message: "Email or Password not found" });
         }
 
-        res.send("Login ok");
+        const token = authService.generateToken(user.id);
+
+        res.send({token});
     } catch (err) { res.status(500).send(err.message); }
 };
 
