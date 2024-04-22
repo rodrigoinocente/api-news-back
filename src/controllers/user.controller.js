@@ -8,7 +8,7 @@ const create = async (req, res) => {
             res.status(400).send({ message: "Submit all fields for registration" });
         }
 
-        const user = await userService.create(req.body);
+        const user = await userService.createService(req.body);
 
         if (!user) {
             return res.status(400).send({ message: "Error creating User" });
@@ -28,7 +28,7 @@ const create = async (req, res) => {
 
 const findAllUser = async (req, res) => {
     try {
-        const users = await userService.findAllUser();
+        const users = await userService.findAllUserService();
 
         if (users.length === 0) {
             return res.status(400).send({ message: "There are no registered users" });
@@ -42,7 +42,7 @@ const findByEmail = async (req, res) => {
     try {
         const email = req.params.email;
 
-        const user = await userService.findByEmail(email);
+        const user = await userService.findByEmailService(email);
 
         if (!user) {
             return res.status(400).send({ message: "User not found by email" });
@@ -69,7 +69,7 @@ const update = async (req, res) => {
 
         const id = req.id;
 
-        await userService.update(
+        await userService.updateService(
             id,
             name,
             username,

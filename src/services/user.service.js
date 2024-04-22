@@ -1,14 +1,14 @@
 import User from "../models/User.js"
 
-const create = (body) => User.create(body);
+const createService = (body) => User.create(body);
 
-const findAllUser = () => User.find();
+const findAllUserService = () => User.find();
 
-const findByEmail = (email) => User.findOne().where("email").equals(email);
+const findByEmailService = (email) => User.findOne({email: email});
 
-const findById = (id) => User.findById(id);
+const findByIdService = (id) => User.findById(id);
 
-const update = (id,
+const updateService = (id,
     name,
     username,
     email,
@@ -17,9 +17,9 @@ const update = (id,
         { name, username, email, password }
     );
 
-export default { create, 
-    findAllUser, 
-    findByEmail, 
-    findById, 
-    update 
+export default { createService, 
+    findAllUserService, 
+    findByEmailService, 
+    findByIdService, 
+    updateService 
 };

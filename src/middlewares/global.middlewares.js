@@ -17,7 +17,7 @@ const validUser = async (req, res, next) => {
     try {
         const id = req.params.id;
 
-        const user = await userService.findById(id);
+        const user = await userService.findByIdService(id);
 
         if (!user) {
             return res.status(400).send({ message: "User not found by ID" });
@@ -34,7 +34,7 @@ const validEmail = async (req, res, next) => {
     try {
         const { email } = req.body;
 
-        const existingEmail = await userService.findByEmail(email);
+        const existingEmail = await userService.findByEmailService(email);
         if (existingEmail) {
             return res.status(400).send({ message: "The provided email is already in use" });
         }
