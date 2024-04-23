@@ -16,20 +16,26 @@ const create = async (req, res) => {
         });
 
         res.sendStatus(201);
-    } catch (err) {
-        res.sendStatus(500).send({ message: err.message });
-    }
 
-}
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    };
+};
 
 const findAll = async (req, res) => {
-    const news = await newsService.findAllService();
+    try {
+        const news = await newsService.findAllService();
 
-    if (news.length === 0) {
-        return res.status(400).send({ message: "There are no registered news" });
-    }
-    res.send(news)
-}
+        if (news.length === 0) {
+            return res.status(400).send({ message: "There are no registered news" });
+        }
+
+        res.send(news);
+
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    };
+};
 
 export default {
     create,

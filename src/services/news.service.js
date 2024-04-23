@@ -7,4 +7,4 @@ const findAllService = () => News.find();
 export default {
     createService,
     findAllService
-}
+};

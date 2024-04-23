@@ -3,7 +3,6 @@ import userService from "../services/user.service.js";
 
 
 const authMiddleware = (req, res, next) => {
-
     try {
         const { authorization } = req.headers;
 
@@ -35,11 +34,13 @@ const authMiddleware = (req, res, next) => {
             }
 
             req.userId = user.id;
-            
-            next();
-        });
 
-    } catch (err) { res.status(500).send({ message: err.message }) };
+            next();
+
+        });
+    } catch (err) { 
+        res.status(500).send({ message: err.message }); 
+    };
 };
 
 export { authMiddleware };

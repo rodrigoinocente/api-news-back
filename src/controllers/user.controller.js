@@ -1,4 +1,4 @@
-import userService from "../services/user.service.js"
+import userService from "../services/user.service.js";
 
 const create = async (req, res) => {
     try {
@@ -23,8 +23,10 @@ const create = async (req, res) => {
                 email
             }
         });
-    } catch (err) { res.status(500).send({ message: err.message }) }
-}
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    };
+};
 
 const findAllUser = async (req, res) => {
     try {
@@ -35,13 +37,15 @@ const findAllUser = async (req, res) => {
         }
 
         res.send(users);
-    } catch (err) { res.status(500).send({ message: err.message }) }
-}
+
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    };
+};
 
 const findByEmail = async (req, res) => {
     try {
         const email = req.params.email;
-
         const user = await userService.findByEmailService(email);
 
         if (!user) {
@@ -49,15 +53,21 @@ const findByEmail = async (req, res) => {
         }
 
         res.send(user);
-    } catch (err) { res.status(500).send({ message: err.message }) }
-}
+
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    };
+};
 
 const findById = async (req, res) => {
     try {
         const user = req.user;
         res.send(user);
-    } catch (err) { res.status(500).send({ message: err.message }) }
-}
+
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    };
+};
 
 const update = async (req, res) => {
     try {
@@ -78,12 +88,16 @@ const update = async (req, res) => {
         );
 
         res.send({ message: "User successfully updated" });
-    } catch (err) { res.status(500).send({ message: err.message }) }
+
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    };
 };
 
-export default { create, 
-    findAllUser, 
-    findByEmail, 
-    findById, 
+export default {
+    create,
+    findAllUser,
+    findByEmail,
+    findById,
     update
- };
+};

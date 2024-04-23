@@ -10,7 +10,6 @@ const loginService = async (req, res) => {
 
         if (!user) {
             return res.status(400).send({ message: "Email or Password not found" });
-
         }
 
         const passwordIsValid = await bcrypt.compare(password, user.password);
@@ -21,8 +20,11 @@ const loginService = async (req, res) => {
 
         const token = authService.generateToken(user.id);
 
-        res.send({token});
-    } catch (err) { res.status(500).send(err.message); }
+        res.send({ token });
+
+    } catch (err) {
+        res.status(500).send(err.message);
+    };
 };
 
 export default { loginService };
