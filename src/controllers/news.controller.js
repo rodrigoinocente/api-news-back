@@ -38,7 +38,7 @@ const findAll = async (req, res) => {
         }
 
         const news = await newsService.findAllService(offset, limit);
-        const total = await newsService.countNews();
+        const total = await newsService.countNewsService();
         const currentUrl = req.baseUrl;
 
         const next = offset + limit;
@@ -99,8 +99,87 @@ const topNews = async (req, res) => {
     };
 };
 
+const findById = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const news = await newsService.findByIdService(id);
+
+        return res.send({
+            news: {
+                id: news._id,
+                title: news.title,
+                text: news.text,
+                banner: news.banner,
+                likes: news.likes,
+                comments: news.comments,
+                name: news.user.name,
+                userName: news.user.username,
+            },
+        });
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    };
+};
+
+const searchByTitle = async (req, res) => {
+    try {
+        const { title } = req.query;
+
+        const news = await newsService.searchByTitleService(title);
+
+        if (news.length === 0) {
+            return res.status(400).send({ message: "There are no posts with this title" });
+        }
+
+        return res.send({
+            news: {
+                results: news.map((item) => ({
+                    id: item._id,
+                    title: item.title,
+                    text: item.text,
+                    banner: item.banner,
+                    likes: item.likes,
+                    comments: item.comments,
+                    name: item.user.name,
+                    userName: item.user.username,
+                })),
+            }
+        });
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    };
+};
+
+const byUser = async (req,res) => {
+    try {
+        const id = req.userId;
+        const news = await newsService.byUserService(id);
+
+        return res.send({
+            news: {
+                    results: news.map((item) => ({
+                    id: item._id,
+                    title: item.title,
+                    text: item.text,
+                    banner: item.banner,
+                    likes: item.likes,
+                    comments: item.comments,
+                    name: item.user.name,
+                    userName: item.user.username,
+                })),
+            }
+        });
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    };
+};
+
 export default {
     create,
     findAll,
-    topNews
+    topNews,
+    findById,
+    searchByTitle,
+    byUser
 };
