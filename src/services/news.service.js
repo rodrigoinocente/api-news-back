@@ -14,7 +14,13 @@ const searchByTitleService = (title) => News.find({ title: { $regex: `${title ||
     .sort({ _id: -1 })
     .populate("user");
 
-const byUserService = (id) => News.find({user: id}).sort({ _id: -1 }).populate("user");  
+const byUserService = (id) => News.find({ user: id }).sort({ _id: -1 }).populate("user");
+
+const upDateService = (id, title, text, banner) => News.findOneAndUpdate({ _id: id },
+    { title, text, banner },
+    { rawResult: true, });
+
+const eraseService = (id) => News.findOneAndDelete({ _id: id });
 
 export default {
     createService,
@@ -23,5 +29,7 @@ export default {
     topNewsService,
     findByIdService,
     searchByTitleService,
-    byUserService
+    byUserService,
+    upDateService,
+    eraseService
 };

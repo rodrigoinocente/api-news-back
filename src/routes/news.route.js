@@ -11,6 +11,8 @@ route.get("/top", newsController.topNews);
 route.get("/id/:id", authMiddleware, newsController.findById);
 route.get("/search", newsController.searchByTitle);
 route.get("/byUser", authMiddleware, newsController.byUser);
+route.patch("/:id", authMiddleware, newsController.upDate);
+route.delete("/:id", authMiddleware, newsController.erase);
 
 
 export default route;
