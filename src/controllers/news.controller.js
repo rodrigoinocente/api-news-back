@@ -226,6 +226,68 @@ const erase = async (req, res) => {
     };
 };
 
+const likeNews = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.userId;
+
+        const newsLiked = await newsService.likeNewsService(id, userId);
+
+        if (!newsLiked) {
+            await newsService.deletelikeNewsService(id, userId);
+            return res.status(200).send({ message: "Like successfully removed" });
+        }
+
+        res.send({ message: "Like done successfully" });
+
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    };
+};
+
+const addComment = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.userId;
+        const { comment } = req.body;
+
+        if (!comment) {
+            return res.status(400).send({ message: "Write a message to comment" });
+        }
+
+        await newsService.addCommentService(id, userId, comment);
+
+        res.send({ message: "Comment successfully completed" });
+
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    };
+};
+
+const deleteComment = async (req, res) => {
+    try {
+        const { id, idComment } = req.params;
+        const userId = req.userId;
+        
+        const commentDeleted = await newsService.deleteCommentService(id, idComment, userId);
+
+        const findComment = commentDeleted.comments.find((comment) => comment.idComment === idComment);
+
+        if(!findComment){
+            return res.status(404).send({message: "Comment not found"});
+        }
+
+        if (findComment.userId !== userId) {
+            return res.status(400).send({ message: "You can't delete this comment" });
+        }
+
+        res.send({ message: "Comment successfully removed" });
+
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    };
+};
+
 export default {
     create,
     findAll,
@@ -234,5 +296,8 @@ export default {
     searchByTitle,
     byUser,
     upDate,
-    erase
+    erase,
+    likeNews,
+    addComment,
+    deleteComment
 };

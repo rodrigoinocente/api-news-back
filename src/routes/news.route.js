@@ -13,6 +13,9 @@ route.get("/search", newsController.searchByTitle);
 route.get("/byUser", authMiddleware, newsController.byUser);
 route.patch("/:id", authMiddleware, newsController.upDate);
 route.delete("/:id", authMiddleware, newsController.erase);
+route.patch("/like/:id", authMiddleware, newsController.likeNews);
+route.patch("/comment/:id", authMiddleware, newsController.addComment);
+route.patch("/comment/:id/:idComment", authMiddleware, newsController.deleteComment);
 
 
 export default route;
