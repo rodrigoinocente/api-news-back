@@ -245,6 +245,25 @@ const likeNews = async (req, res) => {
     };
 };
 
+const likeComment = async (req, res) => {
+    try {
+        const { id, idComment } = req.params;
+        const userId = req.userId;
+
+        const commentLiked = await newsService.likeCommentService(id, idComment, userId);
+
+        if (!commentLiked) {
+            await newsService.deletelikeCommentService(id, idComment, userId);
+            return res.status(200).send({ message: "Like successfully removed" });
+        }
+
+        res.send({ message: "Like done successfully" });
+
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    };
+};
+
 const addComment = async (req, res) => {
     try {
         const { id } = req.params;
@@ -268,13 +287,13 @@ const deleteComment = async (req, res) => {
     try {
         const { id, idComment } = req.params;
         const userId = req.userId;
-        
+
         const commentDeleted = await newsService.deleteCommentService(id, idComment, userId);
 
         const findComment = commentDeleted.comments.find((comment) => comment.idComment === idComment);
 
-        if(!findComment){
-            return res.status(404).send({message: "Comment not found"});
+        if (!findComment) {
+            return res.status(404).send({ message: "Comment not found" });
         }
 
         if (findComment.userId !== userId) {
@@ -282,6 +301,50 @@ const deleteComment = async (req, res) => {
         }
 
         res.send({ message: "Comment successfully removed" });
+
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    };
+};
+
+const addReplyToComment = async (req, res) => {
+    try {
+        const { id, idComment } = req.params;
+        const userId = req.userId;
+        const { reply } = req.body;
+
+        if (!reply) {
+            return res.status(400).send({ message: "Write a message to comment" });
+        }
+
+        const newReply = await newsService.addReplyToCommentService(id, idComment, userId, reply);
+
+        res.send({ message: "Reply successfully completed" });
+
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    };
+};
+
+const deleteReply = async (req, res) => {
+    try {
+        const { id, idComment, idReply } = req.params;
+        const userId = req.userId;
+
+        const replyDeleted = await newsService.deleteReplyService(id, idComment, idReply, userId);
+
+        const findReply = replyDeleted.comments.find(
+            comment => comment.idComment === idComment && comment.replies.some(reply => reply.idReply === idReply));
+
+        if (!findReply) {
+            return res.status(404).send({ message: "Reply not found" });
+        }
+
+        if (findReply.userId !== userId) {
+            return res.status(400).send({ message: "You can't delete this reply" });
+        }
+
+        res.send({ message: "Reply successfully removed" });
 
     } catch (err) {
         res.status(500).send({ message: err.message });
@@ -299,5 +362,8 @@ export default {
     erase,
     likeNews,
     addComment,
-    deleteComment
+    deleteComment,
+    addReplyToComment,
+    deleteReply,
+    likeComment
 };

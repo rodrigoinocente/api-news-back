@@ -27,14 +27,33 @@ const likeNewsService = (id, userId) => News.findOneAndUpdate(
 
 const deletelikeNewsService = (id, userId) => News.findOneAndUpdate({ _id: id }, { $pull: { likes: { userId } } });
 
+const likeCommentService = (id, idComment, userId) => News.findOneAndUpdate(
+    { _id: id, "comments.idComment": idComment, "comments.likes.userId": { $nin: [userId] } },
+    { $push: { "comments.$.likes": { userId, created: new Date() } } });
+
+const deletelikeCommentService = (id, idComment, userId) => News.findOneAndUpdate(
+    { _id: id, "comments.idComment": idComment }, { $pull: { "comments.$.likes": { userId } } });
+
 const addCommentService = (id, userId, comment) => {
     const idComment = Math.floor(Date.now() * Math.random()).toString(36);
     const createdAt = new Date();
     return News.findOneAndUpdate({ _id: id }, { $push: { comments: { idComment, userId, comment, createdAt } } });
 };
 
-const deleteCommentService = (id, idComment, userId) => News.findOneAndUpdate({ _id: id }, 
+const deleteCommentService = (id, idComment, userId) => News.findOneAndUpdate({ _id: id },
     { $pull: { comments: { idComment, userId } } });
+
+const addReplyToCommentService = (id, idComment, userId, reply) => {
+    const idReply = Math.floor(Date.now() * Math.random()).toString(36);
+    const createdAt = new Date();
+    return News.findOneAndUpdate(
+        { _id: id, "comments.idComment": idComment },
+        { $push: { "comments.$.replies": { idReply, userId, reply, createdAt } } }
+    );
+};
+
+const deleteReplyService = (id, idComment, idReply, userId) => News.findOneAndUpdate({ _id: id, "comments.idComment": idComment },
+    { $pull: { "comments.$.replies": { idReply, userId } } });
 
 export default {
     createService,
@@ -47,7 +66,11 @@ export default {
     upDateService,
     eraseService,
     likeNewsService,
+    likeCommentService,
+    deletelikeCommentService,
     deletelikeNewsService,
     addCommentService,
-    deleteCommentService
+    deleteCommentService,
+    addReplyToCommentService,
+    deleteReplyService
 };
