@@ -13,21 +13,32 @@ const NewsSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    createdAt: {
-        type: Date,
-        default: Date.now(),
-    },
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
-        required: true
-    },
-    likes: {
-        type: Array,
         required: true,
     },
-    comments: {
-        type: Array,
+    dataLikes: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "LikesNews",
+        default: null,
+    },
+    likeCount: {
+        type: Number,
+        default: 1,
+    },
+    dataComments: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "CommentsNews",
+        default: null,
+    },
+    commentsCount: {
+        type: Number,
+        default: 0,
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now(),
         required: true,
     },
 });

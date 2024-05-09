@@ -4,11 +4,11 @@ const create = async (req, res) => {
     try {
         const { title, text, banner } = req.body;
 
-        if (!title || !text || !banner) {
+        if (!title && !text && !banner) {
             return res.status(400).send({ message: "Submit all fields for registration" });
         }
 
-        await newsService.createService({
+        await newsService.createNewsService({
             title,
             text,
             banner,
@@ -37,7 +37,7 @@ const findAll = async (req, res) => {
             offset = 0;
         }
 
-        const news = await newsService.findAllService(offset, limit);
+        const news = await newsService.findAllNewsService(offset, limit);
         const total = await newsService.countNewsService();
         const currentUrl = req.baseUrl;
 
@@ -228,13 +228,21 @@ const erase = async (req, res) => {
 
 const likeNews = async (req, res) => {
     try {
-        const { id } = req.params;
-        const userId = req.userId;
+        let { newsId } = req.params;
+        let userId = req.userId;
+        const news = await newsService.findByIdService(newsId);
 
-        const newsLiked = await newsService.likeNewsService(id, userId);
+        if (!news.dataLikes) {
+            const newDataLike = await newsService.createDataLikesService(newsId, userId);
+            await newsService.updateDataLikesService(newsId, newDataLike._id);
+
+            return res.send({ message: "Like done successfully" });
+        }
+
+        const newsLiked = await newsService.likeNewsService(news.dataLikes, userId);
 
         if (!newsLiked) {
-            await newsService.deletelikeNewsService(id, userId);
+            await newsService.deletelikeNewsService(news.dataLikes, userId);
             return res.status(200).send({ message: "Like successfully removed" });
         }
 

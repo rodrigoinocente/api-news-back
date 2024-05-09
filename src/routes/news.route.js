@@ -13,7 +13,7 @@ route.get("/search", newsController.searchByTitle);
 route.get("/byUser", authMiddleware, newsController.byUser);
 route.patch("/:id", authMiddleware, newsController.upDate);
 route.delete("/:id", authMiddleware, newsController.erase);
-route.patch("/like/:id", authMiddleware, newsController.likeNews);
+route.patch("/like/:newsId", authMiddleware, newsController.likeNews);
 route.patch("/like/:id", authMiddleware, newsController.likeNews);
 route.patch("/like/:id/:idComment", authMiddleware, newsController.likeComment);
 route.patch("/comment/:id", authMiddleware, newsController.addComment);
