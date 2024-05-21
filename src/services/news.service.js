@@ -1,27 +1,29 @@
 import { NewsModel } from "../database/db.js";
+import { UserModel } from "../database/db.js";
 import LikesNews from "../models/LikesNews.js";
 
 const createNewsService = (body) => NewsModel.create(body);
 
-const findAllNewsService = (offset, limit) => News.find().sort({ _id: -1 }).skip(offset).limit(limit).populate("user");
+const findAllNewsService = (offset, limit) => NewsModel.find().sort({ _id: -1 }).skip(offset).limit(limit)
+    .populate({ path: "user", model: UserModel });
 
-const countNewsService = () => News.countDocuments();
+const countNewsService = () => NewsModel.countDocuments();
 
-const topNewsService = () => News.findOne().sort({ _id: -1 }).populate("user");
+const topNewsService = () => NewsModel.findOne().sort({ _id: -1 }).populate({ path: "user", model: UserModel });
 
-const findByIdService = (idNews) => News.findById(idNews).populate("user");
+const findByIdService = (idNews) => NewsModel.findById(idNews).populate({ path: "user", model: UserModel });
 
-const searchByTitleService = (title) => News.find({ title: { $regex: `${title || ""}`, $options: "i" } })
+const searchByTitleService = (title) => NewsModel.find({ title: { $regex: `${title || ""}`, $options: "i" } })
     .sort({ _id: -1 })
-    .populate("user");
+    .populate({ path: "user", model: UserModel });
 
-const byUserService = (id) => News.find({ user: id }).sort({ _id: -1 }).populate("user");
+const newsByUserService = (userId) => NewsModel.find({ user: userId }).sort({ _id: -1 }).populate({ path: "user", model: UserModel });
 
-const upDateService = (id, title, text, banner) => News.findOneAndUpdate({ _id: id },
+const upDateService = (newsId, title, text, banner) => NewsModel.findOneAndUpdate({ _id: newsId },
     { title, text, banner },
     { rawResult: true, });
 
-const eraseService = (id) => News.findOneAndDelete({ _id: id });
+const eraseService = (newsId) => NewsModel.findOneAndDelete({ _id: newsId });
 
 const createDataLikesService = (newsId, userId) => LikesNews.create({ newsId, likes: { userId } });
 
@@ -68,7 +70,7 @@ export default {
     topNewsService,
     findByIdService,
     searchByTitleService,
-    byUserService,
+    newsByUserService,
     upDateService,
     eraseService,
     likeNewsService,

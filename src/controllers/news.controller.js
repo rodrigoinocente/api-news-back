@@ -59,7 +59,7 @@ const findAll = async (req, res) => {
             total,
 
             results: news.map((item) => ({
-                id: item._id,
+                newsId: item._id,
                 title: item.title,
                 text: item.text,
                 banner: item.banner,
@@ -80,7 +80,7 @@ const topNews = async (req, res) => {
 
         res.send({
             news: {
-                id: news._id,
+                newsId: news._id,
                 title: news.title,
                 text: news.text,
                 banner: news.banner,
@@ -97,9 +97,9 @@ const topNews = async (req, res) => {
 
 const findById = async (req, res) => {
     try {
-        const { id } = req.params;
+        const { newsId } = req.params;
 
-        const news = await newsService.findByIdService(id);
+        const news = await newsService.findByIdService(newsId);
 
         if (!news) {
             return res.send({ message: "News not found" });
@@ -107,7 +107,7 @@ const findById = async (req, res) => {
 
         return res.send({
             news: {
-                id: news._id,
+                newsId: news._id,
                 title: news.title,
                 text: news.text,
                 banner: news.banner,
@@ -135,7 +135,7 @@ const searchByTitle = async (req, res) => {
         return res.send({
             news: {
                 results: news.map((item) => ({
-                    id: item._id,
+                    newsId: item._id,
                     title: item.title,
                     text: item.text,
                     banner: item.banner,
@@ -151,10 +151,10 @@ const searchByTitle = async (req, res) => {
     };
 };
 
-const byUser = async (req, res) => {
+const newsByUser = async (req, res) => {
     try {
-        const id = req.userId;
-        const news = await newsService.byUserService(id);
+        const userId = req.userId;
+        const news = await newsService.newsByUserService(userId);
 
         return res.send({
             news: {
@@ -178,14 +178,14 @@ const byUser = async (req, res) => {
 const upDate = async (req, res) => {
     try {
         const { title, text, banner } = req.body;
-        const { id } = req.params;
+        const { newsId } = req.params;
 
 
         if (!title && !text && !banner) {
             return res.status(400).send({ message: "Submit at least one fields to update the post" });
         }
 
-        const news = await newsService.findByIdService(id);
+        const news = await newsService.findByIdService(newsId);
 
         if (!news) {
             return res.send({ message: "News not found" });
@@ -195,7 +195,7 @@ const upDate = async (req, res) => {
             return res.status(400).send({ message: "You didn't update this post" });
         }
 
-        await newsService.upDateService(id, title, text, banner);
+        await newsService.upDateService(newsId, title, text, banner);
 
         return res.send({ message: "Post successfully updated" });
 
@@ -206,8 +206,8 @@ const upDate = async (req, res) => {
 
 const erase = async (req, res) => {
     try {
-        const { id } = req.params;
-        const news = await newsService.findByIdService(id);
+        const { newsId } = req.params;
+        const news = await newsService.findByIdService(newsId);
 
         if (!news) {
             return res.send({ message: "News not found" });
@@ -217,7 +217,7 @@ const erase = async (req, res) => {
             return res.status(400).send({ message: "You didn't delete this post" });
         }
 
-        await newsService.eraseService(id);
+        await newsService.eraseService(newsId);
 
         return res.send({ message: "Post deleted successfully" });
 
@@ -365,7 +365,7 @@ export default {
     topNews,
     findById,
     searchByTitle,
-    byUser,
+    newsByUser,
     upDate,
     erase,
     likeNews,
