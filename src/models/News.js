@@ -20,16 +20,16 @@ const NewsSchema = new mongoose.Schema({
     },
     dataLikes: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "LikesNews",
+        ref: "",
         default: null,
     },
     likeCount: {
         type: Number,
-        default: 1,
+        default: 0,
     },
     dataComments: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "CommentsNews",
+        ref: "",
         default: null,
     },
     commentsCount: {
@@ -43,6 +43,4 @@ const NewsSchema = new mongoose.Schema({
     },
 });
 
-const News = mongoose.model("News", NewsSchema);
-
-export default News;
+export default NewsSchema;

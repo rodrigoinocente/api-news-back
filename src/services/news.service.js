@@ -1,7 +1,7 @@
-import News from "../models/News.js";
+import { NewsModel } from "../database/db.js";
 import LikesNews from "../models/LikesNews.js";
 
-const createNewsService = (body) => News.create(body);
+const createNewsService = (body) => NewsModel.create(body);
 
 const findAllNewsService = (offset, limit) => News.find().sort({ _id: -1 }).skip(offset).limit(limit).populate("user");
 
@@ -31,7 +31,7 @@ const updateDataLikesService = (newsId, likesId) => News.findOneAndUpdate(
 const likeNewsService = (likesId, userId) => LikesNews.findOneAndUpdate(
     { _id: likesId, likes: { $nin: { userId } } }, { $push: { likes: { userId } } });
 
-const deletelikeNewsService = (likesId, userId) => LikesNews.findOneAndUpdate({ _id: likesId }, { $pull: { likes: {userId} } });
+const deletelikeNewsService = (likesId, userId) => LikesNews.findOneAndUpdate({ _id: likesId }, { $pull: { likes: { userId } } });
 
 const likeCommentService = (id, idComment, userId) => News.findOneAndUpdate(
     { _id: id, "comments.idComment": idComment, "comments.likes.userId": { $nin: [userId] } },

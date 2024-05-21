@@ -1,25 +1,26 @@
-import User from "../models/User.js";
+import { UserModel } from "../database/db.js";
 
-const createService = (body) => User.create(body);
+const createService = (body) => UserModel.create(body);
 
-const findAllUserService = () => User.find();
+const findAllUserService = () => UserModel.find();
 
-const findByEmailService = (email) => User.findOne({email: email});
+const findByEmailService = (email) => UserModel.findOne({ email: email });
 
-const findByIdService = (id) => User.findById(id);
+const findByIdService = (userId) => UserModel.findById(userId);
 
-const updateService = (id,
+const updateService = (userId,
     name,
     username,
     email,
-    password) => User.findOneAndUpdate(
-        { _id: id },
+    password) => UserModel.findOneAndUpdate(
+        { _id: userId },
         { name, username, email, password }
     );
 
-export default { createService, 
-    findAllUserService, 
-    findByEmailService, 
-    findByIdService, 
-    updateService 
+export default {
+    createService,
+    findAllUserService,
+    findByEmailService,
+    findByIdService,
+    updateService
 };

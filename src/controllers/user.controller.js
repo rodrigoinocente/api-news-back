@@ -1,6 +1,6 @@
 import userService from "../services/user.service.js";
 
-const create = async (req, res) => {
+const createUser = async (req, res) => {
     try {
         const { name, username, email, password } = req.body;
 
@@ -8,16 +8,16 @@ const create = async (req, res) => {
             return res.status(400).send({ message: "Submit all fields for registration" });
         }
 
-        const user = await userService.createService(req.body);
+        const createdUser = await userService.createService(req.body);
 
-        if (!user) {
+        if (!createdUser) {
             return res.status(400).send({ message: "Error creating User" });
         }
 
         res.status(201).send({
             message: "User created successfully",
             user: {
-                id: user._id,
+                id: createdUser._id,
                 name,
                 username,
                 email
@@ -77,10 +77,10 @@ const update = async (req, res) => {
             return res.status(400).send({ message: "Submit at least one fields for update" });
         }
 
-        const id = req.id;
+        const userId = req.userId;
 
         await userService.updateService(
-            id,
+            userId,
             name,
             username,
             email,
@@ -95,7 +95,7 @@ const update = async (req, res) => {
 };
 
 export default {
-    create,
+    createUser,
     findAllUser,
     findByEmail,
     findById,

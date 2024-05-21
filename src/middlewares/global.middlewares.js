@@ -3,9 +3,9 @@ import mongoose from "mongoose";
 
 const validId = (req, res, next) => {
     try {
-        const id = req.params.id;
+        const userId = req.params.userId;
 
-        if (!mongoose.Types.ObjectId.isValid(id)) {
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
             return res.status(400).send({ message: "Invalid ID" });
         }
 
@@ -18,15 +18,15 @@ const validId = (req, res, next) => {
 
 const validUser = async (req, res, next) => {
     try {
-        const id = req.params.id;
+        const userId = req.params.userId;
 
-        const user = await userService.findByIdService(id);
+        const user = await userService.findByIdService(userId);
 
         if (!user) {
             return res.status(400).send({ message: "User not found by ID" });
         }
 
-        req.id = id;
+        req.userId = userId;
         req.user = user;
         next();
 

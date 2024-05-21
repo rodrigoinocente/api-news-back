@@ -1,11 +1,12 @@
 import mongoose from "mongoose";
+import dotenv from 'dotenv';
+dotenv.config();
 
-const connectDatabase = () => {
-    console.log("Wait connecting to the Database");
+import UserSchema from "../models/User.js"
+import NewsSchema from "../models/News.js"
 
-    mongoose.connect(process.env.MONGOBD_URI)
-        .then(() => console.log("MongoDB Atlas Connected"))
-        .catch((error) => console.log(error))
-};
+const userConn = mongoose.createConnection(process.env.MONGODB_URI_USERS);
+const newsConn = mongoose.createConnection(process.env.MONGODB_URI_NEWS);
 
-export default connectDatabase;
+export const UserModel = userConn.model("User", UserSchema, "users");
+export const NewsModel = newsConn.model("News", NewsSchema, "news");

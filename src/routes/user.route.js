@@ -4,10 +4,10 @@ import { validId, validUser, validEmail } from "../middlewares/global.middleware
 
 const route = Router();
 
-route.post("/", validEmail, userController.create);
-route.patch("/:id", validId, validEmail, validUser, userController.update);
+route.post("/", validEmail, userController.createUser);
+route.patch("/:userId", validId, validEmail, validUser, userController.update);
 route.get("/", userController.findAllUser);
 route.get("/email/:email", userController.findByEmail);
-route.get("/id/:id", validId, validUser, userController.findById);
+route.get("/id/:userId", validId, validUser, userController.findById);
 
 export default route;
