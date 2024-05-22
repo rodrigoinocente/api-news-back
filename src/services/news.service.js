@@ -1,6 +1,5 @@
-import { NewsModel } from "../database/db.js";
-import { UserModel } from "../database/db.js";
-import LikesNews from "../models/LikesNews.js";
+import { NewsModel, UserModel, LikeNewsModel } from "../database/db.js";
+import LikesNews from "../models/LikeNews.js";
 
 const createNewsService = (body) => NewsModel.create(body);
 
@@ -25,15 +24,15 @@ const upDateService = (newsId, title, text, banner) => NewsModel.findOneAndUpdat
 
 const eraseService = (newsId) => NewsModel.findOneAndDelete({ _id: newsId });
 
-const createDataLikesService = (newsId, userId) => LikesNews.create({ newsId, likes: { userId } });
+const createDataLikeService = (newsId, userId) => LikeNewsModel.create({ newsId, likes: { userId } });
 
-const updateDataLikesService = (newsId, likesId) => News.findOneAndUpdate(
-    { _id: newsId }, { $set: { dataLikes: likesId } });
+const updateDataLikeService = (newsId, dataLike) => NewsModel.findOneAndUpdate(
+    { _id: newsId }, { $set: { dataLike: dataLike } });
 
-const likeNewsService = (likesId, userId) => LikesNews.findOneAndUpdate(
+const likeNewsService = (likesId, userId) => LikeNewsModel.findOneAndUpdate(
     { _id: likesId, likes: { $nin: { userId } } }, { $push: { likes: { userId } } });
 
-const deletelikeNewsService = (likesId, userId) => LikesNews.findOneAndUpdate({ _id: likesId }, { $pull: { likes: { userId } } });
+const deletelikeNewsService = (likesId, userId) => LikeNewsModel.findOneAndUpdate({ _id: likesId }, { $pull: { likes: { userId } } });
 
 const likeCommentService = (id, idComment, userId) => News.findOneAndUpdate(
     { _id: id, "comments.idComment": idComment, "comments.likes.userId": { $nin: [userId] } },
@@ -81,6 +80,6 @@ export default {
     deleteCommentService,
     addReplyToCommentService,
     deleteReplyService,
-    createDataLikesService,
-    updateDataLikesService
+    createDataLikeService,
+    updateDataLikeService
 };

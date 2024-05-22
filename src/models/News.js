@@ -18,21 +18,21 @@ const NewsSchema = new mongoose.Schema({
         ref: "User",
         required: true,
     },
-    dataLikes: {
+    dataLike: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "",
+        ref: "LikeNews",
         default: null,
     },
     likeCount: {
         type: Number,
         default: 0,
     },
-    dataComments: {
+    dataComment: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "",
         default: null,
     },
-    commentsCount: {
+    commentCount: {
         type: Number,
         default: 0,
     },

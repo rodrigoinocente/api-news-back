@@ -232,17 +232,17 @@ const likeNews = async (req, res) => {
         let userId = req.userId;
         const news = await newsService.findByIdService(newsId);
 
-        if (!news.dataLikes) {
-            const newDataLike = await newsService.createDataLikesService(newsId, userId);
-            await newsService.updateDataLikesService(newsId, newDataLike._id);
+        if (!news.dataLike) {
+            const newDataLike = await newsService.createDataLikeService(newsId, userId);
+            await newsService.updateDataLikeService(newsId, newDataLike._id);
 
             return res.send({ message: "Like done successfully" });
         }
 
-        const newsLiked = await newsService.likeNewsService(news.dataLikes, userId);
+        const newsLiked = await newsService.likeNewsService(news.dataLike, userId);
 
         if (!newsLiked) {
-            await newsService.deletelikeNewsService(news.dataLikes, userId);
+            await newsService.deletelikeNewsService(news.dataLike, userId);
             return res.status(200).send({ message: "Like successfully removed" });
         }
 

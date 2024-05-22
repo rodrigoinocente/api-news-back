@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const LikesSchema = new mongoose.Schema({
+const LikeNewsSchema = new mongoose.Schema({
     newsId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "News",
@@ -27,6 +27,4 @@ const LikesSchema = new mongoose.Schema({
     },
 });
 
-const LikesNews = mongoose.model("LikesNews", LikesSchema);
-
-export default LikesNews;
+export default LikeNewsSchema;
