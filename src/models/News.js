@@ -29,7 +29,7 @@ const NewsSchema = new mongoose.Schema({
     },
     dataComment: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "",
+        ref: "CommentDataList",
         default: null,
     },
     commentCount: {

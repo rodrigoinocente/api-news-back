@@ -228,19 +228,16 @@ const erase = async (req, res) => {
 
 const likeNews = async (req, res) => {
     try {
-        let { newsId } = req.params;
-        let userId = req.userId;
+        const { newsId } = req.params;
+        const userId = req.userId;
+
         const news = await newsService.findByIdService(newsId);
-
         if (!news.dataLike) {
-            const newDataLike = await newsService.createDataLikeService(newsId, userId);
-            await newsService.updateDataLikeService(newsId, newDataLike._id);
-
+            await newsService.createDataLikeService(newsId, userId);
             return res.send({ message: "Like done successfully" });
         }
 
         const newsLiked = await newsService.likeNewsService(news.dataLike, userId);
-
         if (!newsLiked) {
             await newsService.deletelikeNewsService(news.dataLike, userId);
             return res.status(200).send({ message: "Like successfully removed" });
@@ -274,16 +271,21 @@ const likeComment = async (req, res) => {
 
 const addComment = async (req, res) => {
     try {
-        const { id } = req.params;
-        const userId = req.userId;
+        let { newsId } = req.params;
+        let userId = req.userId;
         const { comment } = req.body;
 
-        if (!comment) {
-            return res.status(400).send({ message: "Write a message to comment" });
+        if (!comment) return res.status(400).send({ message: "Write a message to comment" });
+
+        const newCommentData = await newsService.createCommentService(newsId, userId, comment);
+
+        const news = await newsService.findByIdService(newsId);
+        if (!news.dataComment) {
+            await newsService.createDataCommentListService(newsId, newCommentData._id);
+            return res.send({ message: "Comment successfully completed" });
         }
 
-        await newsService.addCommentService(id, userId, comment);
-
+        await newsService.upDataCommentDataListService(news.dataComment, newCommentData._id);
         res.send({ message: "Comment successfully completed" });
 
     } catch (err) {
@@ -293,20 +295,18 @@ const addComment = async (req, res) => {
 
 const deleteComment = async (req, res) => {
     try {
-        const { id, idComment } = req.params;
+        const { commentId } = req.params;
         const userId = req.userId;
 
-        const commentDeleted = await newsService.deleteCommentService(id, idComment, userId);
+        const commentFind = await newsService.findCommentById(commentId);
+        if (!commentFind) return res.status(404).send({ message: "Comment not found" });
 
-        const findComment = commentDeleted.comments.find((comment) => comment.idComment === idComment);
+        const news = await newsService.findByIdService(commentFind.newsId)
+        if (!news) return res.status(404).send({ message: "News not found" });
 
-        if (!findComment) {
-            return res.status(404).send({ message: "Comment not found" });
-        }
+        if (String(commentFind.userId) !== userId) return res.status(400).send({ message: "You can't delete this comment" });
 
-        if (findComment.userId !== userId) {
-            return res.status(400).send({ message: "You can't delete this comment" });
-        }
+        await newsService.deleteCommentService(commentId, news.dataComment)
 
         res.send({ message: "Comment successfully removed" });
 
@@ -314,6 +314,13 @@ const deleteComment = async (req, res) => {
         res.status(500).send({ message: err.message });
     };
 };
+
+const findAllCommentByNewsId = async (req, res) => {
+    const { newsId } = req.params;
+    const results = await newsService.getAllCommentsByNewsId(newsId);
+    res.send(results);
+};
+//for now just for development--^
 
 const addReplyToComment = async (req, res) => {
     try {
@@ -373,5 +380,6 @@ export default {
     deleteComment,
     addReplyToComment,
     deleteReply,
-    likeComment
+    likeComment,
+    findAllCommentByNewsId
 };

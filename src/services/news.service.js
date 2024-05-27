@@ -1,5 +1,4 @@
-import { NewsModel, UserModel, LikeNewsModel } from "../database/db.js";
-import LikesNews from "../models/LikeNews.js";
+import { NewsModel, UserModel, LikeNewsModel, CommentModel, CommentDataListModel } from "../database/db.js";
 
 const createNewsService = (body) => NewsModel.create(body);
 
@@ -24,15 +23,34 @@ const upDateService = (newsId, title, text, banner) => NewsModel.findOneAndUpdat
 
 const eraseService = (newsId) => NewsModel.findOneAndDelete({ _id: newsId });
 
-const createDataLikeService = (newsId, userId) => LikeNewsModel.create({ newsId, likes: { userId } });
-
-const updateDataLikeService = (newsId, dataLike) => NewsModel.findOneAndUpdate(
-    { _id: newsId }, { $set: { dataLike: dataLike } });
+const createDataLikeService = async (newsId, userId) => {
+    const newDataLike = await LikeNewsModel.create({ newsId, likes: { userId } });
+    await NewsModel.findOneAndUpdate( { _id: newsId }, { $set: { dataLike: newDataLike } })
+};
 
 const likeNewsService = (likesId, userId) => LikeNewsModel.findOneAndUpdate(
     { _id: likesId, likes: { $nin: { userId } } }, { $push: { likes: { userId } } });
 
 const deletelikeNewsService = (likesId, userId) => LikeNewsModel.findOneAndUpdate({ _id: likesId }, { $pull: { likes: { userId } } });
+
+const createCommentService = (newsId, userId, comment) => CommentModel.create({ newsId, userId, comment });
+
+const createDataCommentListService = async (newsId, commentId) => {
+    const newCommentDataList = await CommentDataListModel.create({ newsId, comment: [{ commentId }] });
+    await NewsModel.findOneAndUpdate({ _id: newsId }, { $set: { dataComment: newCommentDataList._id } });
+};
+
+const upDataCommentDataListService = (dataCommentId, commentId) => CommentDataListModel.findOneAndUpdate({ _id: dataCommentId },
+    { $push: { comment: { commentId } } });
+
+const deleteCommentService = async (commentId, commentDataId) => {
+    await CommentModel.findOneAndDelete({ _id: commentId })
+    await CommentDataListModel.findByIdAndUpdate({ _id: commentDataId }, { $pull: { comment: { commentId: commentId } } })
+};
+
+const findCommentById = (commentId) => CommentModel.findById(commentId);
+
+const getAllCommentsByNewsId = (newsId) => CommentModel.find({ newsId: newsId });
 
 const likeCommentService = (id, idComment, userId) => News.findOneAndUpdate(
     { _id: id, "comments.idComment": idComment, "comments.likes.userId": { $nin: [userId] } },
@@ -40,15 +58,6 @@ const likeCommentService = (id, idComment, userId) => News.findOneAndUpdate(
 
 const deletelikeCommentService = (id, idComment, userId) => News.findOneAndUpdate(
     { _id: id, "comments.idComment": idComment }, { $pull: { "comments.$.likes": { userId } } });
-
-const addCommentService = (id, userId, comment) => {
-    const idComment = Math.floor(Date.now() * Math.random()).toString(36);
-    const createdAt = new Date();
-    return News.findOneAndUpdate({ _id: id }, { $push: { comments: { idComment, userId, comment, createdAt } } });
-};
-
-const deleteCommentService = (id, idComment, userId) => News.findOneAndUpdate({ _id: id },
-    { $pull: { comments: { idComment, userId } } });
 
 const addReplyToCommentService = (id, idComment, userId, reply) => {
     const idReply = Math.floor(Date.now() * Math.random()).toString(36);
@@ -76,10 +85,13 @@ export default {
     likeCommentService,
     deletelikeCommentService,
     deletelikeNewsService,
-    addCommentService,
     deleteCommentService,
     addReplyToCommentService,
     deleteReplyService,
     createDataLikeService,
-    updateDataLikeService
+    createCommentService,
+    createDataCommentListService,
+    upDataCommentDataListService,
+    findCommentById,
+    getAllCommentsByNewsId
 };
