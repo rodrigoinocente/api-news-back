@@ -233,32 +233,13 @@ const likeNews = async (req, res) => {
 
         const news = await newsService.findByIdService(newsId);
         if (!news.dataLike) {
-            await newsService.createDataLikeService(newsId, userId);
+            await newsService.createNewsDataLikeService(newsId, userId);
             return res.send({ message: "Like done successfully" });
         }
 
         const newsLiked = await newsService.likeNewsService(news.dataLike, userId);
         if (!newsLiked) {
-            await newsService.deletelikeNewsService(news.dataLike, userId);
-            return res.status(200).send({ message: "Like successfully removed" });
-        }
-
-        res.send({ message: "Like done successfully" });
-
-    } catch (err) {
-        res.status(500).send({ message: err.message });
-    };
-};
-
-const likeComment = async (req, res) => {
-    try {
-        const { id, idComment } = req.params;
-        const userId = req.userId;
-
-        const commentLiked = await newsService.likeCommentService(id, idComment, userId);
-
-        if (!commentLiked) {
-            await newsService.deletelikeCommentService(id, idComment, userId);
+            await newsService.deleteLikeNewsService(news.dataLike, userId);
             return res.status(200).send({ message: "Like successfully removed" });
         }
 
@@ -281,11 +262,11 @@ const addComment = async (req, res) => {
 
         const news = await newsService.findByIdService(newsId);
         if (!news.dataComment) {
-            await newsService.createDataCommentListService(newsId, newCommentData._id);
+            await newsService.createCommentDataListService(newsId, newCommentData._id);
             return res.send({ message: "Comment successfully completed" });
         }
 
-        await newsService.upDataCommentDataListService(news.dataComment, newCommentData._id);
+        await newsService.upDateCommentDataListService(news.dataComment, newCommentData._id);
         res.send({ message: "Comment successfully completed" });
 
     } catch (err) {
@@ -321,6 +302,30 @@ const findAllCommentByNewsId = async (req, res) => {
     res.send(results);
 };
 //for now just for development--^
+
+const likeComment = async (req, res) => {
+    try {
+        const { commentId } = req.params;
+        const userId = req.userId;
+
+        const comment = await newsService.findCommentById(commentId);
+        if (!comment.dataLike) {
+            await newsService.createCommentDataLikeService(commentId, userId);
+            return res.send({ message: "Like done successfully" });
+        }
+
+        const commentLiked = await newsService.likeCommentService(comment.dataLike, userId);
+        if (!commentLiked) {
+            await newsService.deleteLikeCommentService(comment.dataLike, userId);
+            return res.status(200).send({ message: "Like successfully removed" });
+        }
+
+        res.send({ message: "Like done successfully" });
+
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    };
+};
 
 const addReplyToComment = async (req, res) => {
     try {

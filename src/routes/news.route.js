@@ -13,10 +13,10 @@ route.get("/search", newsController.searchByTitle);
 route.get("/newsByUser", authMiddleware, newsController.newsByUser);
 route.patch("/:newsId", authMiddleware, newsController.upDate);
 route.delete("/:newsId", authMiddleware, newsController.erase);
-route.patch("/like/:newsId", authMiddleware, newsController.likeNews);
-route.patch("/like/:id/:idComment", authMiddleware, newsController.likeComment);
+route.patch("/likeNews/:newsId", authMiddleware, newsController.likeNews);
 route.post("/comment/:newsId", authMiddleware, newsController.addComment);
 route.delete("/comment/:commentId", authMiddleware, newsController.deleteComment);
+route.patch("/likeComment/:commentId", authMiddleware, newsController.likeComment);
 route.patch("/reply/:id/:idComment", authMiddleware, newsController.addReplyToComment);
 route.patch("/reply/:id/:idComment/:idReply", authMiddleware, newsController.deleteReply);/**verify "router.patch" to "router.delete" */
 

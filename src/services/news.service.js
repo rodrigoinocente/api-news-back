@@ -1,4 +1,4 @@
-import { NewsModel, UserModel, LikeNewsModel, CommentModel, CommentDataListModel } from "../database/db.js";
+import { NewsModel, UserModel, LikeNewsModel, CommentModel, CommentDataListModel, LikeCommentModel } from "../database/db.js";
 
 const createNewsService = (body) => NewsModel.create(body);
 
@@ -23,24 +23,24 @@ const upDateService = (newsId, title, text, banner) => NewsModel.findOneAndUpdat
 
 const eraseService = (newsId) => NewsModel.findOneAndDelete({ _id: newsId });
 
-const createDataLikeService = async (newsId, userId) => {
+const createNewsDataLikeService = async (newsId, userId) => {
     const newDataLike = await LikeNewsModel.create({ newsId, likes: { userId } });
-    await NewsModel.findOneAndUpdate( { _id: newsId }, { $set: { dataLike: newDataLike } })
+    await NewsModel.findOneAndUpdate({ _id: newsId }, { $set: { dataLike: newDataLike } })
 };
 
 const likeNewsService = (likesId, userId) => LikeNewsModel.findOneAndUpdate(
     { _id: likesId, likes: { $nin: { userId } } }, { $push: { likes: { userId } } });
 
-const deletelikeNewsService = (likesId, userId) => LikeNewsModel.findOneAndUpdate({ _id: likesId }, { $pull: { likes: { userId } } });
+const deleteLikeNewsService = (likesId, userId) => LikeNewsModel.findOneAndUpdate({ _id: likesId }, { $pull: { likes: { userId } } });
 
 const createCommentService = (newsId, userId, comment) => CommentModel.create({ newsId, userId, comment });
 
-const createDataCommentListService = async (newsId, commentId) => {
+const createCommentDataListService = async (newsId, commentId) => {
     const newCommentDataList = await CommentDataListModel.create({ newsId, comment: [{ commentId }] });
     await NewsModel.findOneAndUpdate({ _id: newsId }, { $set: { dataComment: newCommentDataList._id } });
 };
 
-const upDataCommentDataListService = (dataCommentId, commentId) => CommentDataListModel.findOneAndUpdate({ _id: dataCommentId },
+const upDateCommentDataListService = (dataCommentId, commentId) => CommentDataListModel.findOneAndUpdate({ _id: dataCommentId },
     { $push: { comment: { commentId } } });
 
 const deleteCommentService = async (commentId, commentDataId) => {
@@ -52,12 +52,16 @@ const findCommentById = (commentId) => CommentModel.findById(commentId);
 
 const getAllCommentsByNewsId = (newsId) => CommentModel.find({ newsId: newsId });
 
-const likeCommentService = (id, idComment, userId) => News.findOneAndUpdate(
-    { _id: id, "comments.idComment": idComment, "comments.likes.userId": { $nin: [userId] } },
-    { $push: { "comments.$.likes": { userId, created: new Date() } } });
+const createCommentDataLikeService = async (commentId, userId) => {
+    const newDataLike = await LikeCommentModel.create({ commentId, likes: { userId } });
+    await CommentModel.findOneAndUpdate({ _id: commentId }, { $set: { dataLike: newDataLike } })
+};
 
-const deletelikeCommentService = (id, idComment, userId) => News.findOneAndUpdate(
-    { _id: id, "comments.idComment": idComment }, { $pull: { "comments.$.likes": { userId } } });
+const likeCommentService = (likesId, userId) => LikeCommentModel.findOneAndUpdate(
+    { _id: likesId, likes: { $nin: { userId } } }, { $push: { likes: { userId } } });
+
+const deleteLikeCommentService = (likesId, userId) => LikeCommentModel.findOneAndUpdate({ _id: likesId },
+    { $pull: { likes: { userId } } });
 
 const addReplyToCommentService = (id, idComment, userId, reply) => {
     const idReply = Math.floor(Date.now() * Math.random()).toString(36);
@@ -82,16 +86,17 @@ export default {
     upDateService,
     eraseService,
     likeNewsService,
-    likeCommentService,
-    deletelikeCommentService,
-    deletelikeNewsService,
+    deleteLikeCommentService,
+    deleteLikeNewsService,
     deleteCommentService,
     addReplyToCommentService,
     deleteReplyService,
-    createDataLikeService,
+    createNewsDataLikeService,
     createCommentService,
-    createDataCommentListService,
-    upDataCommentDataListService,
+    createCommentDataListService,
+    upDateCommentDataListService,
     findCommentById,
-    getAllCommentsByNewsId
+    getAllCommentsByNewsId,
+    createCommentDataLikeService,
+    likeCommentService
 };

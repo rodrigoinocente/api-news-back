@@ -15,10 +15,14 @@ const CommentSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    commentLikeData: {
+    dataLike: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "",
         default: null,
+    },
+    likeCount: {
+        type: Number,
+        default: 0,
     },
     createdAt: {
         type: Date,
