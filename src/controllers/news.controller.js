@@ -237,14 +237,14 @@ const likeNews = async (req, res) => {
             return res.send({ message: "Like done successfully" });
         }
 
-        const newsLiked = await newsService.likeNewsService(news.dataLike, userId);
-        if (!newsLiked) {
+        const isLiked = await newsService.isUserInArray(news.dataLike, userId);
+        if (!isLiked) {
+            await newsService.likeNewsService(news.dataLike, userId);
+            return res.send({ message: "Like done successfully" });
+        } else {
             await newsService.deleteLikeNewsService(news.dataLike, userId);
             return res.status(200).send({ message: "Like successfully removed" });
         }
-
-        res.send({ message: "Like done successfully" });
-
     } catch (err) {
         res.status(500).send({ message: err.message });
     };
@@ -252,23 +252,20 @@ const likeNews = async (req, res) => {
 
 const addComment = async (req, res) => {
     try {
-        let { newsId } = req.params;
-        let userId = req.userId;
-        const { comment } = req.body;
+        const { newsId } = req.params;
+        const userId = req.userId;
+        const { content } = req.body;
 
-        if (!comment) return res.status(400).send({ message: "Write a message to comment" });
-
-        const newCommentData = await newsService.createCommentService(newsId, userId, comment);
+        if (!content) return res.status(400).send({ message: "Write a message to comment" });
 
         const news = await newsService.findByIdService(newsId);
         if (!news.dataComment) {
-            await newsService.createCommentDataListService(newsId, newCommentData._id);
+            await newsService.createCommentDataService(newsId, userId, content);
             return res.send({ message: "Comment successfully completed" });
+        } else {
+            await newsService.upDateCommentDataService(news.dataComment, userId, content);
+            res.send({ message: "Comment successfully completed" });
         }
-
-        await newsService.upDateCommentDataListService(news.dataComment, newCommentData._id);
-        res.send({ message: "Comment successfully completed" });
-
     } catch (err) {
         res.status(500).send({ message: err.message });
     };
@@ -276,19 +273,19 @@ const addComment = async (req, res) => {
 
 const deleteComment = async (req, res) => {
     try {
+        const { newsId } = req.params;
         const { commentId } = req.params;
         const userId = req.userId;
+        const news = await newsService.findByIdService(newsId);
 
-        const commentFind = await newsService.findCommentById(commentId);
+        const commentFind = await newsService.findCommentById(news.dataComment, commentId);
         if (!commentFind) return res.status(404).send({ message: "Comment not found" });
 
-        const news = await newsService.findByIdService(commentFind.newsId)
         if (!news) return res.status(404).send({ message: "News not found" });
 
-        if (String(commentFind.userId) !== userId) return res.status(400).send({ message: "You can't delete this comment" });
+        if (String(commentFind.comment[0].userId) !== userId) return res.status(400).send({ message: "You can't delete this comment" });
 
-        await newsService.deleteCommentService(commentId, news.dataComment)
-
+        await newsService.deleteCommentService(news.dataComment, commentId)
         res.send({ message: "Comment successfully removed" });
 
     } catch (err) {
@@ -302,6 +299,41 @@ const findAllCommentByNewsId = async (req, res) => {
     res.send(results);
 };
 //for now just for development--^
+const getPaginatedComments = async (req, res) => {
+    try {
+        const { newsId } = req.params;
+        let { limit, offset } = req.query;
+
+        limit = Number(limit);
+        offset = Number(offset);
+
+        if (!limit) limit = 10;
+
+        if (!offset) offset = 0;
+
+        const news = await newsService.findByIdService(newsId);
+        const total = await newsService.totalCommentLengthService(news.dataComment)
+        const comments = await newsService.commentsPipelineService(news.dataComment, offset, limit);
+        const currentUrl = req.baseUrl;
+
+        const next = offset + limit;
+        const nextUrl = next < total ? `${currentUrl}/commentPage/${newsId}?limit=${limit}&offset=${next}` : null;
+
+        const previous = offset - limit < 0 ? null : offset - limit;
+        const previousUrl = previous != null ? `${currentUrl}/commentPage/${newsId}?limit=${limit}&offset=${previous}` : null;
+
+        res.send({
+            nextUrl,
+            previousUrl,
+            limit,
+            offset,
+            total,
+            comments
+        });
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    };
+};
 
 const likeComment = async (req, res) => {
     try {
@@ -386,5 +418,6 @@ export default {
     addReplyToComment,
     deleteReply,
     likeComment,
-    findAllCommentByNewsId
+    findAllCommentByNewsId,
+    getPaginatedComments
 };

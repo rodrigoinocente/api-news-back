@@ -1,4 +1,6 @@
 import mongoose from "mongoose";
+import { NewsModel, LikeNewsModel } from "../database/db.js"
+
 
 const LikeNewsSchema = new mongoose.Schema({
     newsId: {
@@ -21,10 +23,21 @@ const LikeNewsSchema = new mongoose.Schema({
             _id: false
         }]
     },
-    likeCount: {
-        type: Number,
-        default: 0,
-    },
+});
+
+LikeNewsSchema.post('save', async function () {
+    const news = await NewsModel.findById(this.newsId);
+    news.likeCount = this.likes.length;
+    await news.save();
+});
+
+LikeNewsSchema.post('findOneAndUpdate',  async function () {
+    const likesId = this.getQuery();
+    const dataLikeUpdate = await LikeNewsModel.findById(likesId);
+    
+    const news = await NewsModel.findById(dataLikeUpdate.newsId);
+    news.likeCount = dataLikeUpdate.likes.length;
+    await news.save();
 });
 
 export default LikeNewsSchema;

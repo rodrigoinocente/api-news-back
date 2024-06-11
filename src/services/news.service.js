@@ -1,21 +1,21 @@
-import { NewsModel, UserModel, LikeNewsModel, CommentModel, CommentDataListModel, LikeCommentModel } from "../database/db.js";
+import { NewsModel, LikeNewsModel, CommentModel/* , CommentDataListModel, LikeCommentModel */ } from "../database/db.js";
 
 const createNewsService = (body) => NewsModel.create(body);
 
 const findAllNewsService = (offset, limit) => NewsModel.find().sort({ _id: -1 }).skip(offset).limit(limit)
-    .populate({ path: "user", model: UserModel });
+    .populate("user");
 
 const countNewsService = () => NewsModel.countDocuments();
 
-const topNewsService = () => NewsModel.findOne().sort({ _id: -1 }).populate({ path: "user", model: UserModel });
+const topNewsService = () => NewsModel.findOne().sort({ _id: -1 }).populate("user");
 
-const findByIdService = (idNews) => NewsModel.findById(idNews).populate({ path: "user", model: UserModel });
+const findByIdService = (newsId) => NewsModel.findById(newsId).populate("user");
 
 const searchByTitleService = (title) => NewsModel.find({ title: { $regex: `${title || ""}`, $options: "i" } })
     .sort({ _id: -1 })
-    .populate({ path: "user", model: UserModel });
+    .populate("user");
 
-const newsByUserService = (userId) => NewsModel.find({ user: userId }).sort({ _id: -1 }).populate({ path: "user", model: UserModel });
+const newsByUserService = (userId) => NewsModel.find({ user: userId }).sort({ _id: -1 }).populate("user");
 
 const upDateService = (newsId, title, text, banner) => NewsModel.findOneAndUpdate({ _id: newsId },
     { title, text, banner },
@@ -25,33 +25,77 @@ const eraseService = (newsId) => NewsModel.findOneAndDelete({ _id: newsId });
 
 const createNewsDataLikeService = async (newsId, userId) => {
     const newDataLike = await LikeNewsModel.create({ newsId, likes: { userId } });
-    await NewsModel.findOneAndUpdate({ _id: newsId }, { $set: { dataLike: newDataLike } })
+    await NewsModel.findOneAndUpdate({ _id: newsId }, { $set: { dataLike: newDataLike } });
 };
 
-const likeNewsService = (likesId, userId) => LikeNewsModel.findOneAndUpdate(
-    { _id: likesId, likes: { $nin: { userId } } }, { $push: { likes: { userId } } });
+const isUserInArray = (likesId, userId) => LikeNewsModel.exists({ _id: likesId, "likes.userId": [userId] });
+
+const likeNewsService = (likesId, userId) => LikeNewsModel.findOneAndUpdate({ _id: likesId },
+    { $push: { likes: { userId } } });
+
 
 const deleteLikeNewsService = (likesId, userId) => LikeNewsModel.findOneAndUpdate({ _id: likesId }, { $pull: { likes: { userId } } });
 
-const createCommentService = (newsId, userId, comment) => CommentModel.create({ newsId, userId, comment });
 
-const createCommentDataListService = async (newsId, commentId) => {
-    const newCommentDataList = await CommentDataListModel.create({ newsId, comment: [{ commentId }] });
+const createCommentDataService = async (newsId, userId, content) => {
+    const newCommentDataList = await CommentModel.create({ newsId, comment: [{ userId, content }] });
     await NewsModel.findOneAndUpdate({ _id: newsId }, { $set: { dataComment: newCommentDataList._id } });
 };
 
-const upDateCommentDataListService = (dataCommentId, commentId) => CommentDataListModel.findOneAndUpdate({ _id: dataCommentId },
-    { $push: { comment: { commentId } } });
-
-const deleteCommentService = async (commentId, commentDataId) => {
-    await CommentModel.findOneAndDelete({ _id: commentId })
-    await CommentDataListModel.findByIdAndUpdate({ _id: commentDataId }, { $pull: { comment: { commentId: commentId } } })
+const upDateCommentDataService = async (commentDataId, userId, content) => {
+    await CommentModel.findOneAndUpdate({ _id: commentDataId }, { $push: { comment: [{ userId, content }] } });
 };
 
-const findCommentById = (commentId) => CommentModel.findById(commentId);
+const deleteCommentService = async (commentDataId, commentId) => {
+    await CommentModel.findOneAndUpdate({ _id: commentDataId }, { $pull: { comment: { _id: commentId } } });
+};
+
+const findCommentById = (dataCommentId, commentId) => CommentModel.findOne(
+    { _id: dataCommentId, "comment._id": commentId }, { "comment.$": 1 });
 
 const getAllCommentsByNewsId = (newsId) => CommentModel.find({ newsId: newsId });
 
+const totalCommentLengthService = async (dataCommentId) => {
+    const findArray = await CommentModel.aggregate([{ $match: { _id: dataCommentId } },
+    { $unwind: "$comment" },
+    { $count: "comment" }]);
+    return findArray[0].comment;
+};
+
+const commentsPipelineService = (dataCommentId, offset, limit) => {
+    return CommentModel.aggregate([
+        { $match: { _id: dataCommentId } },
+        { $unwind: { path: "$comment" } },
+        { $sort: { "comment.createdAt": -1 } },
+        { $skip: offset },
+        { $limit: limit },
+        {
+            $lookup: {
+                from: "users",
+                localField: "comment.userId",
+                foreignField: "_id",
+                as: "user",
+            },
+        },
+        { $unwind: { path: "$user" } },
+        {
+            $project: {
+                "user.name": 1,
+                "user.username": 1,
+                "user.email": 1,
+                "comment.content": 1,
+                "comment.dataLike": 1,
+                "comment.dataReply": 1,
+                "comment.likeCount": 1,
+                "comment.replyCount": 1,
+                "comment.createdAt": 1,
+                "comment._id": 1,
+                "_id": 0,
+            },
+        },
+    ]
+    );
+};
 const createCommentDataLikeService = async (commentId, userId) => {
     const newDataLike = await LikeCommentModel.create({ commentId, likes: { userId } });
     await CommentModel.findOneAndUpdate({ _id: commentId }, { $set: { dataLike: newDataLike } })
@@ -67,13 +111,13 @@ const addReplyToCommentService = (id, idComment, userId, reply) => {
     const idReply = Math.floor(Date.now() * Math.random()).toString(36);
     const createdAt = new Date();
     return News.findOneAndUpdate(
-        { _id: id, "comments.idComment": idComment },
-        { $push: { "comments.$.replies": { idReply, userId, reply, createdAt } } }
+        { _id: id, "comment.idComment": idComment },
+        { $push: { "commecommentnts.$.replies": { idReply, userId, reply, createdAt } } }
     );
 };
 
-const deleteReplyService = (id, idComment, idReply, userId) => News.findOneAndUpdate({ _id: id, "comments.idComment": idComment },
-    { $pull: { "comments.$.replies": { idReply, userId } } });
+const deleteReplyService = (id, idComment, idReply, userId) => News.findOneAndUpdate({ _id: id, "comment.idComment": idComment },
+    { $pull: { "comment.$.replies": { idReply, userId } } });
 
 export default {
     createNewsService,
@@ -92,11 +136,13 @@ export default {
     addReplyToCommentService,
     deleteReplyService,
     createNewsDataLikeService,
-    createCommentService,
-    createCommentDataListService,
-    upDateCommentDataListService,
+    createCommentDataService,
+    upDateCommentDataService,
     findCommentById,
     getAllCommentsByNewsId,
     createCommentDataLikeService,
-    likeCommentService
+    likeCommentService,
+    totalCommentLengthService,
+    commentsPipelineService,
+    isUserInArray
 };

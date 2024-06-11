@@ -13,13 +13,15 @@ route.get("/search", newsController.searchByTitle);
 route.get("/newsByUser", authMiddleware, newsController.newsByUser);
 route.patch("/:newsId", authMiddleware, newsController.upDate);
 route.delete("/:newsId", authMiddleware, newsController.erase);
-route.patch("/likeNews/:newsId", authMiddleware, newsController.likeNews);
-route.post("/comment/:newsId", authMiddleware, newsController.addComment);
-route.delete("/comment/:commentId", authMiddleware, newsController.deleteComment);
+route.post("/likeNews/:newsId", authMiddleware, newsController.likeNews);
+route.delete("/comment/:newsId/:commentId", authMiddleware, newsController.deleteComment);
+route.get("/commentPage/:newsId", newsController.getPaginatedComments);
 route.patch("/likeComment/:commentId", authMiddleware, newsController.likeComment);
 route.patch("/reply/:id/:idComment", authMiddleware, newsController.addReplyToComment);
-route.patch("/reply/:id/:idComment/:idReply", authMiddleware, newsController.deleteReply);/**verify "router.patch" to "router.delete" */
+route.patch("/reply/:id/:idComment/:idReply", authMiddleware, newsController.deleteReply);
 
+//for development only
+route.post("/comment/:newsId", authMiddleware, newsController.addComment);
 route.get("/comment/:newsId", newsController.findAllCommentByNewsId);
 
 
