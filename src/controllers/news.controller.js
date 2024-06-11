@@ -250,6 +250,41 @@ const likeNews = async (req, res) => {
     };
 };
 
+const getPaginatedLikes = async (req, res) => {
+    try {
+        const { newsId } = req.params;
+        let { limit, offset } = req.query;
+
+        limit = Number(limit);
+        offset = Number(offset);
+
+        if (!limit) limit = 10;
+        if (!offset) offset = 0;
+
+        const news = await newsService.findByIdService(newsId);
+        const total = await newsService.totalLikesLengthService(news.dataLike)
+        const likes = await newsService.likesPipelineService(news.dataLike, offset, limit);
+        const currentUrl = req.baseUrl;
+
+        const next = offset + limit;
+        const nextUrl = next < total ? `${currentUrl}/likePage/${newsId}?limit=${limit}&offset=${next}` : null;
+
+        const previous = offset - limit < 0 ? null : offset - limit;
+        const previousUrl = previous != null ? `${currentUrl}/likePage/${newsId}?limit=${limit}&offset=${previous}` : null;
+
+        res.send({
+            nextUrl,
+            previousUrl,
+            limit,
+            offset,
+            total,
+            likes
+        });
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    };
+};
+
 const addComment = async (req, res) => {
     try {
         const { newsId } = req.params;
@@ -308,7 +343,6 @@ const getPaginatedComments = async (req, res) => {
         offset = Number(offset);
 
         if (!limit) limit = 10;
-
         if (!offset) offset = 0;
 
         const news = await newsService.findByIdService(newsId);
@@ -419,5 +453,6 @@ export default {
     deleteReply,
     likeComment,
     findAllCommentByNewsId,
-    getPaginatedComments
+    getPaginatedComments,
+    getPaginatedLikes
 };

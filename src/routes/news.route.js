@@ -14,6 +14,7 @@ route.get("/newsByUser", authMiddleware, newsController.newsByUser);
 route.patch("/:newsId", authMiddleware, newsController.upDate);
 route.delete("/:newsId", authMiddleware, newsController.erase);
 route.post("/likeNews/:newsId", authMiddleware, newsController.likeNews);
+route.get("/likePage/:newsId", newsController.getPaginatedLikes); /* WORKING */
 route.delete("/comment/:newsId/:commentId", authMiddleware, newsController.deleteComment);
 route.get("/commentPage/:newsId", newsController.getPaginatedComments);
 route.patch("/likeComment/:commentId", authMiddleware, newsController.likeComment);

@@ -33,9 +33,42 @@ const isUserInArray = (likesId, userId) => LikeNewsModel.exists({ _id: likesId, 
 const likeNewsService = (likesId, userId) => LikeNewsModel.findOneAndUpdate({ _id: likesId },
     { $push: { likes: { userId } } });
 
-
 const deleteLikeNewsService = (likesId, userId) => LikeNewsModel.findOneAndUpdate({ _id: likesId }, { $pull: { likes: { userId } } });
 
+const totalLikesLengthService = async (dataLikeId) => {
+    const findArray = await LikeNewsModel.aggregate([{ $match: { _id: dataLikeId } },
+    { $unwind: "$likes" },
+    { $count: "likes" }]);
+    return findArray[0].likes;
+};
+
+const likesPipelineService = (dataCommentId, offset, limit) => {
+    return LikeNewsModel.aggregate([
+        { $match: { _id: dataCommentId } },
+        { $unwind: { path: "$likes" } },
+        { $sort: { "likes.createdAt": -1 } },
+        { $skip: offset },
+        { $limit: limit },
+        {
+            $lookup: {
+                from: "users",
+                localField: "likes.userId",
+                foreignField: "_id",
+                as: "user",
+            },
+        },
+        { $unwind: { path: "$user" } },
+        {
+            $project: {
+                "user.name": 1,
+                "user.username": 1,
+                "user.email": 1,
+                _id: 0,
+            },
+        },
+    ]
+    );
+};
 
 const createCommentDataService = async (newsId, userId, content) => {
     const newCommentDataList = await CommentModel.create({ newsId, comment: [{ userId, content }] });
@@ -96,6 +129,7 @@ const commentsPipelineService = (dataCommentId, offset, limit) => {
     ]
     );
 };
+
 const createCommentDataLikeService = async (commentId, userId) => {
     const newDataLike = await LikeCommentModel.create({ commentId, likes: { userId } });
     await CommentModel.findOneAndUpdate({ _id: commentId }, { $set: { dataLike: newDataLike } })
@@ -144,5 +178,7 @@ export default {
     likeCommentService,
     totalCommentLengthService,
     commentsPipelineService,
-    isUserInArray
+    isUserInArray,
+    totalLikesLengthService,
+    likesPipelineService
 };
