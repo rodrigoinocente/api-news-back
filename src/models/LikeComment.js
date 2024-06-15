@@ -1,6 +1,12 @@
 import mongoose from "mongoose";
+import { CommentModel, LikeCommentModel } from "../database/db.js"
 
 const LikeCommentSchema = new mongoose.Schema({
+    dataCommentId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Comment",
+        required: true,
+    },
     commentId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Comment",
@@ -21,10 +27,19 @@ const LikeCommentSchema = new mongoose.Schema({
             _id: false
         }]
     },
-    likeCount: {
-        type: Number,
-        default: 0,
-    },
+});
+
+LikeCommentSchema.post('save', async function () {
+    await CommentModel.updateOne({ _id: this.dataCommentId, "comment._id": this.commentId },
+        { $set: { "comment.$.likeCount": this.likes.length } });
+});
+
+LikeCommentSchema.post('findOneAndUpdate', async function () {
+    const dataLikesId = this.getQuery();
+    const dataLikesUpdate = await LikeCommentModel.findById(dataLikesId);
+
+    await CommentModel.updateOne({ _id: dataLikesUpdate.dataCommentId, "comment._id": dataLikesUpdate.commentId },
+        { $set: { "comment.$.likeCount": dataLikesUpdate.likes.length } });
 });
 
 export default LikeCommentSchema;

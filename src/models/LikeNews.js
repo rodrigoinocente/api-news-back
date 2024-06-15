@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import { NewsModel, LikeNewsModel } from "../database/db.js"
 
-
 const LikeNewsSchema = new mongoose.Schema({
     newsId: {
         type: mongoose.Schema.Types.ObjectId,

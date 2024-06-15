@@ -237,8 +237,8 @@ const likeNews = async (req, res) => {
             return res.send({ message: "Like done successfully" });
         }
 
-        const isLiked = await newsService.isUserInArray(news.dataLike, userId);
-        if (!isLiked) {
+        const isLiked = await newsService.isUserInLikeNewsArray(news.dataLike, userId);
+            if (!isLiked) {
             await newsService.likeNewsService(news.dataLike, userId);
             return res.send({ message: "Like done successfully" });
         } else {
@@ -371,23 +371,26 @@ const getPaginatedComments = async (req, res) => {
 
 const likeComment = async (req, res) => {
     try {
+        const { dataCommentId } = req.params;
         const { commentId } = req.params;
         const userId = req.userId;
 
-        const comment = await newsService.findCommentById(commentId);
-        if (!comment.dataLike) {
-            await newsService.createCommentDataLikeService(commentId, userId);
+        const comment = await newsService.findCommentById(dataCommentId, commentId);
+        const commentDataLikeId = comment.comment[0].dataLike;
+        if (!commentDataLikeId) {
+            await newsService.createLikeCommentDataService(dataCommentId, commentId, userId);
             return res.send({ message: "Like done successfully" });
         }
 
-        const commentLiked = await newsService.likeCommentService(comment.dataLike, userId);
-        if (!commentLiked) {
-            await newsService.deleteLikeCommentService(comment.dataLike, userId);
+        const isLiked = await newsService.isUserInLikeCommentArray(commentDataLikeId, userId);
+        if (!isLiked) {
+            await newsService.likeCommentService(commentDataLikeId, userId);
+            return res.status(200).send({ message: "Like done successfully" });
+        }else{
+            await newsService.deleteLikeCommentService(commentDataLikeId, userId);
             return res.status(200).send({ message: "Like successfully removed" });
+
         }
-
-        res.send({ message: "Like done successfully" });
-
     } catch (err) {
         res.status(500).send({ message: err.message });
     };

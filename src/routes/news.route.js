@@ -14,10 +14,10 @@ route.get("/newsByUser", authMiddleware, newsController.newsByUser);
 route.patch("/:newsId", authMiddleware, newsController.upDate);
 route.delete("/:newsId", authMiddleware, newsController.erase);
 route.post("/likeNews/:newsId", authMiddleware, newsController.likeNews);
-route.get("/likePage/:newsId", newsController.getPaginatedLikes); /* WORKING */
+route.get("/likePage/:newsId", newsController.getPaginatedLikes);
 route.delete("/comment/:newsId/:commentId", authMiddleware, newsController.deleteComment);
 route.get("/commentPage/:newsId", newsController.getPaginatedComments);
-route.patch("/likeComment/:commentId", authMiddleware, newsController.likeComment);
+route.patch("/likeComment/:dataCommentId/:commentId", authMiddleware, newsController.likeComment);/* WOOOOORKING */
 route.patch("/reply/:id/:idComment", authMiddleware, newsController.addReplyToComment);
 route.patch("/reply/:id/:idComment/:idReply", authMiddleware, newsController.deleteReply);
 
