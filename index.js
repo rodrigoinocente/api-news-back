@@ -21,5 +21,3 @@ app.use("/news", newsRoute);
 app.use("/resete", reseteRoute);
 
 app.listen(port, () => console.log(`Server running on port http://localhost:${port}`));
-
-//TODO: ADICIONAR RESPOSTA (BANCO DE DADOS TAMBÉM) AO COMENTARIO E MIDDLEWARE PARA ATUALIZAR O REPLYCOUNT

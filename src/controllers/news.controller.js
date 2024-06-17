@@ -438,6 +438,45 @@ const deleteReply = async (req, res) => {
     };
 };
 
+const getPaginatedReply = async (req, res) => {
+    try {
+        const { dataCommentId, commentId } = req.params;
+        let { limit, offset } = req.query;
+
+        limit = Number(limit);
+        offset = Number(offset);
+
+        if (!limit) limit = 10;
+        if (!offset) offset = 0;
+
+        const comment = await newsService.findCommentById(dataCommentId, commentId)
+        console.log(comment);
+        if(!comment) return res.status(404).send({ message: "Comment not found" });
+        const dataReply = comment.comment[0].dataReply;
+        
+        const total = await newsService.totalReplyCommentLengthService(dataReply);
+        const replies = await newsService.replyCommentsPipelineService(dataReply, offset, limit);
+        const currentUrl = req.baseUrl;
+
+        const next = offset + limit;
+        const nextUrl = next < total ? `${currentUrl}/replyPage/${dataCommentId}/${commentId}?limit=${limit}&offset=${next}` : null;
+
+        const previous = offset - limit < 0 ? null : offset - limit;
+        const previousUrl = previous != null ? `${currentUrl}/replyPage/${dataCommentId}/${commentId}?limit=${limit}&offset=${previous}` : null;
+
+        res.send({
+            nextUrl,
+            previousUrl,
+            limit,
+            offset,
+            total,
+            replies
+        });
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    };
+};
+
 export default {
     create,
     findAll,
@@ -455,5 +494,6 @@ export default {
     likeComment,
     findAllCommentByNewsId,
     getPaginatedComments,
-    getPaginatedLikes
+    getPaginatedLikes,
+    getPaginatedReply
 };

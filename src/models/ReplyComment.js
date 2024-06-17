@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-// import { NewsModel, CommentModel } from "../database/db.js"
+import { NewsModel, CommentModel, ReplyCommentModel } from "../database/db.js"
 
 const ReplyCommentSchema = new mongoose.Schema({
     dataCommentId: {
@@ -41,19 +41,17 @@ const ReplyCommentSchema = new mongoose.Schema({
     },
 });
 
-// CommentSchema.post('save', async function () {
-//     const news = await NewsModel.findById(this.newsId);
-//     news.commentCount = this.comment.length;
-//     await news.save();
-// });
+ReplyCommentSchema.post('save', async function () {
+    await CommentModel.updateOne({ _id: this.dataCommentId, "comment._id": this.commentId },
+        { $set: { "comment.$.replyCount": this.reply.length } });
+});
 
-// CommentSchema.post('findOneAndUpdate', async function () {
-//     const commentsId = this.getQuery();
-//     const dataCommentsUpdate = await CommentModel.findById(commentsId);
+ReplyCommentSchema.post('findOneAndUpdate', async function () {
+    const repliesId = this.getQuery();
+    const replyUpdate = await ReplyCommentModel.findById(repliesId);
 
-//     const news = await NewsModel.findById(dataCommentsUpdate.newsId);
-//     news.commentCount = dataCommentsUpdate.comment.length;
-//     await news.save();
-// });
+    await CommentModel.updateOne({ _id: replyUpdate.dataCommentId, "comment._id": replyUpdate.commentId },
+        { $set: { "comment.$.replyCount": replyUpdate.reply.length } });
+});
 
 export default ReplyCommentSchema;

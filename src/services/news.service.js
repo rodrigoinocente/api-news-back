@@ -159,6 +159,46 @@ const deleteReplyCommentService = async (dataReplyId, replyId) => {
     await ReplyCommentModel.findOneAndUpdate({ _id: dataReplyId }, { $pull: { reply: { _id: replyId } } });
 };
 
+const totalReplyCommentLengthService = async (dataReplyCommentId) => {
+    const findArray = await ReplyCommentModel.aggregate([{ $match: { _id: dataReplyCommentId } },
+    { $unwind: "$reply" },
+    { $count: "reply" }]);
+    return findArray[0].reply;
+};
+
+const replyCommentsPipelineService = (dataReplyCommentId, offset, limit) => {
+    return ReplyCommentModel.aggregate([
+        { $match: { _id: dataReplyCommentId } },
+        { $unwind: { path: "$reply" } },
+        { $sort: { "reply.createdAt": -1 } },
+        { $skip: offset },
+        { $limit: limit },
+        {
+            $lookup: {
+                from: "users",
+                localField: "reply.userId",
+                foreignField: "_id",
+                as: "user",
+            },
+        },
+        { $unwind: { path: "$user" } },
+        {
+            $project: {
+                "user.name": 1,
+                "user.username": 1,
+                "user.email": 1,
+                "reply.content": 1,
+                "reply.dataLike": 1,
+                "reply.likeCount": 1,
+                "reply.createdAt": 1,
+                "reply._id": 1,
+                "_id": 1,
+            },
+        },
+    ]
+    );
+};
+
 export default {
     createNewsService,
     findAllNewsService,
@@ -189,5 +229,7 @@ export default {
     totalLikesLengthService,
     likesPipelineService,
     isUserInLikeCommentArray,
-    findReplyById
+    findReplyById,
+    totalReplyCommentLengthService,
+    replyCommentsPipelineService
 };

@@ -21,6 +21,7 @@ route.get("/commentPage/:newsId", newsController.getPaginatedComments);
 route.patch("/likeComment/:dataCommentId/:commentId", authMiddleware, newsController.likeComment);
 route.post("/reply/:dataCommentId/:commentId", authMiddleware, newsController.addReplyComment);
 route.delete("/reply/:dataReplyId/:replyId", authMiddleware, newsController.deleteReply);
+route.get("/replyPage/:dataCommentId/:commentId", authMiddleware, newsController.getPaginatedReply);
 
 //for development only
 route.get("/comment/:newsId", newsController.findAllCommentByNewsId);
