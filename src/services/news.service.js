@@ -1,4 +1,4 @@
-import { NewsModel, LikeNewsModel, CommentModel, LikeCommentModel } from "../database/db.js";
+import { NewsModel, LikeNewsModel, CommentModel, LikeCommentModel, ReplyCommentModel } from "../database/db.js";
 
 const createNewsService = (body) => NewsModel.create(body);
 
@@ -143,17 +143,21 @@ const likeCommentService = (dataLikeCommentId, userId) => LikeCommentModel.findO
 const deleteLikeCommentService = (dataLikeCommentId, userId) => LikeCommentModel.findOneAndUpdate({ _id: dataLikeCommentId },
     { $pull: { likes: { userId } } });
 
-const addReplyToCommentService = (id, idComment, userId, reply) => {
-    const idReply = Math.floor(Date.now() * Math.random()).toString(36);
-    const createdAt = new Date();
-    return News.findOneAndUpdate(
-        { _id: id, "comment.idComment": idComment },
-        { $push: { "commecommentnts.$.replies": { idReply, userId, reply, createdAt } } }
-    );
+const createReplyCommentDataService = async (dataCommentId, commentId, userId, content) => {
+    const newDataReply = await ReplyCommentModel.create({ dataCommentId, commentId, reply: { userId, content } });
+    await CommentModel.findOneAndUpdate({ _id: dataCommentId, "comment._id": commentId }, { $set: { "comment.$.dataReply": newDataReply._id } });
 };
 
-const deleteReplyService = (id, idComment, idReply, userId) => News.findOneAndUpdate({ _id: id, "comment.idComment": idComment },
-    { $pull: { "comment.$.replies": { idReply, userId } } });
+const upDateReplyCommentDataService = async (commentDataReplyId, userId, content) => {
+    await ReplyCommentModel.findOneAndUpdate({ _id: commentDataReplyId }, { $push: { reply: [{ userId, content }] } });
+};
+
+const findReplyById = (dataReplyId, replyId) => ReplyCommentModel.findOne(
+    { _id: dataReplyId, "reply._id": replyId }, { "reply.$": 1 });
+
+const deleteReplyCommentService = async (dataReplyId, replyId) => {
+    await ReplyCommentModel.findOneAndUpdate({ _id: dataReplyId }, { $pull: { reply: { _id: replyId } } });
+};
 
 export default {
     createNewsService,
@@ -169,8 +173,9 @@ export default {
     deleteLikeCommentService,
     deleteLikeNewsService,
     deleteCommentService,
-    addReplyToCommentService,
-    deleteReplyService,
+    createReplyCommentDataService,
+    upDateReplyCommentDataService,
+    deleteReplyCommentService,
     createNewsDataLikeService,
     createCommentDataService,
     upDateCommentDataService,
@@ -183,5 +188,6 @@ export default {
     isUserInLikeNewsArray,
     totalLikesLengthService,
     likesPipelineService,
-    isUserInLikeCommentArray
+    isUserInLikeCommentArray,
+    findReplyById
 };

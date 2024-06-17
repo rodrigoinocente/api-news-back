@@ -20,12 +20,12 @@ const CommentSchema = new mongoose.Schema({
             },
             dataLike: {
                 type: mongoose.Schema.Types.ObjectId,
-                ref: "",
+                ref: "LikeComment",
                 default: null,
             },
             dataReply: {
                 type: mongoose.Schema.Types.ObjectId,
-                ref: "",
+                ref: "ReplyComment",
                 default: null,
             },
             likeCount: {
