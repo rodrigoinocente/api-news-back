@@ -1,4 +1,4 @@
-import { NewsModel, LikeNewsModel, CommentModel, LikeCommentModel, ReplyCommentModel } from "../database/db.js";
+import { NewsModel, LikeNewsModel, CommentModel, LikeCommentModel, ReplyCommentModel, LikeReplyModel } from "../database/db.js";
 
 const createNewsService = (body) => NewsModel.create(body);
 
@@ -88,13 +88,6 @@ const findCommentById = (dataCommentId, commentId) => CommentModel.findOne(
 
 const getAllCommentsByNewsId = (newsId) => CommentModel.find({ newsId: newsId });
 
-const totalCommentLengthService = async (dataCommentId) => {
-    const findArray = await CommentModel.aggregate([{ $match: { _id: dataCommentId } },
-    { $unwind: "$comment" },
-    { $count: "comment" }]);
-    return findArray[0].comment;
-};
-
 const commentsPipelineService = (dataCommentId, offset, limit) => {
     return CommentModel.aggregate([
         { $match: { _id: dataCommentId } },
@@ -159,13 +152,6 @@ const deleteReplyCommentService = async (dataReplyId, replyId) => {
     await ReplyCommentModel.findOneAndUpdate({ _id: dataReplyId }, { $pull: { reply: { _id: replyId } } });
 };
 
-const totalReplyCommentLengthService = async (dataReplyCommentId) => {
-    const findArray = await ReplyCommentModel.aggregate([{ $match: { _id: dataReplyCommentId } },
-    { $unwind: "$reply" },
-    { $count: "reply" }]);
-    return findArray[0].reply;
-};
-
 const replyCommentsPipelineService = (dataReplyCommentId, offset, limit) => {
     return ReplyCommentModel.aggregate([
         { $match: { _id: dataReplyCommentId } },
@@ -199,6 +185,19 @@ const replyCommentsPipelineService = (dataReplyCommentId, offset, limit) => {
     );
 };
 
+const createLikeReplyDataService = async (dataReplyCommentId, replyCommentId, userId) => {
+    const newDataLike = await LikeReplyModel.create({ dataReplyCommentId, replyCommentId, likes: { userId } });
+    await ReplyCommentModel.findOneAndUpdate({ _id: dataReplyCommentId, "reply._id": replyCommentId }, { $set: { "reply.$.dataLike": newDataLike._id } });
+};
+
+const isUserInLikeReplyArray = (replyDataLikeId, userId) => LikeReplyModel.exists({ _id: replyDataLikeId, "likes.userId": [userId] });
+
+const likeReplyService = (replyDataLikeId, userId) => LikeReplyModel.findOneAndUpdate(
+    { _id: replyDataLikeId }, { $push: { likes: { userId } } });
+
+const deleteLikeReplyService = (replyDataLikeId, userId) => LikeReplyModel.findOneAndUpdate({ _id: replyDataLikeId },
+    { $pull: { likes: { userId } } });
+
 export default {
     createNewsService,
     findAllNewsService,
@@ -223,13 +222,15 @@ export default {
     getAllCommentsByNewsId,
     createLikeCommentDataService,
     likeCommentService,
-    totalCommentLengthService,
     commentsPipelineService,
     isUserInLikeNewsArray,
     totalLikesLengthService,
     likesPipelineService,
     isUserInLikeCommentArray,
     findReplyById,
-    totalReplyCommentLengthService,
-    replyCommentsPipelineService
+    replyCommentsPipelineService,
+    createLikeReplyDataService,
+    isUserInLikeReplyArray,
+    likeReplyService,
+    deleteLikeReplyService
 };

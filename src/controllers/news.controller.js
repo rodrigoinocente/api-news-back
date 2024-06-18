@@ -349,7 +349,7 @@ const getPaginatedComments = async (req, res) => {
         if (!offset) offset = 0;
 
         const news = await newsService.findByIdService(newsId);
-        const total = await newsService.totalCommentLengthService(news.dataComment)
+        const total = news.commentCount;
         const comments = await newsService.commentsPipelineService(news.dataComment, offset, limit);
         const currentUrl = req.baseUrl;
 
@@ -403,17 +403,17 @@ const addReplyComment = async (req, res) => {
         const { dataCommentId, commentId } = req.params;
         const userId = req.userId;
         const { content } = req.body;
-        if (!content) return res.status(400).send({ message: "Write a message to comment" });
+        if (!content) return res.status(400).send({ message: "Write a message to reply" });
 
         const comment = await newsService.findCommentById(dataCommentId, commentId);
         const commentDataReplyId = comment.comment[0].dataReply;
 
         if (!commentDataReplyId) {
             await newsService.createReplyCommentDataService(dataCommentId, commentId, userId, content);
-            return res.status(200).send({ message: "Comment successfully completed" });
+            return res.status(200).send({ message: "Reply successfully completed" });
         } else {
             await newsService.upDateReplyCommentDataService(commentDataReplyId, userId, content);
-            return res.status(200).send({ message: "Comment successfully completed" });
+            return res.status(200).send({ message: "Reply successfully completed" });
         }
     } catch (err) {
         res.status(500).send({ message: err.message });
@@ -428,10 +428,10 @@ const deleteReply = async (req, res) => {
         const replyFind = await newsService.findReplyById(dataReplyId, replyId);
         if (!replyFind) return res.status(404).send({ message: "Reply not found" });
 
-        if (String(replyFind.reply[0].userId) !== userId) return res.status(400).send({ message: "You can't delete this comment" });
+        if (String(replyFind.reply[0].userId) !== userId) return res.status(400).send({ message: "You can't delete this reply" });
 
         await newsService.deleteReplyCommentService(dataReplyId, replyId);
-        res.send({ message: "Comment successfully removed" });
+        res.send({ message: "Reply successfully removed" });
 
     } catch (err) {
         res.status(500).send({ message: err.message });
@@ -450,11 +450,10 @@ const getPaginatedReply = async (req, res) => {
         if (!offset) offset = 0;
 
         const comment = await newsService.findCommentById(dataCommentId, commentId)
-        console.log(comment);
-        if(!comment) return res.status(404).send({ message: "Comment not found" });
+        if (!comment) return res.status(404).send({ message: "Comment not found" });
         const dataReply = comment.comment[0].dataReply;
-        
-        const total = await newsService.totalReplyCommentLengthService(dataReply);
+
+        const total = comment.comment[0].replyCount;
         const replies = await newsService.replyCommentsPipelineService(dataReply, offset, limit);
         const currentUrl = req.baseUrl;
 
@@ -472,6 +471,32 @@ const getPaginatedReply = async (req, res) => {
             total,
             replies
         });
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    };
+};
+
+const likeReply = async (req, res) => {
+    try {
+        const { dataReplyId, replyId } = req.params;
+        const userId = req.userId;
+
+        const reply = await newsService.findReplyById(dataReplyId, replyId);
+        const replyDataLikeId = reply.reply[0].dataLike;
+        if (!replyDataLikeId) {
+            await newsService.createLikeReplyDataService(dataReplyId, replyId, userId);
+            return res.send({ message: "Like done successfully" });
+        }
+
+        const isLiked = await newsService.isUserInLikeReplyArray(replyDataLikeId, userId);
+        if (!isLiked) {
+            await newsService.likeReplyService(replyDataLikeId, userId);
+            return res.status(200).send({ message: "Like done successfully" });
+        } else {
+            await newsService.deleteLikeReplyService(replyDataLikeId, userId);
+            return res.status(200).send({ message: "Like successfully removed" });
+
+        }
     } catch (err) {
         res.status(500).send({ message: err.message });
     };
@@ -495,5 +520,6 @@ export default {
     findAllCommentByNewsId,
     getPaginatedComments,
     getPaginatedLikes,
-    getPaginatedReply
+    getPaginatedReply,
+    likeReply
 };

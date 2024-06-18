@@ -8,6 +8,7 @@ import LikeNewsSchema from "../models/LikeNews.js"
 import CommentSchema from "../models/Comment.js"
 import LikeCommentSchema from "../models/LikeComment.js"
 import ReplyCommentSchema from "../models/ReplyComment.js"
+import LikeReplySchema from "../models/LikeReply.js"
 
 const connectDb = mongoose.createConnection(process.env.MONGODB_URI);
 
@@ -18,3 +19,4 @@ export const LikeNewsModel = connectDb.model("LikeNews", LikeNewsSchema, "likesN
 export const CommentModel = connectDb.model("Comment", CommentSchema, "comments");
 export const LikeCommentModel = connectDb.model("LikeComment", LikeCommentSchema, "likesComment");
 export const ReplyCommentModel = connectDb.model("ReplyComment", ReplyCommentSchema, "replyComment");
+export const LikeReplyModel = connectDb.model("LikeReply", LikeReplySchema, "likeReply");

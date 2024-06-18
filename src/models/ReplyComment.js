@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { NewsModel, CommentModel, ReplyCommentModel } from "../database/db.js"
+import { CommentModel, ReplyCommentModel } from "../database/db.js"
 
 const ReplyCommentSchema = new mongoose.Schema({
     dataCommentId: {
@@ -25,7 +25,7 @@ const ReplyCommentSchema = new mongoose.Schema({
             },
             dataLike: {
                 type: mongoose.Schema.Types.ObjectId,
-                ref: "",
+                ref: "LikeReply",
                 default: null,
             },
             likeCount: {
