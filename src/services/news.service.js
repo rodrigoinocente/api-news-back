@@ -35,13 +35,6 @@ const likeNewsService = (likesId, userId) => LikeNewsModel.findOneAndUpdate({ _i
 
 const deleteLikeNewsService = (likesId, userId) => LikeNewsModel.findOneAndUpdate({ _id: likesId }, { $pull: { likes: { userId } } });
 
-const totalLikesLengthService = async (dataLikeId) => {
-    const findArray = await LikeNewsModel.aggregate([{ $match: { _id: dataLikeId } },
-    { $unwind: "$likes" },
-    { $count: "likes" }]);
-    return findArray[0].likes;
-};
-
 const likesPipelineService = (dataCommentId, offset, limit) => {
     return LikeNewsModel.aggregate([
         { $match: { _id: dataCommentId } },
@@ -85,8 +78,6 @@ const deleteCommentService = async (dataCommentId, commentId) => {
 
 const findCommentById = (dataCommentId, commentId) => CommentModel.findOne(
     { _id: dataCommentId, "comment._id": commentId }, { "comment.$": 1 });
-
-const getAllCommentsByNewsId = (newsId) => CommentModel.find({ newsId: newsId });
 
 const commentsPipelineService = (dataCommentId, offset, limit) => {
     return CommentModel.aggregate([
@@ -219,12 +210,10 @@ export default {
     createCommentDataService,
     upDateCommentDataService,
     findCommentById,
-    getAllCommentsByNewsId,
     createLikeCommentDataService,
     likeCommentService,
     commentsPipelineService,
     isUserInLikeNewsArray,
-    totalLikesLengthService,
     likesPipelineService,
     isUserInLikeCommentArray,
     findReplyById,
