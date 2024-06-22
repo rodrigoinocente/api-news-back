@@ -38,13 +38,15 @@ const validComment = async (req, res, next) => {
 
 const validReply = async (req, res, next) => {
     try {
-        const { dataReplyId, replyId } = req.params;
+        let { dataReplyId, replyId } = req.params;
+        dataReplyId = new mongoose.Types.ObjectId(String(dataReplyId));
+        replyId = new mongoose.Types.ObjectId(String(replyId));
 
         if (!isValidObjectId(dataReplyId)) return res.status(400).send({ message: "Invalid ID" });
         if (!isValidObjectId(replyId)) return res.status(400).send({ message: "Invalid ID" });
 
         const reply = await newsService.findReplyById(dataReplyId, replyId);
-        if (!reply) return res.status(404).send({ message: "Reply not found" });
+        if (reply.length === 0) return res.status(404).send({ message: "Reply not found" });
 
         req.reply = reply;
         next();
