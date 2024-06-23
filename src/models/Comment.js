@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
-import { NewsModel, CommentModel } from "../database/db.js"
+import { NewsModel, CommentModel, LikeCommentModel, ReplyCommentModel, LikeReplyModel } from "../database/db.js"
+import newsService from "../services/news.service.js";
 
 const CommentSchema = new mongoose.Schema({
     newsId: {
@@ -51,13 +52,36 @@ CommentSchema.post('save', async function () {
     await news.save();
 });
 
-CommentSchema.post('findOneAndUpdate', async function () {
-    const commentsId = this.getQuery();
-    const dataCommentsUpdate = await CommentModel.findById(commentsId);
+CommentSchema.post('findOneAndUpdate', async function () { await updateCommentCountFromNews(this) });
 
-    const news = await NewsModel.findById(dataCommentsUpdate.newsId);
-    news.commentCount = dataCommentsUpdate.comment.length;
-    await news.save();
+CommentSchema.post('updateMany', async function () { await updateCommentCountFromNews(this) });
+
+CommentSchema.pre('updateMany', async function (next) {
+    const { _id: dataCommentId } = this.getQuery();
+    const { $pull: { comment: { _id: commentId } } } = this.getUpdate();
+
+    const comment = await newsService.findCommentById(dataCommentId, commentId);
+    if (comment.comment[0].dataLike) await LikeCommentModel.deleteOne(comment.comment[0].dataLike)
+    if (comment.comment[0].dataReply) {
+        const replies = await ReplyCommentModel.findById(comment.comment[0].dataReply);
+        for (const reply of replies.reply) if (reply.dataLike) await LikeReplyModel.deleteOne(reply.dataLike);
+
+        await ReplyCommentModel.deleteOne(comment.comment[0].dataReply);
+    };
+    next();
 });
+
+const updateCommentCountFromNews = async (thisContext) => {
+    const { _id: dataCommentId } = thisContext.getQuery();
+
+    const getReplyLength = await CommentModel.aggregate([
+        { $match: { _id: dataCommentId } },
+        { $project: { "_id": 0, "newsId": 1, "commentCount": { $size: "$comment" } } }
+    ]);
+
+    const news = await NewsModel.findById(getReplyLength[0].newsId);
+    news.commentCount = getReplyLength[0].commentCount;
+    await news.save();
+};
 
 export default CommentSchema;

@@ -394,7 +394,7 @@ const deleteReply = async (req, res) => {
         const userId = req.userId;
         const reply = req.reply;
 
-        if (String(reply[0].reply.userId) !== userId) return res.status(400).send({ message: "You can't delete this reply" });
+        if (String(reply.reply[0].userId) !== userId) return res.status(400).send({ message: "You can't delete this reply" });
         await newsService.deleteReplyCommentService(dataReplyId, replyId);
         res.send({ message: "Reply successfully removed" });
 
@@ -447,7 +447,7 @@ const likeReply = async (req, res) => {
         const userId = req.userId;
 
         const reply = req.reply;
-        const replyDataLikeId = reply[0].reply.dataLike;
+        const replyDataLikeId = reply.reply[0].dataLike;
         if (!replyDataLikeId) {
             await newsService.createLikeReplyDataService(dataReplyId, replyId, userId);
             return res.send({ message: "Like done successfully" });

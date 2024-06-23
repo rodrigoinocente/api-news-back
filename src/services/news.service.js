@@ -73,7 +73,7 @@ const upDateCommentDataService = async (dataCommentId, userId, content) => {
 };
 
 const deleteCommentService = async (dataCommentId, commentId) => {
-    await CommentModel.findOneAndUpdate({ _id: dataCommentId }, { $pull: { comment: { _id: commentId } } });
+    await CommentModel.updateMany({ _id: dataCommentId }, { $pull: { comment: { _id: commentId } } });
 };
 
 const findCommentById = (dataCommentId, commentId) => CommentModel.findOne(
@@ -136,12 +136,7 @@ const upDateReplyCommentDataService = async (commentDataReplyId, userId, content
     await ReplyCommentModel.findOneAndUpdate({ _id: commentDataReplyId }, { $push: { reply: [{ userId, content }] } });
 };
 
-const findReplyById = (dataReplyId, replyId) => {
-    return ReplyCommentModel.aggregate(
-        [{ $match: { _id: dataReplyId, } }, { $unwind: { path: "$reply" } },
-        { $match: { "reply._id": replyId } }]
-    )
-};
+const findReplyById = (dataReplyId, replyId) => ReplyCommentModel.findOne({ _id: dataReplyId, "reply._id": replyId }, { "reply.$": 1 })
 
 const deleteReplyCommentService = async (dataReplyId, replyId) => {
     await ReplyCommentModel.updateMany({ _id: dataReplyId }, { $pull: { reply: { _id: replyId } } });
