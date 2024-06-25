@@ -1,13 +1,13 @@
 import { Router } from "express";
 import userController from "../controllers/user.controller.js";
-import { validId, validUser, validEmail } from "../middlewares/user.middlewares.js";
+import { validUser, validEmail } from "../middlewares/user.middlewares.js";
 
 const route = Router();
 
 route.post("/", validEmail, userController.createUser);
-route.patch("/:userId", validId, validEmail, validUser, userController.update);
+route.patch("/:userId", validEmail, validUser, userController.update);
 route.get("/", userController.findAllUser);
 route.get("/email/:email", userController.findByEmail);
-route.get("/id/:userId", validId, validUser, userController.findById);
+route.get("/id/:userId", validUser, userController.findById);
 
 export default route;

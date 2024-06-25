@@ -30,16 +30,24 @@ const LikeCommentSchema = new mongoose.Schema({
 });
 
 LikeCommentSchema.post('save', async function () {
-    await CommentModel.updateOne({ _id: this.dataCommentId, "comment._id": this.commentId },
-        { $set: { "comment.$.likeCount": this.likes.length } });
+    try {
+        await CommentModel.updateOne({ _id: this.dataCommentId, "comment._id": this.commentId },
+            { $set: { "comment.$.likeCount": this.likes.length } });
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    };
 });
 
 LikeCommentSchema.post('findOneAndUpdate', async function () {
-    const dataLikesId = this.getQuery();
-    const dataLikesUpdate = await LikeCommentModel.findById(dataLikesId);
+    try {
+        const dataLikesId = this.getQuery();
+        const dataLikesUpdate = await LikeCommentModel.findById(dataLikesId);
 
-    await CommentModel.updateOne({ _id: dataLikesUpdate.dataCommentId, "comment._id": dataLikesUpdate.commentId },
-        { $set: { "comment.$.likeCount": dataLikesUpdate.likes.length } });
+        await CommentModel.updateOne({ _id: dataLikesUpdate.dataCommentId, "comment._id": dataLikesUpdate.commentId },
+            { $set: { "comment.$.likeCount": dataLikesUpdate.likes.length } });
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    };
 });
 
 export default LikeCommentSchema;

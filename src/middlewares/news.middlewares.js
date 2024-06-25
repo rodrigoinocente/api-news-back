@@ -9,7 +9,7 @@ const validNews = async (req, res, next) => {
 
         if (!isValidObjectId(newsId)) return res.status(400).send({ message: "Invalid ID" });
 
-        const news = await newsService.findByIdService(newsId);
+        const news = await newsService.findNewsByIdService(newsId);
         if (!news) return res.send({ message: "News not found" });
 
         req.news = news;

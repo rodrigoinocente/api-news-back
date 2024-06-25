@@ -25,18 +25,26 @@ const LikeNewsSchema = new mongoose.Schema({
 });
 
 LikeNewsSchema.post('save', async function () {
-    const news = await NewsModel.findById(this.newsId);
-    news.likeCount = this.likes.length;
-    await news.save();
+    try {
+        const news = await NewsModel.findById(this.newsId);
+        news.likeCount = this.likes.length;
+        await news.save();
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    };
 });
 
-LikeNewsSchema.post('findOneAndUpdate',  async function () {
-    const likesId = this.getQuery();
-    const dataLikeUpdate = await LikeNewsModel.findById(likesId);
-    
-    const news = await NewsModel.findById(dataLikeUpdate.newsId);
-    news.likeCount = dataLikeUpdate.likes.length;
-    await news.save();
+LikeNewsSchema.post('findOneAndUpdate', async function () {
+    try {
+        const likesId = this.getQuery();
+        const dataLikeUpdate = await LikeNewsModel.findById(likesId);
+
+        const news = await NewsModel.findById(dataLikeUpdate.newsId);
+        news.likeCount = dataLikeUpdate.likes.length;
+        await news.save();
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    };
 });
 
 export default LikeNewsSchema;

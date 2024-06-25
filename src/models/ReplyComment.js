@@ -43,8 +43,12 @@ const ReplyCommentSchema = new mongoose.Schema({
 });
 
 ReplyCommentSchema.post('save', async function () {
-    await CommentModel.updateOne({ _id: this.dataCommentId, "comment._id": this.commentId },
-        { $set: { "comment.$.replyCount": this.reply.length } });
+    try {
+        await CommentModel.updateOne({ _id: this.dataCommentId, "comment._id": this.commentId },
+            { $set: { "comment.$.replyCount": this.reply.length } });
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    };
 });
 
 ReplyCommentSchema.post('findOneAndUpdate', async function () { await updateReplyCountFromComment(this) });
@@ -52,24 +56,32 @@ ReplyCommentSchema.post('findOneAndUpdate', async function () { await updateRepl
 ReplyCommentSchema.post('updateMany', async function () { await updateReplyCountFromComment(this) });
 
 ReplyCommentSchema.pre('updateMany', async function (next) {
-    const { _id: dataReplyId } = this.getQuery();
-    const { $pull: { reply: { _id: replyId } } } = this.getUpdate();
+    try {
+        const { _id: dataReplyId } = this.getQuery();
+        const { $pull: { reply: { _id: replyId } } } = this.getUpdate();
 
-    const reply = await newsService.findReplyById(dataReplyId, replyId)
-    const replyDataLike = reply.reply[0].dataLike;
-    if (replyDataLike) await LikeReplyModel.deleteOne(replyDataLike)
-    next();
+        const reply = await newsService.findReplyById(dataReplyId, replyId)
+        const replyDataLike = reply.reply[0].dataLike;
+        if (replyDataLike) await LikeReplyModel.deleteOne(replyDataLike)
+        next();
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    };
 });
 
 const updateReplyCountFromComment = async (thisContext) => {
-    const { _id: dataReplyId } = thisContext.getQuery();
+    try {
+        const { _id: dataReplyId } = thisContext.getQuery();
 
-    const getReplyLength = await ReplyCommentModel.aggregate([{ $match: { _id: dataReplyId } },
-    { $project: { "_id": 0, "dataCommentId": 1, "commentId": 1, "replyCount": { $size: "$reply" } } }
-    ]);
+        const getReplyLength = await ReplyCommentModel.aggregate([{ $match: { _id: dataReplyId } },
+        { $project: { "_id": 0, "dataCommentId": 1, "commentId": 1, "replyCount": { $size: "$reply" } } }
+        ]);
 
-    await CommentModel.updateOne({ _id: getReplyLength[0].dataCommentId, "comment._id": getReplyLength[0].commentId },
-        { $set: { "comment.$.replyCount": getReplyLength[0].replyCount } });
+        await CommentModel.updateOne({ _id: getReplyLength[0].dataCommentId, "comment._id": getReplyLength[0].commentId },
+            { $set: { "comment.$.replyCount": getReplyLength[0].replyCount } });
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    };
 };
 
 export default ReplyCommentSchema;

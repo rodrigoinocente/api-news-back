@@ -29,16 +29,24 @@ const LikeReplySchema = new mongoose.Schema({
 });
 
 LikeReplySchema.post('save', async function () {
-    await ReplyCommentModel.updateOne({ _id: this.dataReplyCommentId, "reply._id": this.replyCommentId },
-        { $set: { "reply.$.likeCount": this.likes.length } });
+    try {
+        await ReplyCommentModel.updateOne({ _id: this.dataReplyCommentId, "reply._id": this.replyCommentId },
+            { $set: { "reply.$.likeCount": this.likes.length } });
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    };
 });
 
 LikeReplySchema.post('findOneAndUpdate', async function () {
-    const likesId = this.getQuery();
-    const likeReplyUpdate = await LikeReplyModel.findById(likesId);
+    try {
+        const likesId = this.getQuery();
+        const likeReplyUpdate = await LikeReplyModel.findById(likesId);
 
-    await ReplyCommentModel.updateOne({ _id: likeReplyUpdate.dataReplyCommentId, "reply._id": likeReplyUpdate.replyCommentId },
-        { $set: { "reply.$.likeCount": likeReplyUpdate.likes.length } });
+        await ReplyCommentModel.updateOne({ _id: likeReplyUpdate.dataReplyCommentId, "reply._id": likeReplyUpdate.replyCommentId },
+            { $set: { "reply.$.likeCount": likeReplyUpdate.likes.length } });
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    };
 });
 
 export default LikeReplySchema;

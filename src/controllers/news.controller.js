@@ -203,7 +203,7 @@ const erase = async (req, res) => {
             return res.status(400).send({ message: "You didn't delete this post" });
         }
 
-        await newsService.eraseService(news._id);
+        await newsService.eraseNewsService(news._id);
 
         return res.send({ message: "Post deleted successfully" });
 

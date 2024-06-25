@@ -9,7 +9,7 @@ const countNewsService = () => NewsModel.countDocuments();
 
 const topNewsService = () => NewsModel.findOne().sort({ _id: -1 }).populate("user");
 
-const findByIdService = (newsId) => NewsModel.findById(newsId).populate("user");
+const findNewsByIdService = (newsId) => NewsModel.findById(newsId).populate("user");
 
 const searchByTitleService = (title) => NewsModel.find({ title: { $regex: `${title || ""}`, $options: "i" } })
     .sort({ _id: -1 })
@@ -21,7 +21,7 @@ const upDateService = (newsId, title, text, banner) => NewsModel.findOneAndUpdat
     { title, text, banner },
     { rawResult: true, });
 
-const eraseService = (newsId) => NewsModel.findOneAndDelete({ _id: newsId });
+const eraseNewsService = (newsId) => NewsModel.findOneAndDelete({ _id: newsId });
 
 const createNewsDataLikeService = async (newsId, userId) => {
     const newDataLike = await LikeNewsModel.create({ newsId, likes: { userId } });
@@ -193,11 +193,11 @@ export default {
     findAllNewsService,
     countNewsService,
     topNewsService,
-    findByIdService,
+    findNewsByIdService,
     searchByTitleService,
     newsByUserService,
     upDateService,
-    eraseService,
+    eraseNewsService,
     likeNewsService,
     deleteLikeCommentService,
     deleteLikeNewsService,
