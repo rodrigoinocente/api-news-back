@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true,
+    "strictPropertyInitialization": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "module": "commonjs",
+    "outDir": "./built",
+    "allowJs": true,
+    "target": "es5",
+    "moduleResolution": "Node"
+  },
+  "include": [
+    "src/**/*",
+     "index.ts",
+     "custom.d.ts"
+    ], 
+}

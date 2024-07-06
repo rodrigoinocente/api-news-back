@@ -1,0 +1,23 @@
+import mongoose from "mongoose";
+import dotenv from 'dotenv';
+dotenv.config();
+
+import UserSchema from "../models/User";
+import NewsSchema from "../models/News";
+import LikeNewsSchema from "../models/LikeNews";
+import CommentSchema from "../models/Comment";
+import LikeCommentSchema from "../models/LikeComment";
+import ReplyCommentSchema from "../models/ReplyComment";
+import LikeReplySchema from "../models/LikeReply";
+import { ICommentNews, ILikeComment, ILikeNews, ILikeReply, INews, IReplyComment, IUser } from "../../custom";
+
+const connectDb = mongoose.createConnection(process.env.MONGODB_URI as any);
+
+
+export const UserModel = connectDb.model<IUser>("User", UserSchema, "users");
+export const NewsModel = connectDb.model<INews>("News", NewsSchema, "news");
+export const LikeNewsModel = connectDb.model<ILikeNews>("LikeNews", LikeNewsSchema, "likesNews");
+export const CommentModel = connectDb.model<ICommentNews>("Comment", CommentSchema, "comments");
+export const LikeCommentModel = connectDb.model<ILikeComment>("LikeComment", LikeCommentSchema, "likesComment");
+export const ReplyCommentModel = connectDb.model<IReplyComment>("ReplyComment", ReplyCommentSchema, "replyComment");
+export const LikeReplyModel = connectDb.model<ILikeReply>("LikeReply", LikeReplySchema, "likeReply");

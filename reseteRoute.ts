@@ -1,9 +1,10 @@
 import { Router } from "express";
 const route = Router();
 
-import { NewsModel, CommentModel, LikeNewsModel, LikeCommentModel, ReplyCommentModel, LikeReplyModel } from "./src/database/db.js";
+import {  Request, Response } from "express";
+import { NewsModel, CommentModel, LikeNewsModel, LikeCommentModel, ReplyCommentModel, LikeReplyModel } from "./src/database/db";
 
-route.delete("/", async (req, res) => {
+route.delete("/", async (req: Request, res: Response) => {
     await NewsModel.deleteMany({});
     await CommentModel.deleteMany({});
     await LikeNewsModel.deleteMany({});

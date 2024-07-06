@@ -1,7 +1,8 @@
 import jwt from "jsonwebtoken";
-import userService from "../services/user.service.js";
+import userService from "../services/user.service";
+import { NextFunction, Request, Response } from "express";
 
-const authMiddleware = (req, res, next) => {
+const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
     try {
         const { authorization } = req.headers;
 
@@ -13,16 +14,16 @@ const authMiddleware = (req, res, next) => {
         const [schema, token] = parts;
         if (schema !== "Bearer") return res.status(401);
 
-        jwt.verify(token, process.env.SECRET_JWT, async (error, decoded) => {
+        jwt.verify(token, process.env.SECRET_JWT as string, async (error: any, decoded: any) => {
             if (error) return res.status(401).send({ message: "Token invalid" });
 
             const user = await userService.findByIdService(decoded.id);
-            if (!user || !user.id) return res.status(401).send({ message: "User not found" });
+            if (!user || !user._id) return res.status(401).send({ message: "User not found" });
 
-            req.userId = user.id;
+            res.locals.userId = user._id;
             next();
         });
-    } catch (err) {
+    } catch (err: any) {
         res.status(500).send({ message: err.message });
     };
 };

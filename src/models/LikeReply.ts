@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
-import { ReplyCommentModel, LikeReplyModel } from "../database/db.js"
+import { ReplyCommentModel, LikeReplyModel } from "../database/db"
+import { ILikeReply } from "../../custom";
 
 const LikeReplySchema = new mongoose.Schema({
     dataReplyCommentId: {
@@ -29,24 +30,17 @@ const LikeReplySchema = new mongoose.Schema({
 });
 
 LikeReplySchema.post('save', async function () {
-    try {
-        await ReplyCommentModel.updateOne({ _id: this.dataReplyCommentId, "reply._id": this.replyCommentId },
-            { $set: { "reply.$.likeCount": this.likes.length } });
-    } catch (err) {
-        res.status(500).send({ message: err.message });
-    };
+    await ReplyCommentModel.updateOne({ _id: this.dataReplyCommentId, "reply._id": this.replyCommentId },
+        { $set: { "reply.$.likeCount": this.likes.length } });
 });
 
 LikeReplySchema.post('findOneAndUpdate', async function () {
-    try {
-        const likesId = this.getQuery();
-        const likeReplyUpdate = await LikeReplyModel.findById(likesId);
-
+    const likesId = this.getQuery();
+    const likeReplyUpdate: ILikeReply | null = await LikeReplyModel.findById(likesId);
+    if (likeReplyUpdate) {
         await ReplyCommentModel.updateOne({ _id: likeReplyUpdate.dataReplyCommentId, "reply._id": likeReplyUpdate.replyCommentId },
             { $set: { "reply.$.likeCount": likeReplyUpdate.likes.length } });
-    } catch (err) {
-        res.status(500).send({ message: err.message });
-    };
+    }
 });
 
 export default LikeReplySchema;

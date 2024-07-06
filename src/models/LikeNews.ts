@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
-import { NewsModel, LikeNewsModel } from "../database/db.js"
+import { NewsModel, LikeNewsModel } from "../database/db"
+import { INews, ILikeNews } from "../../custom";
 
 const LikeNewsSchema = new mongoose.Schema({
     newsId: {
@@ -25,26 +26,23 @@ const LikeNewsSchema = new mongoose.Schema({
 });
 
 LikeNewsSchema.post('save', async function () {
-    try {
-        const news = await NewsModel.findById(this.newsId);
+    const news: INews | null = await NewsModel.findById(this.newsId);
+    if (news) {
         news.likeCount = this.likes.length;
         await news.save();
-    } catch (err) {
-        res.status(500).send({ message: err.message });
-    };
+    }
 });
 
 LikeNewsSchema.post('findOneAndUpdate', async function () {
-    try {
-        const likesId = this.getQuery();
-        const dataLikeUpdate = await LikeNewsModel.findById(likesId);
-
-        const news = await NewsModel.findById(dataLikeUpdate.newsId);
-        news.likeCount = dataLikeUpdate.likes.length;
-        await news.save();
-    } catch (err) {
-        res.status(500).send({ message: err.message });
-    };
+    const likesId = this.getQuery();
+    const dataLikeUpdate: ILikeNews | null = await LikeNewsModel.findById(likesId);
+    if (dataLikeUpdate) {
+        const news: INews | null = await NewsModel.findById(dataLikeUpdate.newsId);
+        if (news) {
+            news.likeCount = dataLikeUpdate.likes.length;
+            await news.save();
+        }
+    }
 });
 
 export default LikeNewsSchema;

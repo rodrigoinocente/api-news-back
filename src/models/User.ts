@@ -24,12 +24,8 @@ const UserSchema = new mongoose.Schema({
 });
 
 UserSchema.pre("save", async function (next) {
-    try {
-        this.password = await bcrypt.hash(this.password, 10);
-        next();
-    } catch (err) {
-        res.status(500).send({ message: err.message });
-    };
+    this.password = await bcrypt.hash(this.password, 10);
+    next();
 });
 
 export default UserSchema;

@@ -1,9 +1,9 @@
 import { Router } from "express";
 const route = Router();
 
-import newsController from "../controllers/news.controller.js";
-import { authMiddleware } from "../middlewares/auth.middlewares.js";
-import { validNews, validComment, validReply } from "../middlewares/news.middlewares.js";
+import newsController from "../controllers/news.controller";
+import { authMiddleware } from "../middlewares/auth.middlewares";
+import { validNews, validComment, validReply } from "../middlewares/news.middlewares";
 
 
 route.post("/", authMiddleware, newsController.create);

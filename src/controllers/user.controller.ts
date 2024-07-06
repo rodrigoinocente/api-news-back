@@ -1,6 +1,8 @@
-import userService from "../services/user.service.js";
+import { Request, Response } from "express";
+import userService from "../services/user.service";
+import { IUser } from "../../custom";
 
-const createUser = async (req, res) => {
+const createUser = async (req: Request, res: Response): Promise<Response | void> => {
     try {
         const { name, username, email, password } = req.body;
 
@@ -8,7 +10,7 @@ const createUser = async (req, res) => {
             return res.status(400).send({ message: "Submit all fields for registration" });
         }
 
-        const createdUser = await userService.createService(req.body);
+        const createdUser: IUser = await userService.createService(req.body);
 
         if (!createdUser) {
             return res.status(400).send({ message: "Error creating User" });
@@ -23,53 +25,46 @@ const createUser = async (req, res) => {
                 email
             }
         });
-    } catch (err) {
+    } catch (err: any) {
         res.status(500).send({ message: err.message });
     };
 };
 
-const findAllUser = async (req, res) => {
+const findAllUser = async (req: Request, res: Response): Promise<Response | void> => {
     try {
-        const users = await userService.findAllUserService();
-
-        if (users.length === 0) {
-            return res.status(400).send({ message: "There are no registered users" });
-        }
+        const users: IUser[] = await userService.findAllUserService();
+        if (users.length === 0) return res.status(400).send({ message: "There are no registered users" });
 
         res.send(users);
-
-    } catch (err) {
+    } catch (err: any) {
         res.status(500).send({ message: err.message });
     };
 };
 
-const findByEmail = async (req, res) => {
+const findByEmail = async (req: Request, res: Response): Promise<Response | void> => {
     try {
         const email = req.params.email;
-        const user = await userService.findByEmailService(email);
+        const user: IUser | null = await userService.findByEmailService(email);
 
-        if (!user) {
-            return res.status(400).send({ message: "User not found by email" });
-        }
+        if (!user) return res.status(400).send({ message: "User not found by email" });
 
         res.send(user);
-
-    } catch (err) {
+    } catch (err: any) {
         res.status(500).send({ message: err.message });
     };
 };
 
-const findById = async (req, res) => {
+const findById = async (req: Request, res: Response): Promise<Response | void> => {
     try {
-        const user = req.user;
+        const user: IUser = res.locals.user;
         res.send(user);
 
-    } catch (err) {
+    } catch (err: any) {
         res.status(500).send({ message: err.message });
     };
 };
 
-const update = async (req, res) => {
+const update = async (req: Request, res: Response): Promise<Response | void> => {
     try {
         const { name, username, email, password } = req.body;
 
@@ -77,7 +72,7 @@ const update = async (req, res) => {
             return res.status(400).send({ message: "Submit at least one fields for update" });
         }
 
-        const userId = req.userId;
+        const userId = res.locals.userId;
 
         await userService.updateService(
             userId,
@@ -89,7 +84,7 @@ const update = async (req, res) => {
 
         res.send({ message: "User successfully updated" });
 
-    } catch (err) {
+    } catch (err: any) {
         res.status(500).send({ message: err.message });
     };
 };

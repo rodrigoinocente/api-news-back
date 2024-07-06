@@ -1,6 +1,9 @@
-import newsService from "../services/news.service.js";
+import { Types } from "mongoose";
+import { ICommentNews, ILikeNews, INews, IReplyComment } from "../../custom";
+import newsService from "../services/news.service";
+import { Request, Response } from "express"
 
-const create = async (req, res) => {
+const create = async (req: Request, res: Response): Promise<Response | void> => {
     try {
         const { title, text, banner } = req.body;
 
@@ -12,33 +15,23 @@ const create = async (req, res) => {
             title,
             text,
             banner,
-            user: req.userId,
+            user: res.locals.userId,
         });
 
         res.sendStatus(201);
 
-    } catch (err) {
+    } catch (err: any) {
         res.status(500).send({ message: err.message });
     };
 };
 
-const findAll = async (req, res) => {
+const findAll = async (req: Request, res: Response): Promise<Response | void> => {
     try {
-        let { limit, offset } = req.query;
+        let limit = req.query.limit ? Number(req.query.limit) : 5;
+        let offset = req.query.offset ? Number(req.query.offset) : 0;
 
-        limit = Number(limit);
-        offset = Number(offset);
-
-        if (!limit) {
-            limit = 5;
-        }
-
-        if (!offset) {
-            offset = 0;
-        }
-
-        const news = await newsService.findAllNewsService(offset, limit);
-        const total = await newsService.countNewsService();
+        const news: INews[] = await newsService.findAllNewsService(offset, limit);
+        const total: number = await newsService.countNewsService();
         const currentUrl = req.baseUrl;
 
         const next = offset + limit;
@@ -58,7 +51,7 @@ const findAll = async (req, res) => {
             offset,
             total,
 
-            results: news.map((item) => ({
+            results: news.map((item: any) => ({
                 newsId: item._id,
                 title: item.title,
                 text: item.text,
@@ -72,35 +65,38 @@ const findAll = async (req, res) => {
                 userName: item.user.username,
             })),
         });
-    } catch (err) {
+    } catch (err: any) {
         res.status(500).send({ message: err.message });
     };
 };
 
-const topNews = async (req, res) => {
+const topNews = async (req: Request, res: Response): Promise<Response | void> => {
     try {
-        const news = await newsService.topNewsService();
-
-        res.send({
-            news: {
-                newsId: news._id,
-                title: news.title,
-                text: news.text,
-                banner: news.banner,
-                likes: news.likes,
-                comments: news.comments,
-                name: news.user.name,
-                userName: news.user.username,
-            }
-        });
-    } catch (err) {
+        const news: INews | null = await newsService.topNewsService();
+        if (news) {
+            return res.send({
+                news: {
+                    newsId: news._id,
+                    title: news.title,
+                    text: news.text,
+                    banner: news.banner,
+                    dataLike: news.dataLike,
+                    likeCount: news.likeCount,
+                    dataComment: news.dataComment,
+                    commentCount: news.commentCount,
+                    name: news.user.name,
+                    userName: news.user.username,
+                },
+            });
+        }
+    } catch (err: any) {
         res.status(500).send({ message: err.message });
     };
 };
 
-const findById = async (req, res) => {
+const findById = async (req: Request, res: Response): Promise<Response | void> => {
     try {
-        const news = req.news;
+        const news: INews = res.locals.news;
 
         return res.send({
             news: {
@@ -116,48 +112,35 @@ const findById = async (req, res) => {
                 userName: news.user.username,
             },
         });
-    } catch (err) {
+    } catch (err: any) {
         res.status(500).send({ message: err.message });
     };
 };
 
-const searchByTitle = async (req, res) => {
+const searchByTitle = async (req: Request, res: Response): Promise<Response | void> => {
     try {
         const { title } = req.query;
 
-        const news = await newsService.searchByTitleService(title);
-
+        const news: INews[] | null = await newsService.searchByTitleService(title as string);
+        if (!news) return res.send({ message: "News not found" });
         if (news.length === 0) {
             return res.status(400).send({ message: "There are no posts with this title" });
         }
 
-        return res.send({
-            news: {
-                results: news.map((item) => ({
-                    newsId: item._id,
-                    title: item.title,
-                    text: item.text,
-                    banner: item.banner,
-                    likes: item.likes,
-                    comments: item.comments,
-                    name: item.user.name,
-                    userName: item.user.username,
-                })),
-            }
-        });
-    } catch (err) {
+        return res.send(news);
+    } catch (err: any) {
         res.status(500).send({ message: err.message });
     };
 };
 
-const newsByUser = async (req, res) => {
+const newsByUser = async (req: Request, res: Response): Promise<Response | void> => {
     try {
-        const userId = req.userId;
-        const news = await newsService.newsByUserService(userId);
+        const userId = res.locals.userId;
+        const news: INews = await newsService.newsByUserService(userId);
 
         return res.send({
             news: {
-                results: news.map((item) => ({
+                results: news.map((item: any) => ({
                     id: item._id,
                     title: item.title,
                     text: item.text,
@@ -169,37 +152,37 @@ const newsByUser = async (req, res) => {
                 })),
             }
         });
-    } catch (err) {
+    } catch (err: any) {
         res.status(500).send({ message: err.message });
     };
 };
 
-const upDate = async (req, res) => {
+const upDate = async (req: Request, res: Response): Promise<Response | void> => {
     try {
         const { title, text, banner } = req.body;
-        const news = req.news;
+        const news: INews = res.locals.news;
 
         if (!title && !text && !banner) {
             return res.status(400).send({ message: "Submit at least one fields to update the post" });
         }
 
-        if (String(news.user._id) !== req.userId) {
+        if (String(news.user._id) !== res.locals.userId) {
             return res.status(400).send({ message: "You didn't update this post" });
         }
 
         await newsService.upDateService(news._id, title, text, banner);
         return res.send({ message: "Post successfully updated" });
 
-    } catch (err) {
+    } catch (err: any) {
         res.status(500).send({ message: err.message });
     };
 };
 
-const erase = async (req, res) => {
+const erase = async (req: Request, res: Response): Promise<Response | void> => {
     try {
-        const news = req.news;
+        const news: INews = res.locals.news;
 
-        if (String(news.user._id) !== req.userId) {
+        if (String(news.user._id) !== res.locals.userId) {
             return res.status(400).send({ message: "You didn't delete this post" });
         }
 
@@ -207,15 +190,15 @@ const erase = async (req, res) => {
 
         return res.send({ message: "Post deleted successfully" });
 
-    } catch (err) {
+    } catch (err: any) {
         res.status(500).send({ message: err.message });
     };
 };
 
-const likeNews = async (req, res) => {
+const likeNews = async (req: Request, res: Response): Promise<Response | void> => {
     try {
-        const news = req.news;
-        const userId = req.userId;
+        const news: INews = res.locals.news;
+        const userId: Types.ObjectId = res.locals.userId;
 
         if (!news.dataLike) {
             await newsService.createNewsDataLikeService(news._id, userId);
@@ -230,25 +213,20 @@ const likeNews = async (req, res) => {
             await newsService.deleteLikeNewsService(news.dataLike, userId);
             return res.status(200).send({ message: "Like successfully removed" });
         }
-    } catch (err) {
+    } catch (err: any) {
         res.status(500).send({ message: err.message });
     };
 };
 
-const getPaginatedLikes = async (req, res) => {
+const getPaginatedLikes = async (req: Request, res: Response): Promise<Response | void> => {
     try {
-        const news = req.news;
-        let { limit, offset } = req.query;
+        const news: INews = res.locals.news;
+        let limit = req.query.limit ? Number(req.query.limit) : 5;
+        let offset = req.query.offset ? Number(req.query.offset) : 0;
 
-        limit = Number(limit);
-        offset = Number(offset);
-
-        if (!limit) limit = 10;
-        if (!offset) offset = 0;
-
-        const total = news.likeCount;
+        const total: number = news.likeCount;
         const currentUrl = req.baseUrl;
-        const likes = await newsService.likesPipelineService(news.dataLike, offset, limit);
+        const likes: ILikeNews[] = await newsService.likesPipelineService(news.dataLike, offset, limit);
         if (likes.length === 0) return res.status(400).send({ message: "There are no registered likes" });
 
         const next = offset + limit;
@@ -265,15 +243,15 @@ const getPaginatedLikes = async (req, res) => {
             total,
             likes
         });
-    } catch (err) {
+    } catch (err: any) {
         res.status(500).send({ message: err.message });
     };
 };
 
-const addComment = async (req, res) => {
+const addComment = async (req: Request, res: Response): Promise<Response | void> => {
     try {
-        const news = req.news;
-        const userId = req.userId;
+        const news: INews = res.locals.news;
+        const userId: Types.ObjectId = res.locals.userId;
         const { content } = req.body;
 
         if (!content) return res.status(400).send({ message: "Write a message to comment" });
@@ -285,41 +263,38 @@ const addComment = async (req, res) => {
             await newsService.upDateCommentDataService(news.dataComment, userId, content);
             res.send({ message: "Comment successfully completed" });
         }
-    } catch (err) {
+    } catch (err: any) {
         res.status(500).send({ message: err.message });
     };
 };
 
-const deleteComment = async (req, res) => {
+const deleteComment = async (req: Request, res: Response): Promise<Response | void> => {
     try {
-        const { dataCommentId, commentId } = req.params;
-        const comment = req.comment;
-        const userId = req.userId;
+        const dataCommentId = new Types.ObjectId(req.params.dataCommentId);
+        const commentId = new Types.ObjectId(req.params.commentId);
+
+        const comment: ICommentNews = res.locals.comment;
+        const userId = res.locals.userId;
 
         if (String(comment.comment[0].userId) !== userId) return res.status(400).send({ message: "You can't delete this comment" });
 
         await newsService.deleteCommentService(dataCommentId, commentId)
         res.send({ message: "Comment successfully removed" });
 
-    } catch (err) {
+    } catch (err: any) {
         res.status(500).send({ message: err.message });
     };
 };
 
-const getPaginatedComments = async (req, res) => {
+const getPaginatedComments = async (req: Request, res: Response): Promise<Response | void> => {
     try {
-        const news = req.news;
-        let { limit, offset } = req.query;
+        const news: INews = res.locals.news;
+        let limit = req.query.limit ? Number(req.query.limit) : 10;
+        let offset = req.query.offset ? Number(req.query.offset) : 0;
 
-        limit = Number(limit);
-        offset = Number(offset);
-
-        if (!limit) limit = 10;
-        if (!offset) offset = 0;
-
-        const total = news.commentCount;
+        const total: number = news.commentCount;
         const currentUrl = req.baseUrl;
-        const comments = await newsService.commentsPipelineService(news.dataComment, offset, limit);
+        const comments: ICommentNews[] = await newsService.commentsPipelineService(news.dataComment, offset, limit);
         if (comments.length === 0) return res.status(400).send({ message: "There are no registered comments" });
 
         const next = offset + limit;
@@ -336,16 +311,17 @@ const getPaginatedComments = async (req, res) => {
             total,
             comments
         });
-    } catch (err) {
+    } catch (err: any) {
         res.status(500).send({ message: err.message });
     };
 };
 
-const likeComment = async (req, res) => {
+const likeComment = async (req: Request, res: Response): Promise<Response | void> => {
     try {
-        const { dataCommentId, commentId } = req.params;
-        const userId = req.userId;
-        const comment = req.comment;
+        const dataCommentId = new Types.ObjectId(req.params.dataCommentId);
+        const commentId = new Types.ObjectId(req.params.commentId);
+        const userId: Types.ObjectId = res.locals.userId;
+        const comment: ICommentNews = res.locals.comment;
 
         const commentDataLikeId = comment.comment[0].dataLike;
         if (!commentDataLikeId) {
@@ -362,16 +338,17 @@ const likeComment = async (req, res) => {
             return res.status(200).send({ message: "Like successfully removed" });
 
         }
-    } catch (err) {
+    } catch (err: any) {
         res.status(500).send({ message: err.message });
     };
 };
 
-const addReplyComment = async (req, res) => {
+const addReplyComment = async (req: Request, res: Response): Promise<Response | void> => {
     try {
-        const comment = req.comment;
-        const { dataCommentId, commentId } = req.params;
-        const userId = req.userId;
+        const dataCommentId = new Types.ObjectId(req.params.dataCommentId);
+        const commentId = new Types.ObjectId(req.params.commentId);
+        const comment: ICommentNews = res.locals.comment;
+        const userId: Types.ObjectId = res.locals.userId;
         const { content } = req.body;
         if (!content) return res.status(400).send({ message: "Write a message to reply" });
 
@@ -383,43 +360,40 @@ const addReplyComment = async (req, res) => {
             await newsService.upDateReplyCommentDataService(commentDataReplyId, userId, content);
             return res.status(200).send({ message: "Reply successfully completed" });
         }
-    } catch (err) {
+    } catch (err: any) {
         res.status(500).send({ message: err.message });
     };
 };
 
-const deleteReply = async (req, res) => {
+const deleteReply = async (req: Request, res: Response): Promise<Response | void> => {
     try {
-        const { dataReplyId, replyId } = req.params;
-        const userId = req.userId;
-        const reply = req.reply;
+        const dataReplyId = new Types.ObjectId(req.params.dataReplyId);
+        const replyId = new Types.ObjectId(req.params.replyId);
+        const userId = res.locals.userId;
+        const reply: IReplyComment = res.locals.reply;
 
         if (String(reply.reply[0].userId) !== userId) return res.status(400).send({ message: "You can't delete this reply" });
         await newsService.deleteReplyCommentService(dataReplyId, replyId);
         res.send({ message: "Reply successfully removed" });
 
-    } catch (err) {
+    } catch (err: any) {
         res.status(500).send({ message: err.message });
     };
 };
 
-const getPaginatedReply = async (req, res) => {
+const getPaginatedReply = async (req: Request, res: Response): Promise<Response | void> => {
     try {
-        const { dataCommentId, commentId } = req.params;
-        let { limit, offset } = req.query;
+        const dataCommentId = new Types.ObjectId(req.params.dataCommentId);
+        const commentId = new Types.ObjectId(req.params.commentId);
+        let limit = req.query.limit ? Number(req.query.limit) : 10;
+        let offset = req.query.offset ? Number(req.query.offset) : 0;
 
-        limit = Number(limit);
-        offset = Number(offset);
-
-        if (!limit) limit = 10;
-        if (!offset) offset = 0;
-
-        const comment = req.comment;
+        const comment: ICommentNews = res.locals.comment;
         const dataReply = comment.comment[0].dataReply;
 
-        const total = comment.comment[0].replyCount;
+        const total: number = comment.comment[0].replyCount;
         const currentUrl = req.baseUrl;
-        const replies = await newsService.replyCommentsPipelineService(dataReply, offset, limit);
+        const replies: IReplyComment[] = await newsService.replyCommentsPipelineService(dataReply, offset, limit);
         if (replies.length === 0) return res.status(400).send({ message: "There are no registered replies" });
 
         const next = offset + limit;
@@ -436,17 +410,18 @@ const getPaginatedReply = async (req, res) => {
             total,
             replies
         });
-    } catch (err) {
+    } catch (err: any) {
         res.status(500).send({ message: err.message });
     };
 };
 
-const likeReply = async (req, res) => {
+const likeReply = async (req: Request, res: Response): Promise<Response | void> => {
     try {
-        const { dataReplyId, replyId } = req.params;
-        const userId = req.userId;
+        const dataReplyId = new Types.ObjectId(req.params.dataReplyId);
+        const replyId = new Types.ObjectId(req.params.replyId);
+        const userId: Types.ObjectId = res.locals.userId;
 
-        const reply = req.reply;
+        const reply: IReplyComment = res.locals.reply;
         const replyDataLikeId = reply.reply[0].dataLike;
         if (!replyDataLikeId) {
             await newsService.createLikeReplyDataService(dataReplyId, replyId, userId);
@@ -462,7 +437,7 @@ const likeReply = async (req, res) => {
             return res.status(200).send({ message: "Like successfully removed" });
 
         }
-    } catch (err) {
+    } catch (err: any) {
         res.status(500).send({ message: err.message });
     };
 };

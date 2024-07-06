@@ -1,9 +1,10 @@
-import userService from "../services/user.service.js";
+import { NextFunction, Request, Response } from "express";
+import userService from "../services/user.service";
 import mongoose from "mongoose";
 
-const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
+const isValidObjectId = (id: string): boolean => mongoose.Types.ObjectId.isValid(id);
 
-const validUser = async (req, res, next) => {
+const validUser = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
     try {
         const userId = req.params.userId;
 
@@ -12,16 +13,16 @@ const validUser = async (req, res, next) => {
         const user = await userService.findByIdService(userId);
         if (!user) return res.status(400).send({ message: "User not found by ID" });
 
-        req.userId = userId;
-        req.user = user;
+        res.locals.userId = userId;
+        res.locals.user = user;
         next();
 
-    } catch (err) {
+    } catch (err: any) {
         res.status(500).send({ message: err.message });
     };
 };
 
-const validEmail = async (req, res, next) => {
+const validEmail = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
     try {
         const { email } = req.body;
 
@@ -31,7 +32,7 @@ const validEmail = async (req, res, next) => {
         if (existEmail) return res.status(400).send({ message: "The provided email is already in use" });
 
         next();
-    } catch (err) {
+    } catch (err: any) {
         res.status(500).send({ message: err.message });
     };
 };
