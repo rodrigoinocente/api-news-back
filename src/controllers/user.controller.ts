@@ -71,7 +71,10 @@ const update = async (req: Request, res: Response): Promise<Response | void> => 
         if (!name && !username && !email && !password) {
             return res.status(400).send({ message: "Submit at least one fields for update" });
         }
-
+       
+        if (req.params.userId !== String(res.locals.userId)) {
+            return res.status(400).send({ message: "You didn't update this post" });
+        }
         const userId = res.locals.userId;
 
         await userService.updateService(
