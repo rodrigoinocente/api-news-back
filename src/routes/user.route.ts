@@ -7,8 +7,8 @@ const route = Router();
 
 route.post("/", validEmail, userController.createUser);
 route.patch("/:userId", authMiddleware, validEmail, validUser, userController.update);
-route.get("/", userController.findAllUser);
-route.get("/email/:email", userController.findByEmail);
+route.get("/findAll", authMiddleware, userController.findAllUser);
+route.get("/email/:email", authMiddleware, userController.findByEmail);
 route.get("/id/:userId", validUser, userController.findById);
 
 export default route;

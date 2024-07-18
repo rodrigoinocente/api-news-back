@@ -13,7 +13,7 @@ const createUser = async (req: Request, res: Response): Promise<Response | void>
         const createdUser: IUser = await userService.createService(req.body);
 
         if (!createdUser) {
-            return res.status(400).send({ message: "Error creating User" });
+            return res.status(500).send({ message: "Error creating User" });
         }
 
         res.status(201).send({
@@ -33,7 +33,7 @@ const createUser = async (req: Request, res: Response): Promise<Response | void>
 const findAllUser = async (req: Request, res: Response): Promise<Response | void> => {
     try {
         const users: IUser[] = await userService.findAllUserService();
-        if (users.length === 0) return res.status(400).send({ message: "There are no registered users" });
+        if (users.length === 0) return res.status(404).send({ message: "There are no registered users" });
 
         res.send(users);
     } catch (err: any) {
@@ -71,9 +71,9 @@ const update = async (req: Request, res: Response): Promise<Response | void> => 
         if (!name && !username && !email && !password) {
             return res.status(400).send({ message: "Submit at least one fields for update" });
         }
-       
+
         if (req.params.userId !== String(res.locals.userId)) {
-            return res.status(400).send({ message: "You didn't update this post" });
+            return res.status(403).send({ message: "You didn't update this post" });
         }
         const userId = res.locals.userId;
 
@@ -85,7 +85,7 @@ const update = async (req: Request, res: Response): Promise<Response | void> => 
             password
         );
 
-        res.send({ message: "User successfully updated" });
+        res.status(200).send({ message: "User successfully updated" });
 
     } catch (err: any) {
         res.status(500).send({ message: err.message });

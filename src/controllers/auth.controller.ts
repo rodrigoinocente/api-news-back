@@ -18,7 +18,7 @@ const loginService = async (req: Request, res: Response) => {
         res.status(200).send({ token });
 
     } catch (err: any) {
-        res.status(500).send(err.message);
+        res.status(401).send(err.message);
     };
 };
 

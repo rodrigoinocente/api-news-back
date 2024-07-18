@@ -6,9 +6,9 @@ export interface INews {
   text: string;
   banner: string;
   user: IUser;
-  dataLike: Types.ObjectId;
+  dataLikeId: Types.ObjectId;
   likeCount: number;
-  dataComment: Types.ObjectId;
+  dataCommentId: Types.ObjectId;
   commentCount: number;
   createdAt: Date;
   map: any;
@@ -24,8 +24,8 @@ export interface ICommentNews {
 interface IComment {
   userId: Types.ObjectId;
   content: string;
-  dataLike: Types.ObjectId;
-  dataReply: Types.ObjectId;
+  dataLikeId: Types.ObjectId;
+  dataReplyId: Types.ObjectId;
   likeCount: number;
   replyCount: number;
   createdAt: Date;
@@ -62,7 +62,7 @@ export interface IReplyComment {
 interface IReply {
   userId: Types.ObjectId;
   content: string;
-  dataLike?: Types.ObjectId;
+  dataLikeId: Types.ObjectId;
   likeCount: number;
   createdAt: Date;
 };

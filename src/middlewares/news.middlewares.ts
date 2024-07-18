@@ -12,7 +12,7 @@ const validNews = async (req: Request, res: Response, next: NextFunction): Promi
         if (!isValidObjectId(newsId)) return res.status(400).send({ message: "Invalid ID" });
 
         const news: INews | null = await newsService.findNewsByIdService(newsId);
-        if (!news) return res.send({ message: "News not found" });
+        if (!news) return res.status(404).send({ message: "News not found" });
 
         res.locals.news = news;
         next();

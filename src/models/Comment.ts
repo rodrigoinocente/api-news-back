@@ -21,12 +21,12 @@ const CommentSchema = new mongoose.Schema<ICommentNews>({
           type: String,
           required: true,
         },
-        dataLike: {
+        dataLikeId: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "LikeComment",
           default: null,
         },
-        dataReply: {
+        dataReplyId: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "ReplyComment",
           default: null,
@@ -69,14 +69,14 @@ CommentSchema.pre("updateMany", async function (next) {
 
     const comment: ICommentNews | null = await newsService.findCommentById(dataCommentId, commentId);
     if (comment) {
-      if (comment.comment[0].dataLike) await LikeCommentModel.deleteOne(comment.comment[0].dataLike);
-      if (comment.comment[0].dataReply) {
-        const replies = await ReplyCommentModel.findById(comment.comment[0].dataReply);
+      if (comment.comment[0].dataLikeId) await LikeCommentModel.deleteOne(comment.comment[0].dataLikeId);
+      if (comment.comment[0].dataReplyId) {
+        const replies = await ReplyCommentModel.findById(comment.comment[0].dataReplyId);
         if (replies) {
           for (const reply of replies.reply)
-            if (reply.dataLike) await LikeReplyModel.deleteOne(reply.dataLike);
+            if (reply.dataLikeId) await LikeReplyModel.deleteOne(reply.dataLikeId);
 
-          await ReplyCommentModel.deleteOne(comment.comment[0].dataReply);
+          await ReplyCommentModel.deleteOne(comment.comment[0].dataReplyId);
         }
       }
     }

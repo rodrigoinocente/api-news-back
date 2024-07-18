@@ -21,7 +21,7 @@ const NewsSchema = new mongoose.Schema<INews>({
     ref: "User",
     required: true,
   },
-  dataLike: {
+  dataLikeId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "LikeNews",
     default: null,
@@ -30,7 +30,7 @@ const NewsSchema = new mongoose.Schema<INews>({
     type: Number,
     default: 0,
   },
-  dataComment: {
+  dataCommentId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "CommentDataList",
     default: null,
@@ -50,25 +50,25 @@ NewsSchema.pre("findOneAndDelete", async function (next) {
 
   const news: INews | null = await newsService.findNewsByIdService(newsId);
   if (news) {
-    if (news.dataLike) await LikeNewsModel.deleteOne(news.dataLike);
-    if (news.dataComment) {
-      const comments = await CommentModel.findById(news.dataComment);
+    if (news.dataLikeId) await LikeNewsModel.deleteOne(news.dataLikeId);
+    if (news.dataCommentId) {
+      const comments = await CommentModel.findById(news.dataCommentId);
       if (comments) {
         for (const comment of comments.comment) {
-          if (comment.dataLike)
-            await LikeCommentModel.deleteOne(comment.dataLike);
-          if (comment.dataReply) {
-            const replies = await ReplyCommentModel.findById(comment.dataReply);
+          if (comment.dataLikeId)
+            await LikeCommentModel.deleteOne(comment.dataLikeId);
+          if (comment.dataReplyId) {
+            const replies = await ReplyCommentModel.findById(comment.dataReplyId);
             if (replies) {
               for (const reply of replies.reply) {
-                if (reply.dataLike)
-                  await LikeReplyModel.deleteOne(reply.dataLike);
+                if (reply.dataLikeId)
+                  await LikeReplyModel.deleteOne(reply.dataLikeId);
               }
-              await ReplyCommentModel.deleteOne(comment.dataReply);
+              await ReplyCommentModel.deleteOne(comment.dataReplyId);
             }
           }
         }
-        await CommentModel.deleteOne(news.dataComment);
+        await CommentModel.deleteOne(news.dataCommentId);
       }
     }
   }

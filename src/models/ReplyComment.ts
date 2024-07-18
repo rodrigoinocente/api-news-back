@@ -25,7 +25,7 @@ const ReplyCommentSchema = new mongoose.Schema({
                 type: String,
                 required: true,
             },
-            dataLike: {
+            dataLikeId: {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: "LikeReply",
                 default: null,
@@ -59,7 +59,7 @@ ReplyCommentSchema.pre('updateMany', async function (next) {
         const replyId = getReplyId.$pull.reply._id;
         const reply: IReplyComment | null = await newsService.findReplyById(dataReplyId, replyId)
         if (reply) {
-            const replyDataLike = reply.reply[0].dataLike;
+            const replyDataLike = reply.reply[0].dataLikeId;
             if (replyDataLike) await LikeReplyModel.deleteOne(replyDataLike)
         }
     }
