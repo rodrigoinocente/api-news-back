@@ -2,7 +2,7 @@ import { ICommentNews, ILikeNews, ILikeReply, INews, IReplyComment } from "../..
 import { NewsModel, LikeNewsModel, CommentModel, LikeCommentModel, ReplyCommentModel, LikeReplyModel } from "../database/db";
 import { Types } from 'mongoose';
 
-const createNewsService = (body: any): Promise<INews> => NewsModel.create(body);
+const createNewsService = async (body: any): Promise<INews> => (await NewsModel.create(body)).populate("user");
 
 const findAllNewsService = (offset: number, limit: number): Promise<INews[] | []> => NewsModel.find().sort({ _id: -1 }).skip(offset).limit(limit)
     .populate("user");
@@ -14,9 +14,9 @@ const topNewsService = (): Promise<INews | null> => NewsModel.findOne().sort({ _
 const findNewsByIdService = (newsId: string): Promise<INews | null> => NewsModel.findById(newsId).populate("user");
 
 const searchByTitleService = (title: string): Promise<INews[] | []> => NewsModel.find({ title: { $regex: `${title || ""}`, $options: "i" } })
-    .sort({ _id: -1 }).populate("user") as any;
+    .sort({ _id: -1 }).populate("user");
 
-const newsByUserService = (userId: string): Promise<INews> => NewsModel.find({ user: userId }).sort({ _id: -1 }).populate("user") as any;
+const newsByUserService = (userId: string): Promise<INews[] | []> => NewsModel.find({ user: userId }).sort({ _id: -1 }).populate("user");
 
 const upDateService = (newsId: Types.ObjectId, title: string, text: string, banner: string): Promise<INews | null> =>
     NewsModel.findOneAndUpdate({ _id: newsId }, { title, text, banner }, { rawResult: true, });
@@ -25,7 +25,7 @@ const eraseNewsService = (newsId: Types.ObjectId): Promise<INews | null> => News
 
 const createNewsDataLikeService = async (newsId: Types.ObjectId, userId: Types.ObjectId): Promise<INews | void> => {
     const newDataLike = await LikeNewsModel.create({ newsId, likes: { userId } });
-    await NewsModel.findOneAndUpdate({ _id: newsId }, { $set: { dataLike: newDataLike } });
+    await NewsModel.findOneAndUpdate({ _id: newsId }, { $set: { dataLikeId: newDataLike } });
 };
 
 const isUserInLikeNewsArray = (likesId: Types.ObjectId, userId: Types.ObjectId): Promise<object | null> =>
@@ -67,7 +67,7 @@ const likesPipelineService = (dataLikeId: Types.ObjectId, offset: number, limit:
 
 const createCommentDataService = async (newsId: Types.ObjectId, userId: Types.ObjectId, content: string): Promise<INews | void> => {
     const newCommentDataList = await CommentModel.create({ newsId, comment: [{ userId, content }] });
-    await NewsModel.findOneAndUpdate({ _id: newsId }, { $set: { dataComment: newCommentDataList._id } });
+    await NewsModel.findOneAndUpdate({ _id: newsId }, { $set: { dataCommentId: newCommentDataList._id } });
 };
 
 const upDateCommentDataService = async (dataCommentId: Types.ObjectId, userId: Types.ObjectId, content: string): Promise<ICommentNews | void> => {
@@ -103,8 +103,8 @@ const commentsPipelineService = (dataCommentId: Types.ObjectId, offset: number, 
                 "user.username": 1,
                 "user.email": 1,
                 "comment.content": 1,
-                "comment.dataLike": 1,
-                "comment.dataReply": 1,
+                "comment.dataLikeId": 1,
+                "comment.dataReplyId": 1,
                 "comment.likeCount": 1,
                 "comment.replyCount": 1,
                 "comment.createdAt": 1,
@@ -119,7 +119,7 @@ const commentsPipelineService = (dataCommentId: Types.ObjectId, offset: number, 
 const createLikeCommentDataService = async (
     dataCommentId: Types.ObjectId, commentId: Types.ObjectId, userId: Types.ObjectId): Promise<ICommentNews | void> => {
     const newDataLike = await LikeCommentModel.create({ dataCommentId, commentId, likes: { userId } });
-    await CommentModel.findOneAndUpdate({ _id: dataCommentId, "comment._id": commentId }, { $set: { "comment.$.dataLike": newDataLike._id } });
+    await CommentModel.findOneAndUpdate({ _id: dataCommentId, "comment._id": commentId }, { $set: { "comment.$.dataLikeId": newDataLike._id } });
 };
 
 const isUserInLikeCommentArray = (dataLikeCommentId: Types.ObjectId, userId: Types.ObjectId): Promise<object | null> =>
@@ -134,7 +134,7 @@ const deleteLikeCommentService = (dataLikeCommentId: Types.ObjectId, userId: Typ
 const createReplyCommentDataService = async (
     dataCommentId: Types.ObjectId, commentId: Types.ObjectId, userId: Types.ObjectId, content: string): Promise<ICommentNews | void> => {
     const newDataReply = await ReplyCommentModel.create({ dataCommentId, commentId, reply: { userId, content } });
-    await CommentModel.findOneAndUpdate({ _id: dataCommentId, "comment._id": commentId }, { $set: { "comment.$.dataReply": newDataReply._id } });
+    await CommentModel.findOneAndUpdate({ _id: dataCommentId, "comment._id": commentId }, { $set: { "comment.$.dataReplyId": newDataReply._id } });
 };
 
 const upDateReplyCommentDataService = async (
@@ -171,7 +171,7 @@ const replyCommentsPipelineService = (dataReplyCommentId: Types.ObjectId, offset
                 "user.username": 1,
                 "user.email": 1,
                 "reply.content": 1,
-                "reply.dataLike": 1,
+                "reply.dataLikeId": 1,
                 "reply.likeCount": 1,
                 "reply.createdAt": 1,
                 "reply._id": 1,
@@ -185,7 +185,7 @@ const replyCommentsPipelineService = (dataReplyCommentId: Types.ObjectId, offset
 const createLikeReplyDataService = async (
     dataReplyCommentId: Types.ObjectId, replyCommentId: Types.ObjectId, userId: Types.ObjectId): Promise<IReplyComment | void> => {
     const newDataLike = await LikeReplyModel.create({ dataReplyCommentId, replyCommentId, likes: { userId } });
-    await ReplyCommentModel.findOneAndUpdate({ _id: dataReplyCommentId, "reply._id": replyCommentId }, { $set: { "reply.$.dataLike": newDataLike._id } });
+    await ReplyCommentModel.findOneAndUpdate({ _id: dataReplyCommentId, "reply._id": replyCommentId }, { $set: { "reply.$.dataLikeId": newDataLike._id } });
 };
 
 const isUserInLikeReplyArray = (replyDataLikeId: Types.ObjectId, userId: Types.ObjectId): Promise<object | null> =>
