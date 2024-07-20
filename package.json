@@ -4,7 +4,7 @@
   "description": "Starting with MERN",
   "main": "index.js",
   "scripts": {
-    "build": "rimraf ./built && tsc",
+    "build": "npm install && rm -rf ./built && tsc",
     "start": "node built/index.js",
     "dev": "ts-node-dev index.ts",
     "watch": "tsc --watch"
