@@ -27,7 +27,7 @@ const create = async (req: Request, res: Response): Promise<Response | void> => 
 
 const findAll = async (req: Request, res: Response): Promise<Response | void> => {
     try {
-        let limit = req.query.limit ? Number(req.query.limit) : 5;
+        let limit = req.query.limit ? Number(req.query.limit) : 15;
         let offset = req.query.offset ? Number(req.query.offset) : 0;
 
         const news: INews[] = await newsService.findAllNewsService(offset, limit);

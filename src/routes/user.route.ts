@@ -9,6 +9,6 @@ route.post("/", validEmail, userController.createUser);
 route.patch("/:userId", authMiddleware, validEmail, validUser, userController.update);
 route.get("/findAll", authMiddleware, userController.findAllUser);
 route.get("/email/:email", authMiddleware, userController.findByEmail);
-route.get("/id/:userId", validUser, userController.findById);
+route.get("/id/:userId", authMiddleware, userController.findById);
 
 export default route;

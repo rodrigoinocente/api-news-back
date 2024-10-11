@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
-import userService from "../services/user.service";
 import { NextFunction, Request, Response } from "express";
+import userRepositories from "../repositories/user.repositories";
 
 const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -17,7 +17,7 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
         jwt.verify(token, process.env.SECRET_JWT as string, async (error: any, decoded: any) => {
             if (error) return res.status(401).send({ message: "Token invalid" });
 
-            const user = await userService.findByIdService(decoded.id);
+            const user = await userRepositories.findByIdRepositories(decoded.id);
             if (!user || !user._id) return res.status(401).send({ message: "User not found" });
 
             res.locals.userId = user._id;

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import userService from "../services/user.service";
 import mongoose from "mongoose";
+import userRepositories from "../repositories/user.repositories";
 
 const isValidObjectId = (id: string): boolean => mongoose.Types.ObjectId.isValid(id);
 
@@ -10,10 +10,9 @@ const validUser = async (req: Request, res: Response, next: NextFunction): Promi
 
         if (!isValidObjectId(userId)) return res.status(400).send({ message: "Invalid ID" });
 
-        const user = await userService.findByIdService(userId);
+        const user = await userRepositories.findByIdRepositories(userId);
         if (!user) return res.status(404).send({ message: "User not found by ID" });
 
-        res.locals.userId = userId;
         res.locals.user = user;
         next();
 
@@ -26,7 +25,7 @@ const validEmail = async (req: Request, res: Response, next: NextFunction): Prom
     try {
         const { email } = req.body;
 
-        const existEmail = await userService.findByEmailService(email);
+        const existEmail = await userRepositories.findByEmailRepositories(email);
         if (existEmail) return res.status(400).send({ message: "The provided email is already in use" });
 
         next();
