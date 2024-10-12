@@ -7,7 +7,7 @@ const loginService = async (req: Request, res: Response) => {
     try {
         const { email, password } = req.body;
 
-        const user: IUser = await authService.loginService(email);
+        const user: IUser | null = await authService.loginService(email);
         if (!user) return res.status(400).send({ message: "Email or Password not found" });
 
         const passwordIsValid = await bcrypt.compare(password, user.password);
