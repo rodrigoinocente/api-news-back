@@ -133,6 +133,31 @@
           }
         },
         "responses": {
+          "500": {
+            "description": "Unexpected Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/Unexpected-Error"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error: Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/Message"
+                },
+                "example": {
+                  "message": "Email or Password not found"
+                }
+              }
+            }
+          },
           "200": {
             "description": "Token generated successfully",
             "content": {
@@ -151,9 +176,6 @@
                 }
               }
             }
-          },
-          "400": {
-            "description": "Not Found"
           }
         }
       }

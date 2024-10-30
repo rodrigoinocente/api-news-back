@@ -1,13 +1,17 @@
-import { Types } from "mongoose";
+import bcrypt from "bcrypt";
 import { IUser } from "../../custom";
-import { UserModel } from "../database/db";
-import jwt from "jsonwebtoken";
+import authRepositories from "../repositories/auth.repositories";
 
-const loginService = (email: string): Promise<IUser | null> => UserModel.findOne({ email: email }).select("+password");
+const loginService = async (email: string, password: string) => {
+        const user: IUser | null = await authRepositories.loginService(email);
+        if (!user)  throw new Error("Email or Password not found");
 
-const generateToken = (id: Types.ObjectId): string => jwt.sign({ id: id }, process.env.SECRET_JWT as any, { expiresIn: 86400 });
+        const passwordIsValid = await bcrypt.compare(password, user.password);
+        if (!passwordIsValid) throw new Error("Email or Password not found");
 
-export default {
-    loginService,
-    generateToken
+        const token = authRepositories.generateToken(user._id);
+
+      return token;
 };
+
+export default { loginService };

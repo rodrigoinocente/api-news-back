@@ -1,6 +1,6 @@
 import userRepositories from "../repositories/user.repositories";
 import { IUser } from "../../custom";
-import authService from "./auth.service";
+import authRepositories from "../repositories/auth.repositories";
 import bcrypt from "bcrypt";
 
 const createUserService = async (body: IUser): Promise<{ user: Omit<IUser, "password">; token: string }> => {
@@ -13,7 +13,7 @@ const createUserService = async (body: IUser): Promise<{ user: Omit<IUser, "pass
 
     if(!createdUser)throw new Error("Error creating User")
 
-    const token = authService.generateToken(createdUser._id)
+    const token = authRepositories.generateToken(createdUser._id)
 
     return {
         user: {
