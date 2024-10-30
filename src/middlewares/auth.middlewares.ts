@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import { NextFunction, Request, Response } from "express";
 import userRepositories from "../repositories/user.repositories";
+import { Types } from "mongoose";
 
 const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -20,7 +21,7 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
             const user = await userRepositories.findByIdRepositories(decoded.id);
             if (!user || !user._id) return res.status(401).send({ message: "User not found" });
 
-            res.locals.userId = user._id;
+            res.locals.userId = new Types.ObjectId(user._id);
             next();
         });
     } catch (err: any) {

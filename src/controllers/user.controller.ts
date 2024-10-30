@@ -20,7 +20,7 @@ const createUser = async (req: Request, res: Response): Promise<Response | void>
         if (err.message === "Error creating User")
             return res.status(500).send({ message: "Server error while creating user" });
 
-        return res.status(500).send({ message: "An unexpected error occurred" }); /* TODO: Add in Swagger */
+        return res.status(500).send({ message: "An unexpected error occurred" });
     };
 };
 
@@ -32,7 +32,7 @@ const findAllUser = async (req: Request, res: Response): Promise<Response | void
         if (err.message === "There are no registered users")
             return res.status(404).send({ message: err.message });
 
-        return res.status(500).send({ message: "An unexpected error occurred" }); /* TODO: Add in Swagger */
+        return res.status(500).send({ message: "An unexpected error occurred" });
     };
 };
 
@@ -47,7 +47,7 @@ const findByEmail = async (req: Request, res: Response): Promise<Response | void
         if (err.message === "User not found by email")
             return res.status(404).send({ message: err.message });
 
-        return res.status(500).send({ message: "An unexpected error occurred" }); /* TODO: Add in Swagger */
+        return res.status(500).send({ message: "An unexpected error occurred" });
     };
 };
 
@@ -62,7 +62,7 @@ const findById = async (req: Request, res: Response): Promise<Response | void> =
         if (err.message === "User not found by id")
             return res.status(404).send({ message: err.message });
 
-        return res.status(500).send({ message: "An unexpected error occurred" }); /* TODO: Add in Swagger */
+        return res.status(500).send({ message: "An unexpected error occurred" });
     };
 };
 
@@ -83,7 +83,7 @@ const update = async (req: Request, res: Response): Promise<Response | void> => 
         if (err.message === "You didn't update this user")
             return res.status(500).send({ message: err.message });
 
-        return res.status(500).send({ message: "An unexpected error occurred" }); /* TODO: Add in Swagger */
+        return res.status(500).send({ message: "An unexpected error occurred" });
     };
 };
 

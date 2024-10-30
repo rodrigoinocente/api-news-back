@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import newsService from "../services/news.service";
+import newsRepositories from "../repositories/news.repositories";
 import { CommentModel, LikeCommentModel, LikeNewsModel, LikeReplyModel, ReplyCommentModel } from "../database/db";
 import { INews } from "../../custom";
 
@@ -19,7 +19,7 @@ const NewsSchema = new mongoose.Schema<INews>({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-    required: true,
+    required: true
   },
   dataLikeId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -48,7 +48,7 @@ const NewsSchema = new mongoose.Schema<INews>({
 NewsSchema.pre("findOneAndDelete", async function (next) {
   const { _id: newsId } = this.getQuery();
 
-  const news: INews | null = await newsService.findNewsByIdService(newsId);
+  const news: INews | null = await newsRepositories.findNewsByIdRepositories(newsId);
   if (news) {
     if (news.dataLikeId) await LikeNewsModel.deleteOne(news.dataLikeId);
     if (news.dataCommentId) {

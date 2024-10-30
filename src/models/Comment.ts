@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { NewsModel, CommentModel, LikeCommentModel, ReplyCommentModel, LikeReplyModel } from "../database/db";
-import newsService from "../services/news.service";
 import { INews, IUpdateTypeComment, ICommentNews } from "../../custom";
+import newsRepositories from "../repositories/news.repositories";
 
 const CommentSchema = new mongoose.Schema<ICommentNews>({
   newsId: {
@@ -66,8 +66,8 @@ CommentSchema.pre("updateMany", async function (next) {
   const getCommentId = this.getUpdate() as IUpdateTypeComment | null;
   if (getCommentId?.$pull?.comment) {
     const { $pull: { comment: { _id: commentId } } } = getCommentId;
-
-    const comment: ICommentNews | null = await newsService.findCommentById(dataCommentId, commentId);
+    
+    const comment: ICommentNews | null = await newsRepositories.findCommentByIdRepositories(dataCommentId, new mongoose.Types.ObjectId(commentId));
     if (comment) {
       if (comment.comment[0].dataLikeId) await LikeCommentModel.deleteOne(comment.comment[0].dataLikeId);
       if (comment.comment[0].dataReplyId) {

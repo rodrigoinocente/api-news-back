@@ -1,5 +1,12 @@
 import { Types } from 'mongoose';
 
+export interface ICreateAndUpdateNewsBody {
+  title: string;
+  text: string;
+  banner: string;
+  userId: Types.ObjectId;
+};
+
 export interface INews {
   _id: Types.ObjectId;
   title: string;
@@ -16,7 +23,19 @@ export interface INews {
   save(): unknown;
 };
 
+interface Paginated {
+  nextUrl: string | null;
+  previousUrl: string | null;
+  offset: number;
+  total: number;
+  news?: INews[];
+  likes?: ILike[];
+  comments?: ICommentNews[];
+  replies?: IReplyComment[];
+}
+
 export interface ICommentNews {
+  _id: Types.ObjectId;
   newsId: Types.ObjectId;
   comment: IComment[];
 };
@@ -32,6 +51,7 @@ interface IComment {
 };
 
 export interface ILikeComment {
+  _id: Types.ObjectId;
   dataCommentId: Types.ObjectId;
   commentId: Types.ObjectId;
   likes: Like[];
@@ -43,17 +63,20 @@ interface Like {
 };
 
 export interface ILikeNews {
+  _id: Types.ObjectId;
   newsId: Types.ObjectId;
   likes: Like[];
 };
 
 export interface ILikeReply {
+  _id: Types.ObjectId;
   dataReplyCommentId: Types.ObjectId;
   replyCommentId: Types.ObjectId;
   likes: Like[];
 };
 
 export interface IReplyComment {
+  _id: Types.ObjectId;
   dataCommentId: Types.ObjectId;
   commentId: Types.ObjectId;
   reply: Reply[];

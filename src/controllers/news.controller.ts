@@ -1,358 +1,359 @@
-import { Types } from "mongoose";
-import { ICommentNews, ILikeNews, INews, IReplyComment } from "../../custom";
+import { INews } from "../../custom";
 import newsService from "../services/news.service";
 import { Request, Response } from "express"
 
 const create = async (req: Request, res: Response): Promise<Response | void> => {
+    const body = req.body;
+    const userId = res.locals.userId
+
     try {
-        const { title, text, banner } = req.body;
-
-        if (!title && !text && !banner) {
-            return res.status(400).send({ message: "Submit all fields for registration" });
-        }
-
-        const news: INews = await newsService.createNewsService({
-            title,
-            text,
-            banner,
-            user: res.locals.userId,
-        });
+        const news: INews = await newsService.createNewsService(body, userId);
 
         res.status(201).send(news);
-
     } catch (err: any) {
-        res.status(500).send({ message: err.message });
+        if (err.message === "Submit all fields to post")
+            return res.status(400).send({ message: err.message });
+
+        return res.status(500).send({ message: "An unexpected error occurred" });
     };
 };
 
 const findAll = async (req: Request, res: Response): Promise<Response | void> => {
+    let limit = req.query.limit ? Number(req.query.limit) : 15;
+    let offset = req.query.offset ? Number(req.query.offset) : 0;
+    const currentUrl = req.baseUrl;
+
     try {
-        let limit = req.query.limit ? Number(req.query.limit) : 15;
-        let offset = req.query.offset ? Number(req.query.offset) : 0;
-
-        const news: INews[] = await newsService.findAllNewsService(offset, limit);
-        const total: number = await newsService.countNewsService();
-        const currentUrl = req.baseUrl;
-
-        const next = offset + limit;
-        const nextUrl = next < total ? `${currentUrl}?limit=${limit}&offset=${next}` : null;
-
-        const previous = offset - limit < 0 ? null : offset - limit;
-        const previousUrl = previous != null ? `${currentUrl}?limit=${limit}&offset=${previous}` : null;
-
-        if (news.length === 0) {
-            return res.status(204).send();
-        }
+        const { nextUrl, previousUrl, total, news } = await newsService.findAllNewsService(offset, limit, currentUrl);
 
         res.status(200).send({
             nextUrl,
             previousUrl,
-            limit,
             offset,
             total,
             news
         });
     } catch (err: any) {
-        res.status(500).send({ message: err.message });
+        if (err.message === "No news found")
+            return res.status(204).send();
+
+        return res.status(500).send({ message: "An unexpected error occurred" });
     };
 };
 
 const topNews = async (req: Request, res: Response): Promise<Response | void> => {
     try {
         const news: INews | null = await newsService.topNewsService();
-        if (news) {
-            return res.send(news);
-        } else {
-            return res.status(204).send();
-        }
+
+        return res.status(200).send(news);
     } catch (err: any) {
-        res.status(500).send({ message: err.message });
+        if (err.message === "No news found")
+            return res.status(204).send();
+
+        return res.status(500).send({ message: "An unexpected error occurred" });
     };
 };
 
 const findById = async (req: Request, res: Response): Promise<Response | void> => {
-    try {
-        const news: INews = res.locals.news;
-        return res.send(news);
+    const newsId = res.locals.newsId;
 
+    try {
+        const news: INews | null = await newsService.findByIdService(newsId);
+        return res.status(200).send(news);
     } catch (err: any) {
-        res.status(500).send({ message: err.message });
+        if (err.message === "No news found")
+            return res.status(204).send();
+
+        return res.status(500).send({ message: "An unexpected error occurred" });
     };
 };
 
 const searchByTitle = async (req: Request, res: Response): Promise<Response | void> => {
+    const { title } = req.query;
+
     try {
-        const { title } = req.query;
-
         const news: INews[] | null = await newsService.searchByTitleService(title as string);
-        if (news.length === 0) {
-            return res.status(204).send();
-        }
 
-        return res.send(news);
+        return res.status(200).send(news);
     } catch (err: any) {
-        res.status(500).send({ message: err.message });
+        if (err.message === "No news found")
+            return res.status(204).send();
+
+        return res.status(500).send({ message: "An unexpected error occurred" });
     };
 };
 
 const newsByUser = async (req: Request, res: Response): Promise<Response | void> => {
-    try {
-        const userId = res.locals.userId;
-        const news: INews[] | [] = await newsService.newsByUserService(userId);
-        if (news.length === 0) {
-            return res.status(204).send();
-        }
+    const userId = res.locals.userId;
 
-        return res.send(news);
+    try {
+        const news: INews[] = await newsService.newsByUserService(userId);
+
+        return res.status(200).send(news);
     } catch (err: any) {
-        res.status(500).send({ message: err.message });
+        if (err.message === "No news found")
+            return res.status(204).send();
+
+        return res.status(500).send({ message: "An unexpected error occurred" });
     };
 };
 
 const upDate = async (req: Request, res: Response): Promise<Response | void> => {
+    const newsId = res.locals.newsId
+    const body = req.body;
+    const userLoggedId = res.locals.userId;
+
     try {
-        const { title, text, banner } = req.body;
-        const news: INews = res.locals.news;
+        const news: INews = await newsService.updateNewsService(newsId, body, userLoggedId);
 
-        if (!title && !text && !banner) {
-            return res.status(400).send({ message: "Submit at least one fields to update the post" });
-        }
-
-        if (String(news.user._id) !== String(res.locals.userId)) {
-            return res.status(403).send({ message: "You didn't update this post" });
-        }
-
-        await newsService.upDateService(news._id, title, text, banner);
-        return res.status(200).send({ message: "Post successfully updated" });
+        return res.status(200).send({
+            message: "Post successfully updated",
+            news
+        });
 
     } catch (err: any) {
-        res.status(500).send({ message: err.message });
+        if (err.message === "Submit at least one fields to update the post")
+            return res.status(400).send({ message: err.message });
+
+        if (err.message === "No news found")
+            return res.status(204).send();
+
+        if (err.message === "You didn't update this post")
+            return res.status(403).send({ message: err.message });
+
+        if (err.message === "An unexpected error occurred")
+            return res.status(500).send({ message: err.message });
+
+        return res.status(500).send({ message: "An unexpected error occurred" });
     };
 };
 
 const erase = async (req: Request, res: Response): Promise<Response | void> => {
-    try {
-        const news: INews = res.locals.news;
-        if (String(news.user._id) !== String(res.locals.userId)) {
-            return res.status(403).send({ message: "You didn't delete this post" });
-        }
+    const newsId = res.locals.newsId;
+    const userLoggedId = res.locals.userId;
 
-        await newsService.eraseNewsService(news._id);
-        return res.status(200).send({ message: "Post deleted successfully" });
+    try {
+        const newsDeleted = await newsService.eraseNewsService(newsId, userLoggedId);
+
+        return res.status(200).send({
+            message: "Post deleted successfully",
+            news: newsDeleted
+        });
 
     } catch (err: any) {
-        res.status(500).send({ message: err.message });
+        if (err.message === "News not found")
+            return res.status(204).send();
+
+        if (err.message === "You didn't delete this post")
+            return res.status(403).send({ message: err.message });
+
+        if (err.message === "An unexpected error occurred")
+            return res.status(500).send({ message: err.message });
+
+        return res.status(500).send({ message: "An unexpected error occurred" });
     };
 };
 
 const likeNews = async (req: Request, res: Response): Promise<Response | void> => {
+    const newsId = res.locals.newsId;
+    const userId = res.locals.userId;
     try {
-        const news: INews = res.locals.news;
-        const userId: Types.ObjectId = res.locals.userId;
+        const isLiked = await newsService.likeNewsService(newsId, userId);
 
-        if (!news.dataLikeId) {
-            await newsService.createNewsDataLikeService(news._id, userId);
-            return res.status(201).send({ message: "Like done successfully" });
-        }
-
-        const isLiked = await newsService.isUserInLikeNewsArray(news.dataLikeId, userId);
-        if (!isLiked) {
-            await newsService.likeNewsService(news.dataLikeId, userId);
-            return res.status(200).send({ message: "Like done successfully" });
-        } else {
-            await newsService.deleteLikeNewsService(news.dataLikeId, userId);''
-            return res.status(200).status(200).send({ message: "Like successfully removed" });
-        }
+        res.status(200).send(isLiked);
     } catch (err: any) {
-        res.status(500).send({ message: err.message });
+        if (err.message === "News not found")
+            return res.status(204).send();
+
+        if (err.message === "An unexpected error occurred")
+            return res.status(500).send({ message: err.message });
+
+        return res.status(500).send({ message: "An unexpected error occurred" });
     };
 };
 
 const getPaginatedLikes = async (req: Request, res: Response): Promise<Response | void> => {
+    let limit = req.query.limit ? Number(req.query.limit) : 10;
+    let offset = req.query.offset ? Number(req.query.offset) : 0;
+    const currentUrl = req.baseUrl;
+    const newsId = res.locals.newsId
+
     try {
-        const news: INews = res.locals.news;
-        let limit = req.query.limit ? Number(req.query.limit) : 5;
-        let offset = req.query.offset ? Number(req.query.offset) : 0;
+        const { nextUrl, previousUrl, total, likes } = await newsService.getPaginatedLikesService(limit, offset, currentUrl, newsId);
 
-        const total: number = news.likeCount;
-        const currentUrl = req.baseUrl;
-        const likes: ILikeNews[] = await newsService.likesPipelineService(news.dataLikeId, offset, limit);
-        if (likes.length === 0) return res.status(400).send({ message: "There are no registered likes" });
-
-        const next = offset + limit;
-        const nextUrl = next < total ? `${currentUrl}/likePage/${news._id}?limit=${limit}&offset=${next}` : null;
-
-        const previous = offset - limit < 0 ? null : offset - limit;
-        const previousUrl = previous != null ? `${currentUrl}/likePage/${news._id}?limit=${limit}&offset=${previous}` : null;
-
-        res.send({
+        res.status(200).send({
             nextUrl,
             previousUrl,
-            limit,
             offset,
             total,
             likes
         });
     } catch (err: any) {
-        res.status(500).send({ message: err.message });
+        if (err.message === "News not found")
+            return res.status(204).send();
+
+        if (err.message === "There are no registered likes")
+            return res.status(404).send({ message: err.message });
+
+        return res.status(500).send({ message: "An unexpected error occurred" });
     };
 };
 
 const addComment = async (req: Request, res: Response): Promise<Response | void> => {
     try {
-        const news: INews = res.locals.news;
-        const userId: Types.ObjectId = res.locals.userId;
+        const newsId = res.locals.newsId;
+        const userId = res.locals.userId;
         const { content } = req.body;
 
-        if (!content) return res.status(400).send({ message: "Write a message to comment" });
+        const commentResult = await newsService.addCommentService(newsId, userId, content);
 
-        if (!news.dataCommentId) {
-            await newsService.createCommentDataService(news._id, userId, content);
-            return res.status(201).send({ message: "Comment successfully completed" });
-        } else {
-            await newsService.upDateCommentDataService(news.dataCommentId, userId, content);
-            res.status(200).send({ message: "Comment successfully completed" });
-        }
+        return res.status(201).send({ message: "Comment successfully completed", comment: commentResult });
     } catch (err: any) {
-        res.status(500).send({ message: err.message });
-    };
+        if (err.message === "News not found")
+            return res.status(204).send();
+
+        if (err.message === "Write a message to comment")
+            return res.status(400).send({ message: err.message });
+
+        if (err.message === "Failed to create comment")
+            return res.status(500).send({ message: "An unexpected error occurred" });
+
+        return res.status(500).send({ message: "An unexpected error occurred" });
+    }
 };
 
 const deleteComment = async (req: Request, res: Response): Promise<Response | void> => {
     try {
-        const dataCommentId = new Types.ObjectId(req.params.dataCommentId);
-        const commentId = new Types.ObjectId(req.params.commentId);
+        const dataCommentId = res.locals.dataCommentId;
+        const commentId = res.locals.commentId;
+        const userId = res.locals.userId
 
-        const comment: ICommentNews = res.locals.comment;
-        const userId = res.locals.userId;
-
-        if (String(comment.comment[0].userId) !== String(userId)) return res.status(403).send({ message: "You can't delete this comment" });
-
-        await newsService.deleteCommentService(dataCommentId, commentId)
-        res.status(200).send({ message: "Comment successfully removed" });
-
+        await newsService.deleteCommentService(dataCommentId, commentId, userId);
+        res.status(200).send({
+            message: "Comment successfully removed"
+        });
     } catch (err: any) {
-        res.status(500).send({ message: err.message });
+        if (err.message === "Comment not found")
+            return res.status(204).send();
+
+        if (err.message === "You can't delete this comment")
+            return res.status(403).send({ message: err.message });
+
+        if (err.message === "Failed to delete comment")
+            return res.status(500).send({ message: "An unexpected error occurred" });
+
+        return res.status(500).send({ message: "An unexpected error occurred" });
     };
 };
 
 const getPaginatedComments = async (req: Request, res: Response): Promise<Response | void> => {
     try {
-        const news: INews = res.locals.news;
-        let limit = req.query.limit ? Number(req.query.limit) : 10;
-        let offset = req.query.offset ? Number(req.query.offset) : 0;
-
-        const total: number = news.commentCount;
+        const newsId = res.locals.newsId;
+        const limit = req.query.limit ? Number(req.query.limit) : 10;
+        const offset = req.query.offset ? Number(req.query.offset) : 0;
         const currentUrl = req.baseUrl;
-        const comments: ICommentNews[] = await newsService.commentsPipelineService(news.dataCommentId, offset, limit);
-        if (comments.length === 0) return res.status(404).send({ message: "There are no registered comments" });
 
-        const next = offset + limit;
-        const nextUrl = next < total ? `${currentUrl}/commentPage/${news._id}?limit=${limit}&offset=${next}` : null;
+        const { nextUrl, previousUrl, total, comments } = await newsService.getPaginatedCommentsService(newsId, limit, offset, currentUrl);
 
-        const previous = offset - limit < 0 ? null : offset - limit;
-        const previousUrl = previous != null ? `${currentUrl}/commentPage/${news._id}?limit=${limit}&offset=${previous}` : null;
-
-        res.send({
+        res.status(200).send({
             nextUrl,
             previousUrl,
-            limit,
             offset,
             total,
             comments
         });
     } catch (err: any) {
-        res.status(500).send({ message: err.message });
+        if (err.message === "News not found")
+            return res.status(204).send();
+
+        if (err.message === "There are no registered comments")
+            return res.status(404).send({ message: err.message });
+
+        return res.status(500).send({ message: "An unexpected error occurred" });
     };
 };
 
 const likeComment = async (req: Request, res: Response): Promise<Response | void> => {
     try {
-        const dataCommentId = new Types.ObjectId(req.params.dataCommentId);
-        const commentId = new Types.ObjectId(req.params.commentId);
-        const userId: Types.ObjectId = res.locals.userId;
-        const comment: ICommentNews = res.locals.comment;
+        const dataCommentId = res.locals.dataCommentId;
+        const commentId = res.locals.commentId;
+        const userId = res.locals.userId;
 
-        const commentDataLikeId = comment.comment[0].dataLikeId;
-        if (!commentDataLikeId) {
-            await newsService.createLikeCommentDataService(dataCommentId, commentId, userId);
-            return res.status(201).send({ message: "Like done successfully" });
-        }
+        const isLiked = await newsService.likeCommentService(dataCommentId, commentId, userId);
 
-        const isLiked = await newsService.isUserInLikeCommentArray(commentDataLikeId, userId);
-        if (!isLiked) {
-            await newsService.likeCommentService(commentDataLikeId, userId);
-            return res.status(200).send({ message: "Like done successfully" });
-        } else {
-            await newsService.deleteLikeCommentService(commentDataLikeId, userId);
-            return res.status(200).send({ message: "Like successfully removed" });
-
-        }
+        res.status(200).send(isLiked);
     } catch (err: any) {
-        res.status(500).send({ message: err.message });
+        if (err.message === "Comment not found")
+            return res.status(204).send();
+
+        if (err.message === "An unexpected error occurred")
+            return res.status(500).send({ message: err.message });
+
+        return res.status(500).send({ message: "An unexpected error occurred" });
     };
 };
 
 const addReplyComment = async (req: Request, res: Response): Promise<Response | void> => {
     try {
-        const dataCommentId = new Types.ObjectId(req.params.dataCommentId);
-        const commentId = new Types.ObjectId(req.params.commentId);
-        const comment: ICommentNews = res.locals.comment;
-        const userId: Types.ObjectId = res.locals.userId;
+        const dataCommentId = res.locals.dataCommentId;
+        const commentId = res.locals.commentId;
+        const userId = res.locals.userId;
         const { content } = req.body;
-        if (!content) return res.status(400).send({ message: "Write a message to reply" });
 
-        const commentDataReplyId = comment.comment[0].dataReplyId;
-        if (!commentDataReplyId) {
-            await newsService.createReplyCommentDataService(dataCommentId, commentId, userId, content);
-            return res.status(201).send({ message: "Reply successfully completed" });
-        } else {
-            await newsService.upDateReplyCommentDataService(commentDataReplyId, userId, content);
-            return res.status(200).send({ message: "Reply successfully completed" });
-        }
+        const reply = await newsService.addReplyCommentService(dataCommentId, commentId, userId, content);
+        res.status(200).send({
+            message: "Reply successfully completed",
+            reply
+        });
+
     } catch (err: any) {
-        res.status(500).send({ message: err.message });
+        if (err.message === "Comment not found")
+            return res.status(204).send();
+
+        if (err.message === "Write a message to reply")
+            return res.status(400).send({ message: err.message });
+
+        if (err.message === "Failed to create reply")
+            return res.status(500).send({ message: "An unexpected error occurred" });
+
+        return res.status(500).send({ message: "An unexpected error occurred" });
     };
 };
 
 const deleteReply = async (req: Request, res: Response): Promise<Response | void> => {
     try {
-        const dataReplyId = new Types.ObjectId(req.params.dataReplyId);
-        const replyId = new Types.ObjectId(req.params.replyId);
+        const dataReplyId = res.locals.dataReplyId;
+        const replyId = res.locals.replyId;
         const userId = res.locals.userId;
-        const reply: IReplyComment = res.locals.reply;
 
-        if (String(reply.reply[0].userId) !== String(userId)) return res.status(403).send({ message: "You can't delete this reply" });
-        await newsService.deleteReplyCommentService(dataReplyId, replyId);
+        await newsService.deleteReplyService(dataReplyId, replyId, userId);
+
         res.status(200).send({ message: "Reply successfully removed" });
-
     } catch (err: any) {
-        res.status(500).send({ message: err.message });
+        if (err.message === "Reply not found")
+            return res.status(204).send();
+
+        if (err.message === "You can't delete this reply")
+            return res.status(403).send({ message: err.message });
+
+        if (err.message === "Failed to delete reply")
+            return res.status(500).send({ message: "An unexpected error occurred" });
+
+        return res.status(500).send({ message: "An unexpected error occurred" });
     };
 };
 
 const getPaginatedReply = async (req: Request, res: Response): Promise<Response | void> => {
     try {
-        const dataCommentId = new Types.ObjectId(req.params.dataCommentId);
-        const commentId = new Types.ObjectId(req.params.commentId);
+        const dataCommentId = res.locals.dataCommentId;
+        const commentId = res.locals.commentId;
         let limit = req.query.limit ? Number(req.query.limit) : 10;
         let offset = req.query.offset ? Number(req.query.offset) : 0;
-
-        const comment: ICommentNews = res.locals.comment;
-        const dataReplyId = comment.comment[0].dataReplyId;
-
-        const total: number = comment.comment[0].replyCount;
         const currentUrl = req.baseUrl;
-        const replies: IReplyComment[] = await newsService.replyCommentsPipelineService(dataReplyId, offset, limit);
-        if (replies.length === 0) return res.status(400).send({ message: "There are no registered replies" });
 
-        const next = offset + limit;
-        const nextUrl = next < total ? `${currentUrl}/replyPage/${dataCommentId}/${commentId}?limit=${limit}&offset=${next}` : null;
+        const { nextUrl, previousUrl, total, replies } = await newsService.getPaginatedReplyService(dataCommentId, commentId, limit, offset, currentUrl)
 
-        const previous = offset - limit < 0 ? null : offset - limit;
-        const previousUrl = previous != null ? `${currentUrl}/replyPage/${dataCommentId}/${commentId}?limit=${limit}&offset=${previous}` : null;
-
-        res.send({
+        res.status(200).send({
             nextUrl,
             previousUrl,
             limit,
@@ -361,34 +362,37 @@ const getPaginatedReply = async (req: Request, res: Response): Promise<Response 
             replies
         });
     } catch (err: any) {
-        res.status(500).send({ message: err.message });
+        if (err.message === "Comment not found")
+            return res.status(204).send();
+
+        if (err.message === "Failed to retrieve replies")
+            return res.status(500).send({ message: err.message });
+
+        if (err.message === "There are no registered replies")
+            return res.status(404).send({ message: err.message });
+
+        return res.status(500).send({ message: "An unexpected error occurred" });
     };
 };
 
 const likeReply = async (req: Request, res: Response): Promise<Response | void> => {
     try {
-        const dataReplyId = new Types.ObjectId(req.params.dataReplyId);
-        const replyId = new Types.ObjectId(req.params.replyId);
-        const userId: Types.ObjectId = res.locals.userId;
+        const dataReplyId = res.locals.dataReplyId;
+        const replyId = res.locals.replyId;
+        const userId = res.locals.userId;
 
-        const reply: IReplyComment = res.locals.reply;
-        const replyDataLikeId = reply.reply[0].dataLike;
-        if (!replyDataLikeId) {
-            await newsService.createLikeReplyDataService(dataReplyId, replyId, userId);
-            return res.status(201).send({ message: "Like done successfully" });
-        }
+        const isLike = await newsService.likeReplyService(dataReplyId, replyId, userId);
 
-        const isLiked = await newsService.isUserInLikeReplyArray(replyDataLikeId, userId);
-        if (!isLiked) {
-            await newsService.likeReplyService(replyDataLikeId, userId);
-            return res.status(200).send({ message: "Like done successfully" });
-        } else {
-            await newsService.deleteLikeReplyService(replyDataLikeId, userId);
-            return res.status(200).send({ message: "Like successfully removed" });
+        return res.status(200).send(isLike);
 
-        }
     } catch (err: any) {
-        res.status(500).send({ message: err.message });
+        if (err.message === "Reply not found")
+            return res.status(204).send();
+
+        if (err.message === "An unexpected error occurred")
+            return res.status(500).send({ message: err.message });
+
+        return res.status(500).send({ message: "An unexpected error occurred" });
     };
 };
 
