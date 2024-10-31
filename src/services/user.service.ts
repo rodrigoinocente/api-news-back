@@ -2,16 +2,18 @@ import userRepositories from "../repositories/user.repositories";
 import { IUser } from "../../custom";
 import authRepositories from "../repositories/auth.repositories";
 import bcrypt from "bcrypt";
+import { Types } from "mongoose";
 
 const createUserService = async (body: IUser): Promise<{ user: Omit<IUser, "password">; token: string }> => {
     const { name, username, email, password } = body;
-
     if (!name || !username || !email || !password)
         throw new Error("Submit all fields for registration");
 
-    const createdUser: IUser = await userRepositories.createRepositories(body);
+    const isEmailInUse = await userRepositories.findByEmailRepositories(email);
+    if (isEmailInUse) throw new Error("The provided email is already in use");
 
-    if(!createdUser)throw new Error("Error creating User")
+    const createdUser: IUser = await userRepositories.createRepositories(body);
+    if (!createdUser) throw new Error("Error creating User")
 
     const token = authRepositories.generateToken(createdUser._id)
 
@@ -40,24 +42,26 @@ const findByEmailService = async (email: string): Promise<IUser | null> => {
     return user;
 };
 
-const findByIdService = async (userId: string): Promise<IUser | null> => {
+const findByIdService = async (userId: Types.ObjectId): Promise<IUser | null> => {
     const user = await userRepositories.findByIdRepositories(userId)
-    if (!user) throw new Error("User not found by id");
+    if (!user) throw new Error("User not found by ID");
 
     return user
 };
 
-const updateService = async (userToFoundId: string, userLoggedId: string, body: IUser): Promise<Omit<IUser, "password"> | null> => {
-
+const updateService = async (userToFoundId: Types.ObjectId, userLoggedId: Types.ObjectId, body: IUser): Promise<Omit<IUser, "password"> | null> => {
     let { name, username, email, password } = body;
-    if (!name && !username && !email && !password)
-        throw new Error("Submit at least one fields for update")
+    if (!name && !username && !email && !password) throw new Error("Submit at least one fields for update")
 
-    if (userToFoundId !== String(userLoggedId))
-        throw new Error("You didn't update this post");
-    
-    if (password) password = await bcrypt.hash(password, 10); /* TODO: Maybe middleware in User Schema */
-    
+    if (userToFoundId !== userLoggedId) throw new Error("You didn't update this post");
+
+    const isEmailInUse = await userRepositories.findByEmailRepositories(email);
+    if (isEmailInUse) throw new Error("The provided email is already in use");
+
+    await findByIdService(userToFoundId);
+
+    if (password) body.password = await bcrypt.hash(password, 10)
+
     const userUpdate = await userRepositories.updateRepositories(userLoggedId, body);
     if (!userUpdate) throw new Error("Error updating");
 

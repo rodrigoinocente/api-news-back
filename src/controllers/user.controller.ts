@@ -17,6 +17,9 @@ const createUser = async (req: Request, res: Response): Promise<Response | void>
         if (err.message === "Submit all fields for registration")
             return res.status(400).send({ message: err.message });
 
+        if (err.message === "The provided email is already in use")
+            return res.status(400).send({ message: err.message });
+
         if (err.message === "Error creating User")
             return res.status(500).send({ message: "Server error while creating user" });
 
@@ -52,7 +55,7 @@ const findByEmail = async (req: Request, res: Response): Promise<Response | void
 };
 
 const findById = async (req: Request, res: Response): Promise<Response | void> => {
-    const userId = req.params.userId;
+    const userId = res.locals.userId;
 
     try {
         const user = await userService.findByIdService(userId);
@@ -67,7 +70,7 @@ const findById = async (req: Request, res: Response): Promise<Response | void> =
 };
 
 const update = async (req: Request, res: Response): Promise<Response | void> => {
-    const userToFoundId = req.params.userId;
+    const userToFoundId = res.locals.userId;
     const userLoggedId = res.locals.userId;
     const body = req.body;
 
@@ -81,7 +84,13 @@ const update = async (req: Request, res: Response): Promise<Response | void> => 
             return res.status(400).send({ message: err.message });
 
         if (err.message === "You didn't update this user")
-            return res.status(500).send({ message: err.message });
+            return res.status(403).send({ message: err.message });
+
+        if (err.message === "The provided email is already in use")
+            return res.status(400).send({ message: err.message });
+
+        if (err.message === "User not found by ID")
+            return res.status(404).send({ message: err.message });
 
         return res.status(500).send({ message: "An unexpected error occurred" });
     };

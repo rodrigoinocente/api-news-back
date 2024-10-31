@@ -44,8 +44,22 @@
           }
         },
         "responses": {
-          "400-middleware-validEmail": {
-            "description": "No Content",
+          "400": {
+            "description": "Bad Request - Missing Required Fields",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/Message"
+                },
+                "example": {
+                  "message": "Submit all fields for registration"
+                }
+              }
+            }
+          },
+          "400-": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -58,8 +72,8 @@
               }
             }
           },
-          "400-missing-fields": {
-            "description": "Bad Request - Missing Required Fields",
+          "500-": {
+            "description": "Server Error",
             "content": {
               "application/json": {
                 "schema": {
@@ -67,7 +81,7 @@
                   "$ref": "#/components/schemas/Message"
                 },
                 "example": {
-                  "message": "Submit all fields for registration"
+                  "message": "Error creating User"
                 }
               }
             }
@@ -216,20 +230,6 @@
           }
         },
         "responses": {
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "$ref": "#/components/schemas/Message"
-                },
-                "example": {
-                  "message": "You didn't update this user"
-                }
-              }
-            }
-          },
           "400": {
             "description": "Error: Bad Request",
             "content": {
@@ -244,7 +244,35 @@
               }
             }
           },
-          "400-middleware-validUser": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/Message"
+                },
+                "example": {
+                  "message": "You didn't update this user"
+                }
+              }
+            }
+          },
+          "400-": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/Message"
+                },
+                "example": {
+                  "message": "The provided email is already in use"
+                }
+              }
+            }
+          },
+          "404": {
             "description": "No Content",
             "content": {
               "application/json": {
@@ -258,20 +286,7 @@
               }
             }
           },
-          "404-middleware-validEmail": {
-            "description": "No Content",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "$ref": "#/components/schemas/Message"
-                },
-                "example": {
-                  "message": "The provided email is already in use"
-                }
-              }
-            }
-          },
+    
           "500": {
             "description": "Unexpected Error",
             "content": {

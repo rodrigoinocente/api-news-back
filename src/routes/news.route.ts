@@ -1,9 +1,8 @@
 import { Router } from "express";
 const route = Router();
-
 import newsController from "../controllers/news.controller";
 import { authMiddleware } from "../middlewares/auth.middlewares";
-import {validateAndConvertIds } from "../middlewares/news.middlewares";
+import {validateAndConvertIds } from "../middlewares/global.middlewares";
 
 
 route.post("/", authMiddleware, newsController.create);

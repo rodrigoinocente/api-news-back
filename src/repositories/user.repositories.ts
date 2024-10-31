@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import { IUser } from "../../custom";
 import { UserModel } from "../database/db";
 
@@ -7,9 +8,9 @@ const findAllUserRepositories = (): Promise<IUser[]> => UserModel.find();
 
 const findByEmailRepositories = (email: string): Promise<IUser | null> => UserModel.findOne({ email: email });
 
-const findByIdRepositories = (userId: string): Promise<IUser | null> => UserModel.findById(userId);
+const findByIdRepositories = (userId: Types.ObjectId): Promise<IUser | null> => UserModel.findById(userId);
 
-const updateRepositories = (userId: string, body: IUser): Promise<IUser | null> => UserModel.findOneAndUpdate(
+const updateRepositories = (userId:  Types.ObjectId, body: IUser): Promise<IUser | null> => UserModel.findOneAndUpdate(
     { _id: userId },
     {...body }, { new: true }
 );

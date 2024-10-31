@@ -4,16 +4,16 @@ import { NextFunction, Request, Response } from "express";
 const isValidObjectId = (id: string): boolean => Types.ObjectId.isValid(id);
 
 const validateAndConvertIds = (req: Request, res: Response, next: NextFunction): Response | void => {
-    const paramNames = ['newsId', 'dataCommentId', 'commentId', 'dataReplyId', 'replyId'];
+    const paramNames = ["newsId", "dataCommentId", "commentId", "dataReplyId", "replyId", "userId"];
 
     try {
         paramNames.forEach(param => {
             const paramValue = req.params[param];
             if (paramValue) {
 
-                if (!isValidObjectId(paramValue)) 
+                if (!isValidObjectId(paramValue))
                     return res.status(400).send({ message: `Invalid ${param}` });
-                
+
                 res.locals[param] = new Types.ObjectId(paramValue);
             }
         });
