@@ -18,6 +18,7 @@
   },
   "include": [
     "src/**/*",
+    "index.ts",
      "app.ts",
      "server.ts",
      "custom.d.ts"

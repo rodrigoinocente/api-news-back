@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "npm install && rm -rf ./built && tsc",
-    "start": "node built/index.js",
+    "start": "npm run build && node built/index.js",
     "dev": "ts-node-dev index.ts",
     "watch": "tsc --watch"
   },
