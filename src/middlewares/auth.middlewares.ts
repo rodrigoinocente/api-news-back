@@ -21,7 +21,7 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
             const user = await userRepositories.findByIdRepositories(decoded.id);
             if (!user || !user._id) return res.status(401).send({ message: "User not found" });
 
-            res.locals.userId = new Types.ObjectId(user._id);
+            res.locals.userLoggedId = new Types.ObjectId(user._id);
             next();
         });
     } catch (err: any) {

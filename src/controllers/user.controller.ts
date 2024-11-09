@@ -69,9 +69,9 @@ const findById = async (req: Request, res: Response): Promise<Response | void> =
     };
 };
 
-const update = async (req: Request, res: Response): Promise<Response | void> => {
+const update = async (req: Request, res: Response): Promise<Response | void> => {   
     const userToFoundId = res.locals.userId;
-    const userLoggedId = res.locals.userId;
+    const userLoggedId = res.locals.userLoggedId;
     const body = req.body;
 
     try {
@@ -96,10 +96,26 @@ const update = async (req: Request, res: Response): Promise<Response | void> => 
     };
 };
 
+const getLoggedInUser = async (req: Request, res: Response): Promise<Response | void> => {
+    const userLoggedId = res.locals.userLoggedId;
+
+    try {
+        const user = await userService.findByIdService(userLoggedId);
+
+        return res.status(200).send(user);
+    } catch (err: any) {
+        if (err.message === "User not found by id")
+            return res.status(404).send({ message: err.message });
+
+        return res.status(500).send({ message: "An unexpected error occurred" });
+    };
+};
+
 export default {
     createUser,
     findAllUser,
     findByEmail,
     findById,
-    update
+    update,
+    getLoggedInUser
 };

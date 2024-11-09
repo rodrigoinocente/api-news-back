@@ -10,5 +10,6 @@ route.patch("/:userId", authMiddleware, validateAndConvertIds, userController.up
 route.get("/findAll", authMiddleware, userController.findAllUser);
 route.get("/email/:email", authMiddleware, userController.findByEmail);
 route.get("/id/:userId", authMiddleware, validateAndConvertIds, userController.findById);
+route.get("/me/", authMiddleware, userController.getLoggedInUser);
 
 export default route;

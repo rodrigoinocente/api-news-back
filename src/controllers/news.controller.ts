@@ -4,7 +4,7 @@ import { Request, Response } from "express"
 
 const create = async (req: Request, res: Response): Promise<Response | void> => {
     const body = req.body;
-    const userId = res.locals.userId
+    const userId = res.locals.userLoggedId;
 
     try {
         const news: INews = await newsService.createNewsService(body, userId);
@@ -84,7 +84,7 @@ const searchByTitle = async (req: Request, res: Response): Promise<Response | vo
 };
 
 const newsByUser = async (req: Request, res: Response): Promise<Response | void> => {
-    const userId = res.locals.userId;
+    const userId = res.locals.userLoggedId;
 
     try {
         const news: INews[] = await newsService.newsByUserService(userId);
@@ -101,7 +101,7 @@ const newsByUser = async (req: Request, res: Response): Promise<Response | void>
 const upDate = async (req: Request, res: Response): Promise<Response | void> => {
     const newsId = res.locals.newsId
     const body = req.body;
-    const userLoggedId = res.locals.userId;
+    const userLoggedId = res.locals.userLoggedId;
 
     try {
         const news: INews = await newsService.updateNewsService(newsId, body, userLoggedId);
@@ -130,7 +130,7 @@ const upDate = async (req: Request, res: Response): Promise<Response | void> => 
 
 const erase = async (req: Request, res: Response): Promise<Response | void> => {
     const newsId = res.locals.newsId;
-    const userLoggedId = res.locals.userId;
+    const userLoggedId = res.locals.userLoggedId;
 
     try {
         const newsDeleted = await newsService.eraseNewsService(newsId, userLoggedId);
@@ -156,7 +156,7 @@ const erase = async (req: Request, res: Response): Promise<Response | void> => {
 
 const likeNews = async (req: Request, res: Response): Promise<Response | void> => {
     const newsId = res.locals.newsId;
-    const userId = res.locals.userId;
+    const userId = res.locals.userLoggedId;
     try {
         const isLiked = await newsService.likeNewsService(newsId, userId);
 
@@ -202,7 +202,7 @@ const getPaginatedLikes = async (req: Request, res: Response): Promise<Response 
 const addComment = async (req: Request, res: Response): Promise<Response | void> => {
     try {
         const newsId = res.locals.newsId;
-        const userId = res.locals.userId;
+        const userId = res.locals.userLoggedId;
         const { content } = req.body;
 
         const commentResult = await newsService.addCommentService(newsId, userId, content);
@@ -226,7 +226,7 @@ const deleteComment = async (req: Request, res: Response): Promise<Response | vo
     try {
         const dataCommentId = res.locals.dataCommentId;
         const commentId = res.locals.commentId;
-        const userId = res.locals.userId
+        const userId = res.locals.userLoggedId
 
         await newsService.deleteCommentService(dataCommentId, commentId, userId);
         res.status(200).send({
@@ -277,7 +277,7 @@ const likeComment = async (req: Request, res: Response): Promise<Response | void
     try {
         const dataCommentId = res.locals.dataCommentId;
         const commentId = res.locals.commentId;
-        const userId = res.locals.userId;
+        const userId = res.locals.userLoggedId;
 
         const isLiked = await newsService.likeCommentService(dataCommentId, commentId, userId);
 
@@ -297,7 +297,7 @@ const addReplyComment = async (req: Request, res: Response): Promise<Response | 
     try {
         const dataCommentId = res.locals.dataCommentId;
         const commentId = res.locals.commentId;
-        const userId = res.locals.userId;
+        const userId = res.locals.userLoggedId;
         const { content } = req.body;
 
         const reply = await newsService.addReplyCommentService(dataCommentId, commentId, userId, content);
@@ -324,7 +324,7 @@ const deleteReply = async (req: Request, res: Response): Promise<Response | void
     try {
         const dataReplyId = res.locals.dataReplyId;
         const replyId = res.locals.replyId;
-        const userId = res.locals.userId;
+        const userId = res.locals.userLoggedId;
 
         await newsService.deleteReplyService(dataReplyId, replyId, userId);
 
@@ -379,7 +379,7 @@ const likeReply = async (req: Request, res: Response): Promise<Response | void> 
     try {
         const dataReplyId = res.locals.dataReplyId;
         const replyId = res.locals.replyId;
-        const userId = res.locals.userId;
+        const userId = res.locals.userLoggedId;
 
         const isLike = await newsService.likeReplyService(dataReplyId, replyId, userId);
 

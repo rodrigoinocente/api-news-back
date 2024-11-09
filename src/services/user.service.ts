@@ -53,10 +53,12 @@ const updateService = async (userToFoundId: Types.ObjectId, userLoggedId: Types.
     let { name, username, email, password } = body;
     if (!name && !username && !email && !password) throw new Error("Submit at least one fields for update")
 
-    if (userToFoundId !== userLoggedId) throw new Error("You didn't update this post");
+    if (userToFoundId.toString() !== userLoggedId.toString()) throw new Error("You didn't update this user");
 
-    const isEmailInUse = await userRepositories.findByEmailRepositories(email);
-    if (isEmailInUse) throw new Error("The provided email is already in use");
+    if (email) {
+        const isEmailInUse = await userRepositories.findByEmailRepositories(email);
+        if (isEmailInUse) throw new Error("The provided email is already in use");
+    }
 
     await findByIdService(userToFoundId);
 
