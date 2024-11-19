@@ -1,12 +1,5 @@
 import { Types } from 'mongoose';
 
-export interface ICreateAndUpdateNewsBody {
-  title: string;
-  text: string;
-  banner: string;
-  userId: Types.ObjectId;
-};
-
 export interface INews {
   _id: Types.ObjectId;
   title: string;
@@ -31,10 +24,10 @@ interface Paginated {
   news?: INews[];
 }
 
-export interface IUser {
+export interface IJournalist {
   _id: Types.ObjectId;
   name: string;
-  username: string;
-  email: string;
-  password: string;
+  bio: string;
+  active:boolean;
+  createdAt: Date;
 };
