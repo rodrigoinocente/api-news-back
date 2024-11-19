@@ -10,14 +10,17 @@ export interface ICreateAndUpdateNewsBody {
 export interface INews {
   _id: Types.ObjectId;
   title: string;
-  text: string;
+  content: string;
+  subtitle: string;
   banner: string;
-  user: IUser;
+  authorId: IUser;
+  category: string;
+  tags:[string];
   dataLikeId: Types.ObjectId;
   likeCount: number;
   dataCommentId: Types.ObjectId;
   commentCount: number;
-  createdAt: Date;
+  publishedAt: Date;
 };
 
 interface Paginated {
@@ -34,20 +37,4 @@ export interface IUser {
   username: string;
   email: string;
   password: string;
-};
-
-export interface IUpdateTypeComment {
-  $pull?: {
-    comment?: {
-      _id: string;
-    };
-  };
-};
-
-export interface IUpdateTypeReply {
-  $pull?: {
-    reply?: {
-      _id: string;
-    };
-  };
 };

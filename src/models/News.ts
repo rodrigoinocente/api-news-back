@@ -4,43 +4,34 @@ import { INews } from "../../custom";
 const NewsSchema = new mongoose.Schema<INews>({
   title: {
     type: String,
-    required: true,
+    required: true
   },
-  text: {
+  content: {
     type: String,
-    required: true,
+    required: true
+  },
+  subtitle: {
+    type: String,
+    required: true
   },
   banner: {
     type: String,
-    required: true,
-  },
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
     required: true
   },
-  dataLikeId: {
+  authorId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "LikeNews",
-    default: null,
+    ref: "Journalist",
+    required: true
   },
-  likeCount: {
-    type: Number,
-    default: 0,
-  },
-  dataCommentId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "CommentDataList",
-    default: null,
-  },
-  commentCount: {
-    type: Number,
-    default: 0,
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now(),
+  category: {
+    type: String,
+    enum: ["Technology", "Sports", "Science", "Politics", "Health", "Art", "Others"],
     required: true,
+  },
+  tags: [String],
+  publishedAt: {
+    type: Date,
+    default: Date.now()
   },
 });
 
