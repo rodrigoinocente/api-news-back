@@ -1,17 +1,18 @@
-import bcrypt from "bcrypt";
-import { IUser } from "../../custom";
 import authRepositories from "../repositories/auth.repositories";
+import bcrypt from "bcrypt";
 
 const loginService = async (email: string, password: string) => {
-        const user: IUser | null = await authRepositories.loginService(email);
-        if (!user)  throw new Error("Email or Password not found");
+  const emailAdmin = process.env.EMAIL_ADMIN
+  const passwordAdmin = process.env.PASSWORD_ADMIN
 
-        const passwordIsValid = await bcrypt.compare(password, user.password);
-        if (!passwordIsValid) throw new Error("Email or Password not found");
+  if (email !== emailAdmin) throw new Error("Email or Password not found");
 
-        const token = authRepositories.generateToken(user._id);
+  const isPasswordValid = await bcrypt.compare(password, passwordAdmin as string);
+  if (!isPasswordValid) throw new Error("Email or Password not found");
 
-      return token;
+  const token = authRepositories.generateToken(email);
+
+  return token;
 };
 
 export default { loginService };

@@ -1,7 +1,5 @@
 import jwt from "jsonwebtoken";
 import { NextFunction, Request, Response } from "express";
-import userRepositories from "../repositories/user.repositories";
-import { Types } from "mongoose";
 
 const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -17,11 +15,13 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
 
         jwt.verify(token, process.env.SECRET_JWT as string, async (error: any, decoded: any) => {
             if (error) return res.status(401).send({ message: "Token invalid" });
+            
+            const { email } = decoded;
 
-            const user = await userRepositories.findByIdRepositories(decoded.id);
-            if (!user || !user._id) return res.status(401).send({ message: "User not found" });
+            if (email !== process.env.ADMIN_EMAIL) {
+                return res.status(403).send({ message: "Unauthorized access" });
+            }
 
-            res.locals.userLoggedId = new Types.ObjectId(user._id);
             next();
         });
     } catch (err: any) {

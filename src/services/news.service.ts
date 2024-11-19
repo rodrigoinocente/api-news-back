@@ -1,8 +1,8 @@
 import { Types } from "mongoose";
-import { ICreateAndUpdateNewsBody, INews, Paginated} from "../../custom";
+import {  INews, Paginated} from "../../custom";
 import newsRepositories from "../repositories/news.repositories";
 
-const createNewsService = async (body: ICreateAndUpdateNewsBody, user: Types.ObjectId): Promise<INews> => {
+const createNewsService = async (body: any, user: Types.ObjectId): Promise<INews> => {
     const { title, text, banner } = body;
     if (!title || !text || !banner) throw new Error("Submit all fields to post");
 
@@ -67,42 +67,42 @@ const newsByUserService = async (userId: string): Promise<INews[]> => {
     return news;
 };
 
-const updateNewsService = async (newsId: Types.ObjectId, body: ICreateAndUpdateNewsBody, userLoggedId: Types.ObjectId): Promise<INews> => {
-    const { title, text, banner } = body;
+// const updateNewsService = async (newsId: Types.ObjectId, body: ICreateAndUpdateNewsBody, userLoggedId: Types.ObjectId): Promise<INews> => {
+//     const { title, text, banner } = body;
 
 
-    if (!title && !text && !banner)
-        throw new Error("Submit at least one fields to update the post");
+//     if (!title && !text && !banner)
+//         throw new Error("Submit at least one fields to update the post");
 
-    const news: INews | null = await newsRepositories.findNewsByIdRepositories(newsId);
-    if (!news)
-        throw new Error("News not found");
+//     const news: INews | null = await newsRepositories.findNewsByIdRepositories(newsId);
+//     if (!news)
+//         throw new Error("News not found");
 
-    if (String(news.user._id) !== String(userLoggedId))
-        throw new Error("You didn't update this post");
+//     if (String(news.user._id) !== String(userLoggedId))
+//         throw new Error("You didn't update this post");
 
-    const newsUpdate: INews | null = await newsRepositories.upDateRepositories(newsId, title, text, banner);
-    if (!newsUpdate)
-        throw new Error("An unexpected error occurred");
+//     const newsUpdate: INews | null = await newsRepositories.upDateRepositories(newsId, title, text, banner);
+//     if (!newsUpdate)
+//         throw new Error("An unexpected error occurred");
 
-    return newsUpdate;
+//     return newsUpdate;
 
-};
+// };
 
-const eraseNewsService = async (newsId: Types.ObjectId, userLoggedId: Types.ObjectId): Promise<INews> => {
-    const news: INews | null = await newsRepositories.findNewsByIdRepositories(newsId)
-    if (!news)
-        throw new Error("News not found");
+// const eraseNewsService = async (newsId: Types.ObjectId, userLoggedId: Types.ObjectId): Promise<INews> => {
+//     const news: INews | null = await newsRepositories.findNewsByIdRepositories(newsId)
+//     if (!news)
+//         throw new Error("News not found");
 
-    if (String(news.user._id) !== String(userLoggedId))
-        throw new Error("You didn't delete this post");
+//     if (String(news.user._id) !== String(userLoggedId))
+//         throw new Error("You didn't delete this post");
 
-    const newsDeleted = await newsRepositories.eraseNewsRepositories(news._id);
-    if (!newsDeleted)
-        throw new Error("An unexpected error occurred");
+//     const newsDeleted = await newsRepositories.eraseNewsRepositories(news._id);
+//     if (!newsDeleted)
+//         throw new Error("An unexpected error occurred");
 
-    return newsDeleted;
-};
+//     return newsDeleted;
+// };
 
 export default {
     createNewsService,
@@ -111,6 +111,6 @@ export default {
     findByIdService,
     searchByTitleService,
     newsByUserService,
-    updateNewsService,
-    eraseNewsService
+    // updateNewsService,
+    // eraseNewsService
 };

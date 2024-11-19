@@ -1,8 +1,8 @@
-import { ICreateAndUpdateNewsBody, INews } from "../../custom";
+import {  INews } from "../../custom";
 import { NewsModel } from "../database/db";
 import { Types } from 'mongoose';
 
-const createNewsRepositories = async (body: ICreateAndUpdateNewsBody): Promise<INews> => (await NewsModel.create(body)).populate("user");
+const createNewsRepositories = async (body: any): Promise<INews> => (await NewsModel.create(body)).populate("user");
 
 const findAllNewsRepositories = (offset: number, limit: number): Promise<INews[] | []> => NewsModel.find().sort({ _id: -1 }).skip(offset).limit(limit)
     .populate("user");
