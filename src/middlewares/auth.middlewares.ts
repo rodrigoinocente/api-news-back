@@ -16,7 +16,7 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
         jwt.verify(token, process.env.SECRET_JWT as string, async (error: any, decoded: any) => {
             if (error) return res.status(401).send({ message: "Token invalid" });
             
-            const { email } = decoded;
+            const { email } = decoded.email;
 
             if (email !== process.env.ADMIN_EMAIL) {
                 return res.status(403).send({ message: "Unauthorized access" });

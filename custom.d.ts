@@ -8,7 +8,7 @@ export interface INews {
   banner: string;
   authorId: IUser;
   category: string;
-  tags:[string];
+  tags: [string];
   dataLikeId: Types.ObjectId;
   likeCount: number;
   dataCommentId: Types.ObjectId;
@@ -28,6 +28,8 @@ export interface IJournalist {
   _id: Types.ObjectId;
   name: string;
   bio: string;
-  active:boolean;
+  profilePicture: string;
+  active: boolean;
+  email: string;
   createdAt: Date;
 };

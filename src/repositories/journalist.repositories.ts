@@ -1,12 +1,12 @@
 // import { Types } from "mongoose";
-// import { IUser } from "../../custom";
-// import { UserModel } from "../database/db";
+import { IJournalist } from "../../custom";
+import { JournalistModel } from "../database/db";
 
-// const createRepositories = (body: IUser): Promise<IUser> => UserModel.create(body);
+const createJournalistRepositories = (body: IJournalist): Promise<IJournalist> => JournalistModel.create(body);
 
 // const findAllUserRepositories = (): Promise<IUser[]> => UserModel.find();
 
-// const findByEmailRepositories = (email: string): Promise<IUser | null> => UserModel.findOne({ email: email });
+const findByEmailRepositories = (email: string): Promise<IJournalist | null> => JournalistModel.findOne({ email: email });
 
 // const findByIdRepositories = (userId: Types.ObjectId): Promise<IUser | null> => UserModel.findById(userId);
 
@@ -15,10 +15,10 @@
 //     {...body }, { new: true }
 // );
 
-// export default {
-//     createRepositories,
+export default {
+    createJournalistRepositories,
 //     findAllUserRepositories,
-//     findByEmailRepositories,
+    findByEmailRepositories,
 //     findByIdRepositories,
 //     updateRepositories
-// };
+};
