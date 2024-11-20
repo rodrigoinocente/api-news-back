@@ -1,8 +1,6 @@
 import journalistRepositories from "../repositories/journalist.repositories";
 import { IJournalist } from "../../custom";
-// import authRepositories from "../repositories/auth.repositories";
-// import bcrypt from "bcrypt";
-// import { Types } from "mongoose";
+import { Types } from "mongoose";
 
 const createJournalistService = async (body: IJournalist): Promise<void> => {
     const { name, bio, profilePicture, email } = body;
@@ -23,19 +21,12 @@ const findAllJournalistService = async (): Promise<IJournalist[]> => {
     return journalists;
 };
 
-// const findByEmailService = async (email: string): Promise<IUser | null> => {
-//     const user: IUser | null = await userRepositories.findByEmailRepositories(email);
-//     if (!user) throw new Error("User not found by email");
+const findJournalistByIdService = async (journalistId: Types.ObjectId): Promise<IJournalist | null> => {
+    const journalist = await journalistRepositories.findJournalistByIdRepositories(journalistId)
+    if (!journalist) throw new Error("Journalist not found by ID");
 
-//     return user;
-// };
-
-// const findByIdService = async (userId: Types.ObjectId): Promise<IUser | null> => {
-//     const user = await userRepositories.findByIdRepositories(userId)
-//     if (!user) throw new Error("User not found by ID");
-
-//     return user
-// };
+    return journalist;
+};
 
 // const updateService = async (userToFoundId: Types.ObjectId, userLoggedId: Types.ObjectId, body: IUser): Promise<Omit<IUser, "password"> | null> => {
 //     let { name, username, email, password } = body;
@@ -61,7 +52,6 @@ const findAllJournalistService = async (): Promise<IJournalist[]> => {
 export default {
     createJournalistService,
     findAllJournalistService,
-    //     findByEmailService,
-    //     findByIdService,
+    findJournalistByIdService,
     //     updateService
 };

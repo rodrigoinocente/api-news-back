@@ -1,4 +1,4 @@
-// import { Types } from "mongoose";
+import { Types } from "mongoose";
 import { IJournalist } from "../../custom";
 import { JournalistModel } from "../database/db";
 
@@ -8,7 +8,7 @@ const findAllJournalistRepositories = (): Promise<IJournalist[]> => JournalistMo
 
 const findByEmailRepositories = (email: string): Promise<IJournalist | null> => JournalistModel.findOne({ email: email });
 
-// const findByIdRepositories = (userId: Types.ObjectId): Promise<IUser | null> => UserModel.findById(userId);
+const findJournalistByIdRepositories = (journalistId: Types.ObjectId): Promise<IJournalist | null> => JournalistModel.findById(journalistId);
 
 // const updateRepositories = (userId:  Types.ObjectId, body: IUser): Promise<IUser | null> => UserModel.findOneAndUpdate(
 //     { _id: userId },
@@ -19,6 +19,6 @@ export default {
     createJournalistRepositories,
     findAllJournalistRepositories,
     findByEmailRepositories,
-//     findByIdRepositories,
+    findJournalistByIdRepositories,
 //     updateRepositories
 };

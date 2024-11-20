@@ -35,35 +35,20 @@ const findAllJournalist = async (req: Request, res: Response): Promise<Response 
     };
 };
 
-// // const findByEmail = async (req: Request, res: Response): Promise<Response | void> => {
-// //     const email = req.params.email;
+const findJournalistById = async (req: Request, res: Response): Promise<Response | void> => {
+    const journalistId = res.locals.journalistId;
 
-// //     try {
-// //         const user: IUser | null = await userService.findByEmailService(email);
+    try {
+        const journalist = await journalistService.findJournalistByIdService(journalistId);
 
-// //         res.status(200).send(user);
-// //     } catch (err: any) {
-// //         if (err.message === "User not found by email")
-// //             return res.status(404).send({ message: err.message });
+        return res.status(200).send(journalist);
+    } catch (err: any) {
+        if (err.message === "Journalist not found by ID")
+            return res.status(404).send({ message: err.message });
 
-// //         return res.status(500).send({ message: "An unexpected error occurred" });
-// //     };
-// // };
-
-// const findById = async (req: Request, res: Response): Promise<Response | void> => {
-//     const userId = res.locals.userId;
-
-//     try {
-//         const user = await userService.findByIdService(userId);
-
-//         return res.status(200).send(user);
-//     } catch (err: any) {
-//         if (err.message === "User not found by id")
-//             return res.status(404).send({ message: err.message });
-
-//         return res.status(500).send({ message: "An unexpected error occurred" });
-//     };
-// };
+        return res.status(500).send({ message: "An unexpected error occurred" });
+    };
+};
 
 // const update = async (req: Request, res: Response): Promise<Response | void> => {   
 //     const userToFoundId = res.locals.userId;
@@ -110,8 +95,7 @@ const findAllJournalist = async (req: Request, res: Response): Promise<Response 
 export default {
     creatJournalist,
     findAllJournalist,
-    //     findByEmail,
-    //     findById,
+    findJournalistById,
     //     update,
     //     getLoggedInUser
 };
