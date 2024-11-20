@@ -7,16 +7,16 @@ const validateAndConvertIds = (req: Request, res: Response, next: NextFunction):
     const paramNames = ["newsId", "journalistId"];
 
     try {
-        paramNames.forEach(param => {
+        for (const param of paramNames) {
             const paramValue = req.params[param];
             if (paramValue) {
-
-                if (!isValidObjectId(paramValue))
+                if (!isValidObjectId(paramValue)) {
                     return res.status(400).send({ message: `Invalid ${param}` });
+                }
 
                 res.locals[param] = new Types.ObjectId(paramValue);
             }
-        });
+        }
 
         next();
     } catch (err) {
