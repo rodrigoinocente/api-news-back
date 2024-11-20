@@ -4,7 +4,7 @@ import { JournalistModel } from "../database/db";
 
 const createJournalistRepositories = (body: IJournalist): Promise<IJournalist> => JournalistModel.create(body);
 
-// const findAllUserRepositories = (): Promise<IUser[]> => UserModel.find();
+const findAllJournalistRepositories = (): Promise<IJournalist[]> => JournalistModel.find();
 
 const findByEmailRepositories = (email: string): Promise<IJournalist | null> => JournalistModel.findOne({ email: email });
 
@@ -17,7 +17,7 @@ const findByEmailRepositories = (email: string): Promise<IJournalist | null> => 
 
 export default {
     createJournalistRepositories,
-//     findAllUserRepositories,
+    findAllJournalistRepositories,
     findByEmailRepositories,
 //     findByIdRepositories,
 //     updateRepositories

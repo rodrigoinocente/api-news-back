@@ -1,11 +1,12 @@
 import { Request, Response } from "express";
-import userService from "../services/journalist.service";
+import journalistService from "../services/journalist.service";
+import { IJournalist } from "../../custom";
 
 const creatJournalist = async (req: Request, res: Response): Promise<Response | void> => {
     const body = req.body;
 
     try {
-        await userService.createJournalistService(body);
+        await journalistService.createJournalistService(body);
 
         return res.status(201).send({ message: "Journalist created successfully", });
     } catch (err: any) {
@@ -22,17 +23,17 @@ const creatJournalist = async (req: Request, res: Response): Promise<Response | 
     };
 };
 
-// // const findAllUser = async (req: Request, res: Response): Promise<Response | void> => {
-// //     try {
-// //         const users: IUser[] = await userService.findAllUserService();
-// //         res.status(200).send(users);
-// //     } catch (err: any) {
-// //         if (err.message === "There are no registered users")
-// //             return res.status(404).send({ message: err.message });
+const findAllJournalist = async (req: Request, res: Response): Promise<Response | void> => {
+    try {
+        const journalists: IJournalist[] = await journalistService.findAllJournalistService();
+        res.status(200).send(journalists);
+    } catch (err: any) {
+        if (err.message === "There are no registered journalist")
+            return res.status(404).send({ message: err.message });
 
-// //         return res.status(500).send({ message: "An unexpected error occurred" });
-// //     };
-// // };
+        return res.status(500).send({ message: "An unexpected error occurred" });
+    };
+};
 
 // // const findByEmail = async (req: Request, res: Response): Promise<Response | void> => {
 // //     const email = req.params.email;
@@ -108,7 +109,7 @@ const creatJournalist = async (req: Request, res: Response): Promise<Response | 
 // 
 export default {
     creatJournalist,
-    //     findAllUser,
+    findAllJournalist,
     //     findByEmail,
     //     findById,
     //     update,

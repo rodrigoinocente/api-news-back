@@ -16,12 +16,12 @@ const createJournalistService = async (body: IJournalist): Promise<void> => {
     if (!createdUser) throw new Error("Error creating Journalist")
 };
 
-// const findAllUserService = async (): Promise<IUser[]> => {
-//     const users: IUser[] = await userRepositories.findAllUserRepositories();
-//     if (users.length === 0) throw new Error("There are no registered users");
+const findAllJournalistService = async (): Promise<IJournalist[]> => {
+    const journalists: IJournalist[] = await journalistRepositories.findAllJournalistRepositories();
+    if (journalists.length === 0) throw new Error("There are no registered journalist");
 
-//     return users;
-// };
+    return journalists;
+};
 
 // const findByEmailService = async (email: string): Promise<IUser | null> => {
 //     const user: IUser | null = await userRepositories.findByEmailRepositories(email);
@@ -60,7 +60,7 @@ const createJournalistService = async (body: IJournalist): Promise<void> => {
 
 export default {
     createJournalistService,
-    //     findAllUserService,
+    findAllJournalistService,
     //     findByEmailService,
     //     findByIdService,
     //     updateService
