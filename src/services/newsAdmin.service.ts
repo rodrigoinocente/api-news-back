@@ -1,6 +1,6 @@
 import { Types } from "mongoose";
 import {  INews, Paginated} from "../../custom";
-import newsRepositories from "../repositories/news.repositories";
+import newsRepositories from "../repositories/newsUser.repositories";
 
 const createNewsService = async (body: any, user: Types.ObjectId): Promise<INews> => {
     const { title, text, banner } = body;
