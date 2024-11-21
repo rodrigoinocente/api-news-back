@@ -10,15 +10,15 @@ const findByEmailRepositories = (email: string): Promise<IJournalist | null> => 
 
 const findJournalistByIdRepositories = (journalistId: Types.ObjectId): Promise<IJournalist | null> => JournalistModel.findById(journalistId);
 
-// const updateRepositories = (userId:  Types.ObjectId, body: IUser): Promise<IUser | null> => UserModel.findOneAndUpdate(
-//     { _id: userId },
-//     {...body }, { new: true }
-// );
+const updateJournalistRepositories = (journalistId:  Types.ObjectId, body: IJournalist): Promise<IJournalist | null> => JournalistModel.findOneAndUpdate(
+    { _id: journalistId },
+    {...body }, { new: true }
+);
 
 export default {
     createJournalistRepositories,
     findAllJournalistRepositories,
     findByEmailRepositories,
     findJournalistByIdRepositories,
-//     updateRepositories
+    updateJournalistRepositories
 };

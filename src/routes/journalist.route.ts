@@ -8,7 +8,6 @@ const route = Router();
 route.post("/", authMiddleware, journalistController.creatJournalist);
 route.get("/findAll", authMiddleware, journalistController.findAllJournalist);
 route.get("/id/:journalistId", authMiddleware, validateAndConvertIds, journalistController.findJournalistById);
-// route.patch("/:userId", authMiddleware, validateAndConvertIds, userController.update);
-// route.get("/me/", authMiddleware, userController.getLoggedInUser);
+route.patch("/:journalistId", authMiddleware, validateAndConvertIds, journalistController.updateJournalist);
 
 export default route;

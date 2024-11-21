@@ -28,30 +28,22 @@ const findJournalistByIdService = async (journalistId: Types.ObjectId): Promise<
     return journalist;
 };
 
-// const updateService = async (userToFoundId: Types.ObjectId, userLoggedId: Types.ObjectId, body: IUser): Promise<Omit<IUser, "password"> | null> => {
-//     let { name, username, email, password } = body;
-//     if (!name && !username && !email && !password) throw new Error("Submit at least one fields for update")
+const updateJournalistService = async (journalistId: Types.ObjectId, body: IJournalist): Promise<void> => {
+    let { name, bio, profilePicture, email } = body;
+    if (!name && !bio && !profilePicture && !email) throw new Error("Submit at least one fields for update")
 
-//     if (userToFoundId.toString() !== userLoggedId.toString()) throw new Error("You didn't update this user");
+    if (email) {
+        const isEmailInUse = await journalistRepositories.findByEmailRepositories(email);
+        if (isEmailInUse) throw new Error("The provided email is already in use");
+    }
 
-//     if (email) {
-//         const isEmailInUse = await userRepositories.findByEmailRepositories(email);
-//         if (isEmailInUse) throw new Error("The provided email is already in use");
-//     }
-
-//     await findByIdService(userToFoundId);
-
-//     if (password) body.password = await bcrypt.hash(password, 10)
-
-//     const userUpdate = await userRepositories.updateRepositories(userLoggedId, body);
-//     if (!userUpdate) throw new Error("Error updating");
-
-//     return userUpdate
-// };
+    const userUpdate = await journalistRepositories.updateJournalistRepositories(journalistId, body);
+    if (!userUpdate) throw new Error("Error updating");
+};
 
 export default {
     createJournalistService,
     findAllJournalistService,
     findJournalistByIdService,
-    //     updateService
+    updateJournalistService
 };
