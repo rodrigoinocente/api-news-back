@@ -28,7 +28,10 @@ const NewsSchema = new mongoose.Schema<INews>({
     enum: ["Technology", "Sports", "Science", "Politics", "Health", "Art", "Others"],
     required: true,
   },
-  tags: [String],
+  tags: {
+    type: [String],
+    required: true
+  },
   publishedAt: {
     type: Date,
     default: Date.now()

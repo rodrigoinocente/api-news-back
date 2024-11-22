@@ -1,4 +1,4 @@
-import {Router} from "express";
+import { Router } from "express";
 import journalistRouter from "./journalist.route";
 import authRouter from "./auth.route";
 import newsAdminRouter from "./newsAdmin.route";

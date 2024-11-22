@@ -1,22 +1,27 @@
-// import { INews } from "../../custom";
-// import newsService from "../services/news.service";
-// import { Request, Response } from "express"
+import { INews } from "../../custom";
+import newsAdminService from "../services/newsAdmin.service";
+import { Request, Response } from "express"
 
-// const create = async (req: Request, res: Response): Promise<Response | void> => {
-//     const body = req.body;
-//     const userId = res.locals.userLoggedId;
+const createNews = async (req: Request, res: Response): Promise<Response | void> => {
+    const body = req.body;
 
-//     try {
-//         const news: INews = await newsService.createNewsService(body, userId);
+    try {
+        const news: INews = await newsAdminService.createNewsService(body);
 
-//         res.status(201).send(news);
-//     } catch (err: any) {
-//         if (err.message === "Submit all fields to post")
-//             return res.status(400).send({ message: err.message });
+        res.status(201).send(news);
+    } catch (err: any) {
+        if (err.message === "Submit all fields to post")
+            return res.status(400).send({ message: err.message });
 
-//         return res.status(500).send({ message: "An unexpected error occurred" });
-//     };
-// };
+        if (err.message === "Journalist not found")
+            return res.status(404).send({ message: err.message });
+
+        if (err.message === "Error creating News")
+            return res.status(500).send({ message: err.message });
+
+        return res.status(500).send({ message: "An unexpected error occurred" });
+    };
+};
 
 // const findAll = async (req: Request, res: Response): Promise<Response | void> => {
 //     let limit = req.query.limit ? Number(req.query.limit) : 15;
@@ -154,13 +159,13 @@
 //     };
 // };
 
-// export default {
-//     create,
-//     findAll,
-//     topNews,
-//     findById,
-//     searchByTitle,
-//     newsByUser,
-//     upDate,
-//     erase
-// };
+export default {
+    createNews,
+    //     findAll,
+    //     topNews,
+    //     findById,
+    //     searchByTitle,
+    //     newsByUser,
+    //     upDate,
+    //     erase
+};

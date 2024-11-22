@@ -1,71 +1,76 @@
 import { Types } from "mongoose";
-import {  INews, Paginated} from "../../custom";
-import newsRepositories from "../repositories/newsUser.repositories";
+import { INews, Paginated } from "../../custom";
+import newsAdminRepositories from "../repositories/newsAdmin.repositories";
+import journalistRepositories from "../repositories/journalist.repositories";
 
-const createNewsService = async (body: any, user: Types.ObjectId): Promise<INews> => {
-    const { title, text, banner } = body;
-    if (!title || !text || !banner) throw new Error("Submit all fields to post");
+const createNewsService = async (body: INews): Promise<INews> => {
+    const { title, content, subtitle, banner, authorId, category, tags } = body;
+    if (!title || !content || !subtitle || !banner || !authorId || !category || !tags)
+        throw new Error("Submit all fields to post");
 
-    const newsData = { ...body, user };
-    const news: INews = await newsRepositories.createNewsRepositories(newsData);
+    const journalist = await journalistRepositories.findJournalistByIdRepositories(authorId)
+    if (!journalist) throw new Error("Journalist not found")
+
+    const news: INews = await newsAdminRepositories.createNewsRepositories(body);
+    if (!news) throw new Error("Error creating News")
 
     return news
 };
 
-const findAllNewsService = async (offset: number, limit: number, currentUrl: string): Promise<Paginated> => {
+// const findAllNewsService = async (offset: number, limit: number, currentUrl: string): Promise<Paginated> => {
 
-    const news: INews[] = await newsRepositories.findAllNewsRepositories(offset, limit);
-    const total: number = await newsRepositories.countNewsRepositories();
+//     const news: INews[] = await newsRepositories.findAllNewsRepositories(offset, limit);
+//     const total: number = await newsRepositories.countNewsRepositories();
 
-    const next = offset + limit;
-    const nextUrl = next < total ? `${currentUrl}?limit=${limit}&offset=${next}` : null;
+//     const next = offset + limit;
+//     const nextUrl = next < total ? `${currentUrl}?limit=${limit}&offset=${next}` : null;
 
-    const previous = offset - limit < 0 ? null : offset - limit;
-    const previousUrl = previous != null ? `${currentUrl}?limit=${limit}&offset=${previous}` : null;
+//     const previous = offset - limit < 0 ? null : offset - limit;
+//     const previousUrl = previous != null ? `${currentUrl}?limit=${limit}&offset=${previous}` : null;
 
-    if (news.length === 0)
-        throw new Error("No news found");
+//     if (news.length === 0)
+//         throw new Error("No news found");
 
-    return ({
-        nextUrl,
-        previousUrl,
-        offset,
-        total,
-        news
-    });
-};
+//     return ({
+//         nextUrl,
+//         previousUrl,
+//         offset,
+//         total,
+//         news
+//     });
+// };
 
-const topNewsService = async (): Promise<INews> => {
-    const news: INews | null = await newsRepositories.topNewsRepositories();
-    if (!news)
-        throw new Error("No news found")
+// const topNewsService = async (): Promise<INews> => {
+//     const news: INews | null = await newsRepositories.topNewsRepositories();
+//     if (!news)
+//         throw new Error("No news found")
 
-    return news;
-};
+//     return news;
+// };
 
-const findByIdService = async (newsId: Types.ObjectId): Promise<INews> => {
-    const news: INews | null = await newsRepositories.findNewsByIdRepositories(newsId);
-    if (!news)
-        throw new Error("No news found")
+// const findByIdService = async (newsId: Types.ObjectId): Promise<INews> => {
+//     const news: INews | null = await newsRepositories.findNewsByIdRepositories(newsId);
+//     if (!news)
+//         throw new Error("No news found")
 
-    return news;
-};
+//     return news;
+// };
 
-const searchByTitleService = async (title: string): Promise<INews[]> => {
-    const news: INews[] | [] = await newsRepositories.searchByTitleRepositories(title);
-    if (news.length === 0)
-        throw new Error("No news found");
+// const searchByTitleService = async (title: string): Promise<INews[]> => {
+//     const news: INews[] | [] = await newsRepositories.searchByTitleRepositories(title);
+//     if (news.length === 0)
+//         throw new Error("No news found");
 
-    return news;
-};
+//     return news;
+// };
 
-const newsByUserService = async (userId: string): Promise<INews[]> => {
-    const news: INews[] | [] = await newsRepositories.newsByUserRepositories(userId);
-    if (news.length === 0)
-        throw new Error("No news found");
+// const newsByUserService = async (userId: string): Promise<INews[]> => {
+//     const news: INews[] | [] = await newsRepositories.newsByUserRepositories(userId);
+//     if (news.length === 0)
+//         throw new Error("No news found");
 
-    return news;
-};
+//     return news;
+// };
 
 // const updateNewsService = async (newsId: Types.ObjectId, body: ICreateAndUpdateNewsBody, userLoggedId: Types.ObjectId): Promise<INews> => {
 //     const { title, text, banner } = body;
@@ -106,11 +111,11 @@ const newsByUserService = async (userId: string): Promise<INews[]> => {
 
 export default {
     createNewsService,
-    findAllNewsService,
-    topNewsService,
-    findByIdService,
-    searchByTitleService,
-    newsByUserService,
+    // findAllNewsService,
+    // topNewsService,
+    // findByIdService,
+    // searchByTitleService,
+    // newsByUserService,
     // updateNewsService,
     // eraseNewsService
 };
