@@ -17,44 +17,13 @@ const createNewsService = async (body: INews): Promise<INews> => {
     return news
 };
 
-// const findAllNewsService = async (offset: number, limit: number, currentUrl: string): Promise<Paginated> => {
+const findNewsByIdService = async (newsId: Types.ObjectId): Promise<INews> => {
+    const news: INews | null = await newsAdminRepositories.findNewsByIdRepositories(newsId);
+    if (!news)
+        throw new Error("No news found")
 
-//     const news: INews[] = await newsRepositories.findAllNewsRepositories(offset, limit);
-//     const total: number = await newsRepositories.countNewsRepositories();
-
-//     const next = offset + limit;
-//     const nextUrl = next < total ? `${currentUrl}?limit=${limit}&offset=${next}` : null;
-
-//     const previous = offset - limit < 0 ? null : offset - limit;
-//     const previousUrl = previous != null ? `${currentUrl}?limit=${limit}&offset=${previous}` : null;
-
-//     if (news.length === 0)
-//         throw new Error("No news found");
-
-//     return ({
-//         nextUrl,
-//         previousUrl,
-//         offset,
-//         total,
-//         news
-//     });
-// };
-
-// const topNewsService = async (): Promise<INews> => {
-//     const news: INews | null = await newsRepositories.topNewsRepositories();
-//     if (!news)
-//         throw new Error("No news found")
-
-//     return news;
-// };
-
-// const findByIdService = async (newsId: Types.ObjectId): Promise<INews> => {
-//     const news: INews | null = await newsRepositories.findNewsByIdRepositories(newsId);
-//     if (!news)
-//         throw new Error("No news found")
-
-//     return news;
-// };
+    return news;
+};
 
 // const searchByTitleService = async (title: string): Promise<INews[]> => {
 //     const news: INews[] | [] = await newsRepositories.searchByTitleRepositories(title);
@@ -111,9 +80,7 @@ const createNewsService = async (body: INews): Promise<INews> => {
 
 export default {
     createNewsService,
-    // findAllNewsService,
-    // topNewsService,
-    // findByIdService,
+    findNewsByIdService,
     // searchByTitleService,
     // newsByUserService,
     // updateNewsService,

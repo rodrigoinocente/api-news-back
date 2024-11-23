@@ -23,55 +23,19 @@ const createNews = async (req: Request, res: Response): Promise<Response | void>
     };
 };
 
-// const findAll = async (req: Request, res: Response): Promise<Response | void> => {
-//     let limit = req.query.limit ? Number(req.query.limit) : 15;
-//     let offset = req.query.offset ? Number(req.query.offset) : 0;
-//     const currentUrl = req.baseUrl;
+const findNewsById = async (req: Request, res: Response): Promise<Response | void> => {
+    const newsId = res.locals.newsId;
 
-//     try {
-//         const { nextUrl, previousUrl, total, news } = await newsService.findAllNewsService(offset, limit, currentUrl);
+    try {
+        const news: INews | null = await newsAdminService.findNewsByIdService(newsId);
+        return res.status(200).send(news);
+    } catch (err: any) {
+        if (err.message === "No news found")
+            return res.status(404).send({ message: err.message }    );
 
-//         res.status(200).send({
-//             nextUrl,
-//             previousUrl,
-//             offset,
-//             total,
-//             news
-//         });
-//     } catch (err: any) {
-//         if (err.message === "No news found")
-//             return res.status(204).send();
-
-//         return res.status(500).send({ message: "An unexpected error occurred" });
-//     };
-// };
-
-// const topNews = async (req: Request, res: Response): Promise<Response | void> => {
-//     try {
-//         const news: INews | null = await newsService.topNewsService();
-
-//         return res.status(200).send(news);
-//     } catch (err: any) {
-//         if (err.message === "No news found")
-//             return res.status(204).send();
-
-//         return res.status(500).send({ message: "An unexpected error occurred" });
-//     };
-// };
-
-// const findById = async (req: Request, res: Response): Promise<Response | void> => {
-//     const newsId = res.locals.newsId;
-
-//     try {
-//         const news: INews | null = await newsService.findByIdService(newsId);
-//         return res.status(200).send(news);
-//     } catch (err: any) {
-//         if (err.message === "No news found")
-//             return res.status(204).send();
-
-//         return res.status(500).send({ message: "An unexpected error occurred" });
-//     };
-// };
+        return res.status(500).send({ message: "An unexpected error occurred" });
+    };
+};
 
 // const searchByTitle = async (req: Request, res: Response): Promise<Response | void> => {
 //     const { title } = req.query;
@@ -161,9 +125,7 @@ const createNews = async (req: Request, res: Response): Promise<Response | void>
 
 export default {
     createNews,
-    //     findAll,
-    //     topNews,
-    //     findById,
+    findNewsById,
     //     searchByTitle,
     //     newsByUser,
     //     upDate,
