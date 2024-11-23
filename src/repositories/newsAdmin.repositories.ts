@@ -9,12 +9,11 @@ const findNewsByIdRepositories = async (newsId: Types.ObjectId): Promise<INews |
 const upDateNewsRepositories = (newsId: Types.ObjectId, body: INews): Promise<INews | null> =>
     NewsModel.findOneAndUpdate({ _id: newsId }, { ...body }, { new: true, });
 
-// const eraseNewsRepositories = (newsId: Types.ObjectId): Promise<INews | null> => NewsModel.findOneAndDelete({ _id: newsId });
-
+const eraseNewsRepositories = (newsId: Types.ObjectId): Promise<INews | null> => NewsModel.findOneAndDelete({ _id: newsId });
 
 export default {
     createNewsRepositories,
     findNewsByIdRepositories,
     upDateNewsRepositories,
-    // eraseNewsRepositories
+    eraseNewsRepositories
 };

@@ -64,35 +64,31 @@ const upDateNews = async (req: Request, res: Response): Promise<Response | void>
     };
 };
 
-// const erase = async (req: Request, res: Response): Promise<Response | void> => {
-//     const newsId = res.locals.newsId;
-//     const userLoggedId = res.locals.userLoggedId;
+const eraseNews = async (req: Request, res: Response): Promise<Response | void> => {
+    const newsId = res.locals.newsId;
 
-//     try {
-//         const newsDeleted = await newsService.eraseNewsService(newsId, userLoggedId);
+    try {
+        const newsDeleted = await newsAdminService.eraseNewsService(newsId);
 
-//         return res.status(200).send({
-//             message: "Post deleted successfully",
-//             news: newsDeleted
-//         });
+        return res.status(200).send({
+            message: "Post deleted successfully",
+            news: newsDeleted
+        });
 
-//     } catch (err: any) {
-//         if (err.message === "News not found")
-//             return res.status(204).send();
+    } catch (err: any) {
+        if (err.message === "News not found")
+            return res.status(404).send({ message: err.message });
 
-//         if (err.message === "You didn't delete this post")
-//             return res.status(403).send({ message: err.message });
+        if (err.message === "Failed to delete news")
+            return res.status(500).send({ message: err.message });
 
-//         if (err.message === "An unexpected error occurred")
-//             return res.status(500).send({ message: err.message });
-
-//         return res.status(500).send({ message: "An unexpected error occurred" });
-//     };
-// };
+        return res.status(500).send({ message: "An unexpected error occurred" });
+    };
+};
 
 export default {
     createNews,
     findNewsById,
     upDateNews,
-    //     erase
+    eraseNews
 };

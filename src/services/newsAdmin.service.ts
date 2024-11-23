@@ -42,24 +42,21 @@ const updateNewsService = async (newsId: Types.ObjectId, body: INews): Promise<I
     return newsUpdate;
 };
 
-// const eraseNewsService = async (newsId: Types.ObjectId, userLoggedId: Types.ObjectId): Promise<INews> => {
-//     const news: INews | null = await newsRepositories.findNewsByIdRepositories(newsId)
-//     if (!news)
-//         throw new Error("News not found");
+const eraseNewsService = async (newsId: Types.ObjectId): Promise<INews> => {
+    const news: INews | null = await newsAdminRepositories.findNewsByIdRepositories(newsId)
+    if (!news)
+        throw new Error("News not found");
 
-//     if (String(news.user._id) !== String(userLoggedId))
-//         throw new Error("You didn't delete this post");
+    const newsDeleted = await newsAdminRepositories.eraseNewsRepositories(news._id);
+    if (!newsDeleted)
+        throw new Error("Failed to delete news");
 
-//     const newsDeleted = await newsRepositories.eraseNewsRepositories(news._id);
-//     if (!newsDeleted)
-//         throw new Error("An unexpected error occurred");
-
-//     return newsDeleted;
-// };
+    return newsDeleted;
+};
 
 export default {
     createNewsService,
     findNewsByIdService,
     updateNewsService,
-    // eraseNewsService
+    eraseNewsService
 };
