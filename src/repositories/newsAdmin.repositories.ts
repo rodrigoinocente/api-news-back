@@ -6,13 +6,8 @@ const createNewsRepositories = async (body: any): Promise<INews> => (await NewsM
 
 const findNewsByIdRepositories = async (newsId: Types.ObjectId): Promise<INews | null> => await NewsModel.findById(newsId).populate("authorId");
 
-// const searchByTitleRepositories = (title: string): Promise<INews[] | []> => NewsModel.find({ title: { $regex: `${title || ""}`, $options: "i" } })
-//     .sort({ _id: -1 }).populate("user");
-
-// const newsByUserRepositories = (userId: string): Promise<INews[] | []> => NewsModel.find({ user: userId }).sort({ _id: -1 }).populate("user");
-
-// const upDateRepositories = (newsId: Types.ObjectId, title: string, text: string, banner: string): Promise<INews | null> =>
-//     NewsModel.findOneAndUpdate({ _id: newsId }, { title, text, banner }, { new: true, });
+const upDateNewsRepositories = (newsId: Types.ObjectId, body: INews): Promise<INews | null> =>
+    NewsModel.findOneAndUpdate({ _id: newsId }, { ...body }, { new: true, });
 
 // const eraseNewsRepositories = (newsId: Types.ObjectId): Promise<INews | null> => NewsModel.findOneAndDelete({ _id: newsId });
 
@@ -20,8 +15,6 @@ const findNewsByIdRepositories = async (newsId: Types.ObjectId): Promise<INews |
 export default {
     createNewsRepositories,
     findNewsByIdRepositories,
-    // searchByTitleRepositories,
-    // newsByUserRepositories,
-    // upDateRepositories,
+    upDateNewsRepositories,
     // eraseNewsRepositories
 };

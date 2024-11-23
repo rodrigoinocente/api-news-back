@@ -7,9 +7,7 @@ import {validateAndConvertIds } from "../middlewares/global.middlewares";
 
 route.post("/", authMiddleware, newsAdminController.createNews);
 route.get("/id/:newsId", authMiddleware, validateAndConvertIds, newsAdminController.findNewsById);
-// route.get("/search", newsController.searchByTitle);
-// route.get("/newsByUser", authMiddleware, newsController.newsByUser);
-// route.patch("/:newsId", authMiddleware, validateAndConvertIds, newsController.upDate);
+route.patch("/:newsId", authMiddleware, validateAndConvertIds, newsAdminController.upDateNews);
 // route.delete("/deleteNews/:newsId", authMiddleware, validateAndConvertIds, newsController.erase);
 
 export default route;
