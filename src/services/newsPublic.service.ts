@@ -1,28 +1,17 @@
 import { Types } from "mongoose";
 import {  INews, Paginated} from "../../custom";
-import newsRepositories from "../repositories/newsUser.repositories";
+import newsRepositories from "../repositories/newsPublic.repositories";
 
-const createNewsService = async (body: any, user: Types.ObjectId): Promise<INews> => {
-    const { title, text, banner } = body;
-    if (!title || !text || !banner) throw new Error("Submit all fields to post");
-
-    const newsData = { ...body, user };
-    const news: INews = await newsRepositories.createNewsRepositories(newsData);
-
-    return news
-};
-
-const findAllNewsService = async (offset: number, limit: number, currentUrl: string): Promise<Paginated> => {
-
+const findAllNewsService = async (offset: number, limit: number, fullUrl: string): Promise<Paginated> => {
     const news: INews[] = await newsRepositories.findAllNewsRepositories(offset, limit);
     const total: number = await newsRepositories.countNewsRepositories();
 
     const next = offset + limit;
-    const nextUrl = next < total ? `${currentUrl}?limit=${limit}&offset=${next}` : null;
+    const nextUrl = next < total ? `${fullUrl}?limit=${limit}&offset=${next}` : null;
 
     const previous = offset - limit < 0 ? null : offset - limit;
-    const previousUrl = previous != null ? `${currentUrl}?limit=${limit}&offset=${previous}` : null;
-
+    const previousUrl = previous != null ? `${fullUrl}?limit=${limit}&offset=${previous}` : null;
+    
     if (news.length === 0)
         throw new Error("No news found");
 
@@ -105,7 +94,6 @@ const newsByUserService = async (userId: string): Promise<INews[]> => {
 // };
 
 export default {
-    createNewsService,
     findAllNewsService,
     topNewsService,
     findByIdService,

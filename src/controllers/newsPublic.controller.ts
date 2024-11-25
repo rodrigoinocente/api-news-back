@@ -1,45 +1,30 @@
 // import { INews } from "../../custom";
-// import newsService from "../services/news.service";
-// import { Request, Response } from "express"
+import newsService from "../services/newsPublic.service";
+import { Request, Response } from "express"
 
-// const create = async (req: Request, res: Response): Promise<Response | void> => {
-//     const body = req.body;
-//     const userId = res.locals.userLoggedId;
 
-//     try {
-//         const news: INews = await newsService.createNewsService(body, userId);
+const findAllNews = async (req: Request, res: Response): Promise<Response | void> => {
+    let limit = req.query.limit ? Number(req.query.limit) : 15;
+    let offset = req.query.offset ? Number(req.query.offset) : 0;
+    const fullUrl = `${req.baseUrl}${req.path}`
 
-//         res.status(201).send(news);
-//     } catch (err: any) {
-//         if (err.message === "Submit all fields to post")
-//             return res.status(400).send({ message: err.message });
+    try {
+        const { nextUrl, previousUrl, total, news } = await newsService.findAllNewsService(offset, limit, fullUrl);
 
-//         return res.status(500).send({ message: "An unexpected error occurred" });
-//     };
-// };
+        res.status(200).send({
+            nextUrl,
+            previousUrl,
+            offset,
+            total,
+            news
+        });
+    } catch (err: any) {
+        if (err.message === "No news found")
+            return res.status(204).send();
 
-// const findAll = async (req: Request, res: Response): Promise<Response | void> => {
-//     let limit = req.query.limit ? Number(req.query.limit) : 15;
-//     let offset = req.query.offset ? Number(req.query.offset) : 0;
-//     const currentUrl = req.baseUrl;
-
-//     try {
-//         const { nextUrl, previousUrl, total, news } = await newsService.findAllNewsService(offset, limit, currentUrl);
-
-//         res.status(200).send({
-//             nextUrl,
-//             previousUrl,
-//             offset,
-//             total,
-//             news
-//         });
-//     } catch (err: any) {
-//         if (err.message === "No news found")
-//             return res.status(204).send();
-
-//         return res.status(500).send({ message: "An unexpected error occurred" });
-//     };
-// };
+        return res.status(500).send({ message: "An unexpected error occurred" });
+    };
+};
 
 // const topNews = async (req: Request, res: Response): Promise<Response | void> => {
 //     try {
@@ -154,13 +139,12 @@
 //     };
 // };
 
-// export default {
-//     create,
-//     findAll,
+export default {
+    findAllNews,
 //     topNews,
 //     findById,
 //     searchByTitle,
 //     newsByUser,
 //     upDate,
 //     erase
-// };
+};
