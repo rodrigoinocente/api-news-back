@@ -5,6 +5,7 @@ import newsPublicController from "../controllers/newsPublic.controller";
 
 
 route.get("/findAll", newsPublicController.findAllNews);
+route.get("/category/:category", newsPublicController.findNewsByCategory);
 // route.get("/top", newsController.topNews);
 // route.get("/id/:newsId", authMiddleware, validateAndConvertIds, newsController.findById);
 // route.get("/search", newsController.searchByTitle);

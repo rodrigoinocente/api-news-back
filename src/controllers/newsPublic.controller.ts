@@ -6,7 +6,7 @@ import { Request, Response } from "express"
 const findAllNews = async (req: Request, res: Response): Promise<Response | void> => {
     let limit = req.query.limit ? Number(req.query.limit) : 15;
     let offset = req.query.offset ? Number(req.query.offset) : 0;
-    const fullUrl = `${req.baseUrl}${req.path}`
+    const fullUrl = `${req.baseUrl}${req.path}`;
 
     try {
         const { nextUrl, previousUrl, total, news } = await newsService.findAllNewsService(offset, limit, fullUrl);
@@ -21,6 +21,30 @@ const findAllNews = async (req: Request, res: Response): Promise<Response | void
     } catch (err: any) {
         if (err.message === "No news found")
             return res.status(204).send();
+
+        return res.status(500).send({ message: "An unexpected error occurred" });
+    };
+};
+
+const findNewsByCategory = async (req: Request, res: Response): Promise<Response | void> => {
+    let limit = req.query.limit ? Number(req.query.limit) : 15;
+    let offset = req.query.offset ? Number(req.query.offset) : 0;
+    const fullUrl = `${req.baseUrl}${req.path}`;
+    const { category } = req.params
+
+    try {
+        const { nextUrl, previousUrl, total, news } = await newsService.findNewsByCategoryService(category, offset, limit, fullUrl);
+
+        res.status(200).send({
+            nextUrl,
+            previousUrl,
+            offset,
+            total,
+            news
+        });
+    } catch (err: any) {
+        if (err.message === "No news found")
+            return res.status(500).send({ message: err.message });
 
         return res.status(500).send({ message: "An unexpected error occurred" });
     };
@@ -141,10 +165,11 @@ const findAllNews = async (req: Request, res: Response): Promise<Response | void
 
 export default {
     findAllNews,
-//     topNews,
-//     findById,
-//     searchByTitle,
-//     newsByUser,
-//     upDate,
-//     erase
+    findNewsByCategory,
+    //     topNews,
+    //     findById,
+    //     searchByTitle,
+    //     newsByUser,
+    //     upDate,
+    //     erase
 };

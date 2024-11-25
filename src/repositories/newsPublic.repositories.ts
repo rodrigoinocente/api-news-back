@@ -1,4 +1,4 @@
-import {  INews } from "../../custom";
+import { INews } from "../../custom";
 import { NewsModel } from "../database/db";
 import { Types } from 'mongoose';
 
@@ -6,6 +6,12 @@ const findAllNewsRepositories = (offset: number, limit: number): Promise<INews[]
     .populate("authorId");
 
 const countNewsRepositories = (): Promise<number> => NewsModel.countDocuments();
+
+const findNewsByCategoryRepositories = (category: string, offset: number, limit: number): Promise<INews[] | []> => NewsModel.find({ category: category }).sort({ _id: -1 }).skip(offset).limit(limit)
+    .populate("authorId");
+
+const countNewsByCategoryRepositories = (category: string): Promise<number> => NewsModel.countDocuments({category:category});
+
 
 const topNewsRepositories = (): Promise<INews | null> => NewsModel.findOne().sort({ _id: -1 }).populate("user");
 
@@ -25,6 +31,8 @@ const eraseNewsRepositories = (newsId: Types.ObjectId): Promise<INews | null> =>
 export default {
     findAllNewsRepositories,
     countNewsRepositories,
+    findNewsByCategoryRepositories,
+    countNewsByCategoryRepositories,
     topNewsRepositories,
     findNewsByIdRepositories,
     searchByTitleRepositories,
