@@ -9,9 +9,6 @@ export interface INews {
   authorId: IUser;
   category: string;
   tags: [string];
-  dataLikeId: Types.ObjectId;
-  likeCount: number;
-  dataCommentId: Types.ObjectId;
   commentCount: number;
   publishedAt: Date;
 };

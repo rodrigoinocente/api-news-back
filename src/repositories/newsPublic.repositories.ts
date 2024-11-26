@@ -2,8 +2,7 @@ import { INews } from "../../custom";
 import { NewsModel } from "../database/db";
 import { Types } from 'mongoose';
 
-const findAllNewsRepositories = (offset: number, limit: number): Promise<INews[] | []> => NewsModel.find().sort({ _id: -1 }).skip(offset).limit(limit)
-    .populate("authorId");
+const findAllNewsRepositories = (offset: number, limit: number): Promise<INews[] | []> => NewsModel.find().sort({ _id: -1 }).skip(offset).limit(limit);
 
 const countNewsRepositories = (): Promise<number> => NewsModel.countDocuments();
 

@@ -32,6 +32,10 @@ const NewsSchema = new mongoose.Schema<INews>({
     type: [String],
     required: true
   },
+  commentCount:{
+    type: Number,
+    default: 0
+  },
   publishedAt: {
     type: Date,
     default: Date.now()
