@@ -25,7 +25,7 @@ const NewsSchema = new mongoose.Schema<INews>({
   },
   category: {
     type: String,
-    enum: ["Technology", "Sports", "Science", "Politics", "Health", "Art", "Others"],
+    enum: ["Tecnologia", "Esportes", "Ciência", "Política", "Saúde", "Arte", "Outros"],
     required: true,
   },
   tags: {
