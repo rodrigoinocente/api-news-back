@@ -29,17 +29,14 @@ const findAllNews = async (req: Request, res: Response): Promise<Response | void
 const findNewsByCategory = async (req: Request, res: Response): Promise<Response | void> => {
     let limit = req.query.limit ? Number(req.query.limit) : 15;
     let offset = req.query.offset ? Number(req.query.offset) : 0;
-    const fullUrl = `${req.baseUrl}${req.path}`;
     const { category } = req.params
 
     try {
-        const { nextUrl, previousUrl, total, news } = await newsService.findNewsByCategoryService(category, offset, limit, fullUrl);
+        const { news, nextOffset, hasMore } = await newsService.findNewsByCategoryService(category, offset, limit);
 
         res.status(200).send({
-            nextUrl,
-            previousUrl,
-            offset,
-            total,
+            hasMore,
+            nextOffset,
             news
         });
     } catch (err: any) {

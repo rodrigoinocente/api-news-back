@@ -24,24 +24,20 @@ const findAllNewsService = async (offset: number, limit: number, fullUrl: string
     });
 };
 
-const findNewsByCategoryService = async (category: string, offset: number, limit: number, fullUrl: string): Promise<Paginated> => {
+const findNewsByCategoryService = async (category: string, offset: number, limit: number): Promise<Paginated> => {
     const news: INews[] = await newsRepositories.findNewsByCategoryRepositories(category, offset, limit);
     const total: number = await newsRepositories.countNewsByCategoryRepositories(category);
     
     const next = offset + limit;
-    const nextUrl = next < total ? `${fullUrl}?limit=${limit}&offset=${next}` : null;
-
-    const previous = offset - limit < 0 ? null : offset - limit;
-    const previousUrl = previous != null ? `${fullUrl}?limit=${limit}&offset=${previous}` : null;
+    const hasMore = next < total ? true : false;
+    const nextOffset = next
 
     if (news.length === 0)
         throw new Error("No news found");
 
     return ({
-        nextUrl,
-        previousUrl,
-        offset,
-        total,
+        hasMore,
+        nextOffset,
         news
     });
 };

@@ -13,4 +13,4 @@ route.get("/category/:category", newsPublicController.findNewsByCategory);
 // route.patch("/:newsId", authMiddleware, validateAndConvertIds, newsController.upDate);
 // route.delete("/deleteNews/:newsId", authMiddleware, validateAndConvertIds, newsController.erase);
 
-export default route;
+export default route;   
