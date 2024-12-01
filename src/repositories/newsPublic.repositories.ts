@@ -6,10 +6,10 @@ const findAllNewsRepositories = (offset: number, limit: number): Promise<INews[]
 
 const countNewsRepositories = (): Promise<number> => NewsModel.countDocuments();
 
-const findNewsByCategoryRepositories = (category: string, offset: number, limit: number): Promise<INews[] | []> => NewsModel.find({ category: category }).sort({ _id: -1 }).skip(offset).limit(limit)
-    .populate("authorId");
+const findNewsByCategoryRepositories = (category: string, offset: number, limit: number): Promise<INews[] | []> =>
+    NewsModel.find({ category: category }).select("_id title subtitle banner content category publishedAt").sort({ _id: -1 }).skip(offset).limit(limit)
 
-const countNewsByCategoryRepositories = (category: string): Promise<number> => NewsModel.countDocuments({category:category});
+const countNewsByCategoryRepositories = (category: string): Promise<number> => NewsModel.countDocuments({ category: category });
 
 
 const topNewsRepositories = (): Promise<INews | null> => NewsModel.findOne().sort({ _id: -1 }).populate("user");
