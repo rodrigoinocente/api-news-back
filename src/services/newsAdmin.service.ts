@@ -17,14 +17,6 @@ const createNewsService = async (body: INews): Promise<INews> => {
     return news
 };
 
-const findNewsByIdService = async (newsId: Types.ObjectId): Promise<INews> => {
-    const news: INews | null = await newsAdminRepositories.findNewsByIdRepositories(newsId);
-    if (!news)
-        throw new Error("No news found")
-
-    return news;
-};
-
 const updateNewsService = async (newsId: Types.ObjectId, body: INews): Promise<INews> => {
     const { title, content, subtitle, banner, authorId, category, tags } = body;
 
@@ -56,7 +48,6 @@ const eraseNewsService = async (newsId: Types.ObjectId): Promise<INews> => {
 
 export default {
     createNewsService,
-    findNewsByIdService,
     updateNewsService,
     eraseNewsService
 };

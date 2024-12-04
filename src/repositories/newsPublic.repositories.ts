@@ -11,10 +11,9 @@ const findNewsByCategoryRepositories = (category: string, offset: number, limit:
 
 const countNewsByCategoryRepositories = (category: string): Promise<number> => NewsModel.countDocuments({ category: category });
 
-
 const topNewsRepositories = (): Promise<INews | null> => NewsModel.findOne().sort({ _id: -1 }).populate("user");
 
-const findNewsByIdRepositories = async (newsId: Types.ObjectId): Promise<INews | null> => await NewsModel.findById(newsId).populate("user");
+const findNewsByIdRepositories = (newsId: Types.ObjectId): Promise<INews | null> => NewsModel.findById(newsId).populate("authorId");
 
 const searchByTitleRepositories = (title: string): Promise<INews[] | []> => NewsModel.find({ title: { $regex: `${title || ""}`, $options: "i" } })
     .sort({ _id: -1 }).populate("user");

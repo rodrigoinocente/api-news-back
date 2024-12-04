@@ -1,4 +1,4 @@
-// import { INews } from "../../custom";
+import { INews } from "../../custom";
 import newsService from "../services/newsPublic.service";
 import { Request, Response } from "express"
 
@@ -60,19 +60,19 @@ const findNewsByCategory = async (req: Request, res: Response): Promise<Response
 //     };
 // };
 
-// const findById = async (req: Request, res: Response): Promise<Response | void> => {
-//     const newsId = res.locals.newsId;
+const findNewsById = async (req: Request, res: Response): Promise<Response | void> => {
+    const newsId = res.locals.newsId;
+    
+    try {
+        const news: INews | null = await newsService.findNewsByIdService(newsId);
+        return res.status(200).send(news);
+    } catch (err: any) {
+        if (err.message === "No news found")
+            return res.status(404).send({ message: err.message });
 
-//     try {
-//         const news: INews | null = await newsService.findByIdService(newsId);
-//         return res.status(200).send(news);
-//     } catch (err: any) {
-//         if (err.message === "No news found")
-//             return res.status(204).send();
-
-//         return res.status(500).send({ message: "An unexpected error occurred" });
-//     };
-// };
+        return res.status(500).send({ message: "An unexpected error occurred" });
+    };
+};
 
 // const searchByTitle = async (req: Request, res: Response): Promise<Response | void> => {
 //     const { title } = req.query;
@@ -164,7 +164,7 @@ export default {
     findAllNews,
     findNewsByCategory,
     //     topNews,
-    //     findById,
+        findNewsById,
     //     searchByTitle,
     //     newsByUser,
     //     upDate,

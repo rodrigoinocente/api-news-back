@@ -23,20 +23,6 @@ const createNews = async (req: Request, res: Response): Promise<Response | void>
     };
 };
 
-const findNewsById = async (req: Request, res: Response): Promise<Response | void> => {
-    const newsId = res.locals.newsId;
-
-    try {
-        const news: INews | null = await newsAdminService.findNewsByIdService(newsId);
-        return res.status(200).send(news);
-    } catch (err: any) {
-        if (err.message === "No news found")
-            return res.status(404).send({ message: err.message });
-
-        return res.status(500).send({ message: "An unexpected error occurred" });
-    };
-};
-
 const upDateNews = async (req: Request, res: Response): Promise<Response | void> => {
     const newsId = res.locals.newsId
     const body = req.body;
@@ -88,7 +74,6 @@ const eraseNews = async (req: Request, res: Response): Promise<Response | void> 
 
 export default {
     createNews,
-    findNewsById,
     upDateNews,
     eraseNews
 };
