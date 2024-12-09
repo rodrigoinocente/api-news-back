@@ -6,6 +6,8 @@ export interface INews {
   content: string;
   subtitle: string;
   banner: string;
+  bannerAlt: string;
+  bannerFigcaption: string;
   authorId: IUser;
   category: string;
   tags: [string];

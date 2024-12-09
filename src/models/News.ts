@@ -18,6 +18,14 @@ const NewsSchema = new mongoose.Schema<INews>({
     type: String,
     required: true
   },
+  bannerAlt: {
+    type: String,
+    required: true
+  },
+  bannerFigcaption: {
+    type: String,
+    required: true
+  },
   authorId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Journalist",
@@ -32,7 +40,7 @@ const NewsSchema = new mongoose.Schema<INews>({
     type: [String],
     required: true
   },
-  commentCount:{
+  commentCount: {
     type: Number,
     default: 0
   },
