@@ -58,8 +58,8 @@ const findNewsByIdService = async (newsId: Types.ObjectId): Promise<INews> => {
     return news;
 };
 
-const searchByTitleService = async (title: string): Promise<INews[]> => {
-    const news: INews[] | [] = await newsRepositories.searchByTitleRepositories(title);
+const searchNewsByTitleService = async (title: string): Promise<INews[]> => {
+    const news: INews[] | [] = await newsRepositories.searchNewsByTitleRepositories(title);
     if (news.length === 0)
         throw new Error("No news found");
 
@@ -116,7 +116,7 @@ export default {
     findNewsByCategoryService,
     topNewsService,
     findNewsByIdService,
-    searchByTitleService,
+    searchNewsByTitleService,
     newsByUserService,
     // updateNewsService,
     // eraseNewsService

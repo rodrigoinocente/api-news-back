@@ -74,20 +74,20 @@ const findNewsById = async (req: Request, res: Response): Promise<Response | voi
     };
 };
 
-// const searchByTitle = async (req: Request, res: Response): Promise<Response | void> => {
-//     const { title } = req.query;
+const searchNewsByTitle = async (req: Request, res: Response): Promise<Response | void> => {
+    const { title } = req.query;
 
-//     try {
-//         const news: INews[] | null = await newsService.searchByTitleService(title as string);
+    try {
+        const news: INews[] | null = await newsService.searchNewsByTitleService(title as string);
 
-//         return res.status(200).send(news);
-//     } catch (err: any) {
-//         if (err.message === "No news found")
-//             return res.status(204).send();
+        return res.status(200).send(news);
+    } catch (err: any) {
+        if (err.message === "No news found")
+            return res.status(204).send();
 
-//         return res.status(500).send({ message: "An unexpected error occurred" });
-//     };
-// };
+        return res.status(500).send({ message: "An unexpected error occurred" });
+    };
+};
 
 // const newsByUser = async (req: Request, res: Response): Promise<Response | void> => {
 //     const userId = res.locals.userLoggedId;
@@ -165,7 +165,7 @@ export default {
     findNewsByCategory,
     //     topNews,
         findNewsById,
-    //     searchByTitle,
+        searchNewsByTitle,
     //     newsByUser,
     //     upDate,
     //     erase

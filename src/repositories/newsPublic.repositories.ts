@@ -15,8 +15,10 @@ const topNewsRepositories = (): Promise<INews | null> => NewsModel.findOne().sor
 
 const findNewsByIdRepositories = (newsId: Types.ObjectId): Promise<INews | null> => NewsModel.findById(newsId).populate("authorId");
 
-const searchByTitleRepositories = (title: string): Promise<INews[] | []> => NewsModel.find({ title: { $regex: `${title || ""}`, $options: "i" } })
-    .sort({ _id: -1 }).populate("user");
+const searchNewsByTitleRepositories = (title: string): Promise<INews[] | []> => 
+NewsModel.find({ title: { $regex: `${title || ""}`, $options: "i" } })
+.select("_id title subtitle banner content category publishedAt")
+.sort({ _id: -1 });
 
 const newsByUserRepositories = (userId: string): Promise<INews[] | []> => NewsModel.find({ user: userId }).sort({ _id: -1 }).populate("user");
 
@@ -33,7 +35,7 @@ export default {
     countNewsByCategoryRepositories,
     topNewsRepositories,
     findNewsByIdRepositories,
-    searchByTitleRepositories,
+    searchNewsByTitleRepositories,
     newsByUserRepositories,
     upDateRepositories,
     eraseNewsRepositories
