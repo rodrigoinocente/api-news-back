@@ -46,7 +46,7 @@ const NewsSchema = new mongoose.Schema<INews>({
   },
   publishedAt: {
     type: Date,
-    default: Date.now()
+    required: true
   },
 });
 

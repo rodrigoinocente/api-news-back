@@ -11,7 +11,10 @@ const createNewsService = async (body: INews): Promise<INews> => {
     const journalist = await journalistRepositories.findJournalistByIdRepositories(authorId)
     if (!journalist) throw new Error("Journalist not found")
 
-    const news: INews = await newsAdminRepositories.createNewsRepositories(body);
+    const news: INews = await newsAdminRepositories.createNewsRepositories({
+        ...body,
+        publishedAt: new Date()
+    })
     if (!news) throw new Error("Error creating News")
 
     return news
