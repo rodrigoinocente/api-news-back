@@ -13,6 +13,7 @@ export interface INews {
   tags: [string];
   commentCount: number;
   publishedAt: Date;
+  edited: Date;
 };
 
 interface Paginated {

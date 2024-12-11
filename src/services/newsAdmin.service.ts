@@ -27,12 +27,12 @@ const updateNewsService = async (newsId: Types.ObjectId, body: INews): Promise<I
         throw new Error("Submit at least one fields to update the post");
 
     const news: INews | null = await newsAdminRepositories.findNewsByIdRepositories(newsId);
-    if (!news)
-        throw new Error("News not found");
+    if (!news) throw new Error("News not found");
+
+    body = {...body, edited: new Date()}
 
     const newsUpdate: INews | null = await newsAdminRepositories.upDateNewsRepositories(newsId, body);
-    if (!newsUpdate)
-        throw new Error("Failed to update news");
+    if (!newsUpdate) throw new Error("Failed to update news");
 
     return newsUpdate;
 };

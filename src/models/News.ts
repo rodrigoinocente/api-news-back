@@ -48,6 +48,10 @@ const NewsSchema = new mongoose.Schema<INews>({
     type: Date,
     required: true
   },
+  edited: {
+    type: Date,
+    default: null
+  },
 });
 
 export default NewsSchema;
