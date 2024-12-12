@@ -1,5 +1,5 @@
-import { INews } from "../../custom";
-import { NewsModel } from "../database/db";
+import { IJournalist, INews } from "../../custom";
+import { JournalistModel, NewsModel } from "../database/db";
 import { Types } from 'mongoose';
 
 const findAllNewsRepositories = (offset: number, limit: number): Promise<INews[] | []> => NewsModel.find()
@@ -31,6 +31,13 @@ const newsByJournalistRepositories = (jounalistId: Types.ObjectId, offset: numbe
 
 const countNewsByJournalistRepositories = (jounalistId: Types.ObjectId): Promise<number> => NewsModel.countDocuments({ authorId: jounalistId });
 
+const findJournalistRepositories = (jounalistId: Types.ObjectId): Promise<IJournalist | null> =>
+    JournalistModel.findById(jounalistId)
+        .select("   name bio profilePicture");
+
+
+
+
 export default {
     findAllNewsRepositories,
     countNewsRepositories,
@@ -40,5 +47,6 @@ export default {
     findNewsByIdRepositories,
     searchNewsByTitleRepositories,
     newsByJournalistRepositories,
-    countNewsByJournalistRepositories
+    countNewsByJournalistRepositories,
+    findJournalistRepositories
 };

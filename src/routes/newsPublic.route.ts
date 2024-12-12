@@ -10,5 +10,6 @@ route.get("/category/:category", newsPublicController.findNewsByCategory);
 route.get("/id/:newsId", validateAndConvertIds, newsPublicController.findNewsById);
 route.get("/search", newsPublicController.searchNewsByTitle);
 route.get("/newsByJournalist/:journalistId", validateAndConvertIds, newsPublicController.newsByJournalist);
+route.get("/journalist/:journalistId", validateAndConvertIds, newsPublicController.findJournalist);
 
 export default route;   

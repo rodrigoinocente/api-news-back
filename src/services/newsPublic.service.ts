@@ -1,5 +1,5 @@
 import { Types } from "mongoose";
-import { INews, Paginated } from "../../custom";
+import { IJournalist, INews, Paginated } from "../../custom";
 import newsRepositories from "../repositories/newsPublic.repositories";
 
 const findAllNewsService = async (offset: number, limit: number, fullUrl: string): Promise<Paginated> => {
@@ -84,11 +84,19 @@ const findNewsByJournalistService = async (jounalistId: Types.ObjectId, offset: 
     });
 };
 
+const findJournalistService= async (jounalistId: Types.ObjectId): Promise<IJournalist> => {
+    const jounalist: IJournalist | null = await newsRepositories.findJournalistRepositories(jounalistId);
+    if(!jounalist) throw new Error("No journalist found")
+
+    return jounalist;
+};
+
 export default {
     findAllNewsService,
     findNewsByCategoryService,
     topNewsService,
     findNewsByIdService,
     searchNewsByTitleService,
-    findNewsByJournalistService
+    findNewsByJournalistService,
+    findJournalistService
 };
