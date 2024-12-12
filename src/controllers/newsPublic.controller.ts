@@ -62,7 +62,7 @@ const findNewsByCategory = async (req: Request, res: Response): Promise<Response
 
 const findNewsById = async (req: Request, res: Response): Promise<Response | void> => {
     const newsId = res.locals.newsId;
-    
+
     try {
         const news: INews | null = await newsService.findNewsByIdService(newsId);
         return res.status(200).send(news);
@@ -89,20 +89,26 @@ const searchNewsByTitle = async (req: Request, res: Response): Promise<Response 
     };
 };
 
-// const newsByUser = async (req: Request, res: Response): Promise<Response | void> => {
-//     const userId = res.locals.userLoggedId;
+const newsByJournalist = async (req: Request, res: Response): Promise<Response | void> => {
+    let limit = req.query.limit ? Number(req.query.limit) : 15;
+    let offset = req.query.offset ? Number(req.query.offset) : 0;
+    const journalistId = res.locals.journalistId;
 
-//     try {
-//         const news: INews[] = await newsService.newsByUserService(userId);
+    try {
+        const { news, nextOffset, hasMore } = await newsService.findNewsByJournalistService(journalistId, offset, limit);
 
-//         return res.status(200).send(news);
-//     } catch (err: any) {
-//         if (err.message === "No news found")
-//             return res.status(204).send();
+        res.status(200).send({
+            hasMore,
+            nextOffset,
+            news
+        });
+    } catch (err: any) {
+        if (err.message === "No news found")
+            return res.status(500).send({ message: err.message });
 
-//         return res.status(500).send({ message: "An unexpected error occurred" });
-//     };
-// };
+        return res.status(500).send({ message: "An unexpected error occurred" });
+    };
+};
 
 // const upDate = async (req: Request, res: Response): Promise<Response | void> => {
 //     const newsId = res.locals.newsId
@@ -164,9 +170,9 @@ export default {
     findAllNews,
     findNewsByCategory,
     //     topNews,
-        findNewsById,
-        searchNewsByTitle,
-    //     newsByUser,
+    findNewsById,
+    searchNewsByTitle,
+    newsByJournalist,
     //     upDate,
     //     erase
 };

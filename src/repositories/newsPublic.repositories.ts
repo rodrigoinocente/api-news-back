@@ -3,14 +3,14 @@ import { NewsModel } from "../database/db";
 import { Types } from 'mongoose';
 
 const findAllNewsRepositories = (offset: number, limit: number): Promise<INews[] | []> => NewsModel.find()
-.sort({ _id: -1 })
-.skip(offset).limit(limit)
-.select("_id title subtitle banner content publishedAt edited");
+    .sort({ _id: -1 })
+    .skip(offset).limit(limit)
+    .select("_id title subtitle banner content publishedAt edited");
 
 const countNewsRepositories = (): Promise<number> => NewsModel.countDocuments();
 
 const findNewsByCategoryRepositories = (category: string, offset: number, limit: number): Promise<INews[] | []> =>
-    NewsModel.find({ category: category }).select("_id title subtitle banner content category publishedAt").sort({ _id: -1 }).skip(offset).limit(limit)
+    NewsModel.find({ category: category }).select("_id title subtitle banner content publishedAt").sort({ _id: -1 }).skip(offset).limit(limit)
 
 const countNewsByCategoryRepositories = (category: string): Promise<number> => NewsModel.countDocuments({ category: category });
 
@@ -18,18 +18,18 @@ const topNewsRepositories = (): Promise<INews | null> => NewsModel.findOne().sor
 
 const findNewsByIdRepositories = (newsId: Types.ObjectId): Promise<INews | null> => NewsModel.findById(newsId).populate("authorId");
 
-const searchNewsByTitleRepositories = (title: string): Promise<INews[] | []> => 
-NewsModel.find({ title: { $regex: `${title || ""}`, $options: "i" } })
-.select("_id title subtitle banner content category publishedAt")
-.sort({ _id: -1 });
+const searchNewsByTitleRepositories = (title: string): Promise<INews[] | []> =>
+    NewsModel.find({ title: { $regex: `${title || ""}`, $options: "i" } })
+        .select("_id title subtitle banner content publishedAt")
+        .sort({ _id: -1 });
 
-const newsByUserRepositories = (userId: string): Promise<INews[] | []> => NewsModel.find({ user: userId }).sort({ _id: -1 }).populate("user");
+const newsByJournalistRepositories = (jounalistId: Types.ObjectId, offset: number, limit: number): Promise<INews[] | []> =>
+    NewsModel.find({ authorId: jounalistId })
+        .sort({ _id: -1 })
+        .select("_id title subtitle banner content publishedAt")
+        .skip(offset).limit(limit);
 
-const upDateRepositories = (newsId: Types.ObjectId, title: string, text: string, banner: string): Promise<INews | null> =>
-    NewsModel.findOneAndUpdate({ _id: newsId }, { title, text, banner }, { new: true, });
-
-const eraseNewsRepositories = (newsId: Types.ObjectId): Promise<INews | null> => NewsModel.findOneAndDelete({ _id: newsId });
-
+const countNewsByJournalistRepositories = (jounalistId: Types.ObjectId): Promise<number> => NewsModel.countDocuments({ authorId: jounalistId });
 
 export default {
     findAllNewsRepositories,
@@ -39,7 +39,6 @@ export default {
     topNewsRepositories,
     findNewsByIdRepositories,
     searchNewsByTitleRepositories,
-    newsByUserRepositories,
-    upDateRepositories,
-    eraseNewsRepositories
+    newsByJournalistRepositories,
+    countNewsByJournalistRepositories
 };

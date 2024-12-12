@@ -9,8 +9,6 @@ route.get("/category/:category", newsPublicController.findNewsByCategory);
 // route.get("/top", newsController.topNews);
 route.get("/id/:newsId", validateAndConvertIds, newsPublicController.findNewsById);
 route.get("/search", newsPublicController.searchNewsByTitle);
-// route.get("/newsByUser", authMiddleware, newsController.newsByUser);
-// route.patch("/:newsId", authMiddleware, validateAndConvertIds, newsController.upDate);
-// route.delete("/deleteNews/:newsId", authMiddleware, validateAndConvertIds, newsController.erase);
+route.get("/newsByJournalist/:journalistId", validateAndConvertIds, newsPublicController.newsByJournalist);
 
 export default route;   
