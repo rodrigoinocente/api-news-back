@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { INews } from "../../custom";
+import { categories } from "../../enum";
 
 const NewsSchema = new mongoose.Schema<INews>({
   title: {
@@ -33,7 +34,7 @@ const NewsSchema = new mongoose.Schema<INews>({
   },
   category: {
     type: String,
-    enum: ["Tecnologia", "Esportes", "Ciência", "Política", "Saúde", "Arte", "Outros"],
+    enum: categories,
     required: true,
   },
   tags: {

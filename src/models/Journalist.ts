@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { IJournalist } from "../../custom";
+import { categories } from "../../enum";
 
 const JournalistSchema = new mongoose.Schema<IJournalist>({
     name: {
@@ -19,6 +20,11 @@ const JournalistSchema = new mongoose.Schema<IJournalist>({
         type: Boolean,
         default: true,
     },
+    category: {
+        type: String,
+        enum: categories,
+        required: true,
+      },
     email: {
         type: String,
         unique: true,

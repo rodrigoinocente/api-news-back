@@ -21,6 +21,7 @@
     "index.ts",
      "app.ts",
      "server.ts",
-     "custom.d.ts"
+     "custom.d.ts",
+     "enum.ts"
     ], 
 }
