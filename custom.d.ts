@@ -38,3 +38,13 @@ export interface IJournalist {
   email: string;
   createdAt: Date;
 };
+
+export interface IColumn {
+  title: string;
+  content: string;
+  authorId: IJournalist
+  tags: [string];
+  category: string;
+  publishedAt: Date;
+  edited: Date;
+}
