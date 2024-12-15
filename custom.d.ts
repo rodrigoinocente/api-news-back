@@ -42,7 +42,7 @@ export interface IJournalist {
 export interface IColumn {
   title: string;
   content: string;
-  authorId: IJournalist
+  authorId: Types.ObjectId;
   tags: [string];
   category: string;
   publishedAt: Date;
