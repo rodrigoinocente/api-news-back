@@ -4,7 +4,7 @@ import { NextFunction, Request, Response } from "express";
 const isValidObjectId = (id: string): boolean => Types.ObjectId.isValid(id);
 
 const validateAndConvertIds = (req: Request, res: Response, next: NextFunction): Response | void => {
-    const paramNames = ["newsId", "journalistId"];
+    const paramNames = ["newsId", "journalistId", "columnId"];
 
     try {
         for (const param of paramNames) {

@@ -22,6 +22,36 @@ const createColumnService = async (body: IColumn): Promise<IColumn> => {
     return column
 };
 
+const updateColumnService = async (columnId: Types.ObjectId, body: IColumn): Promise<IColumn> => {
+    const { title, content, authorId, category, tags } = body;
+
+    if (!title && !content && !authorId && !category && !tags)
+        throw new Error("Submit at least one fields to update the Column");
+
+    const column: IColumn | null = await columnAdminRepositories.findColumnByIdRepositories(columnId);
+    if (!column) throw new Error("Column not found");
+
+    body = { ...body, edited: new Date() }
+
+    const columnUpdate: IColumn | null = await columnAdminRepositories.upDateColumnRepositories(columnId, body);
+    if (!columnUpdate) throw new Error("Failed to update Column");
+
+    return columnUpdate;
+};
+
+const eraseColumnService = async (columnId: Types.ObjectId): Promise<IColumn> => {
+    const news: IColumn | null = await columnAdminRepositories.findColumnByIdRepositories(columnId)
+    if (!news) throw new Error("Column not found");
+
+    const columnDeleted = await columnAdminRepositories.eraseColumnRepositories(columnId);
+    if (!columnDeleted) throw new Error("Failed to delete Column");
+
+    return columnDeleted;
+};
+
+
 export default {
-    createColumnService
+    createColumnService,
+    updateColumnService,
+    eraseColumnService
 };
