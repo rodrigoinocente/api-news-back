@@ -19,6 +19,24 @@ const findColumnByJournalistService = async (jounalistId: Types.ObjectId, offset
     });
 };
 
+const findColumnByCategoryService = async (category: string, offset: number, limit: number): Promise<Paginated> => {
+    const column: IColumn[] = await columnRepositories.columnByCategoryRepositories(category, offset, limit);
+    const total: number = await columnRepositories.countColumnByCategoryRepositories(category);
+
+    const next = offset + limit;
+    const hasMore = next < total ? true : false;
+    const nextOffset = next
+
+    if (column.length === 0) throw new Error("No Column found");
+
+    return ({
+        hasMore,
+        nextOffset,
+        column
+    });
+};
+
 export default {
-    findColumnByJournalistService
+    findColumnByJournalistService,
+    findColumnByCategoryService
 };
