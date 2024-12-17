@@ -26,6 +26,7 @@ interface Paginated {
   hasMore?: boolean;
   nextOffset?: number;
   news?: INews[];
+  column?: IColumn[];
   //TODO: THE ROUTE THAT SEARCHES FOR ALL NEWS IS STILL USING THIS TYPING. ADJUST IN THE FUTURE
 }
 export interface IJournalist {
@@ -42,6 +43,10 @@ export interface IJournalist {
 export interface IColumn {
   title: string;
   content: string;
+  subtitle: string;
+  banner: string;
+  bannerAlt: string;
+  bannerFigcaption: string;
   authorId: Types.ObjectId;
   tags: [string];
   category: string;

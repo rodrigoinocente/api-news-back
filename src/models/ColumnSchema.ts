@@ -11,6 +11,22 @@ const ColumnSchema = new mongoose.Schema<IColumn>({
     type: String,
     required: true
   },
+  subtitle: {
+    type: String,
+    required: true
+  },
+  banner: {
+    type: String,
+    required: true
+  },
+  bannerAlt: {
+    type: String,
+    required: true
+  },
+  bannerFigcaption: {
+    type: String,
+    required: true
+  },
   authorId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Journalist",
