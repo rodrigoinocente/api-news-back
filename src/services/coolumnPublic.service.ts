@@ -36,7 +36,17 @@ const findColumnByCategoryService = async (category: string, offset: number, lim
     });
 };
 
+const findColumnByIdService = async (columnId: Types.ObjectId): Promise<IColumn> => {
+    const column: IColumn | null = await columnRepositories.findColumnByIdRepositories(columnId);
+    if (!column)
+        throw new Error("No column found")
+
+    return column;
+};
+
+
 export default {
     findColumnByJournalistService,
-    findColumnByCategoryService
+    findColumnByCategoryService,
+    findColumnByIdService
 };

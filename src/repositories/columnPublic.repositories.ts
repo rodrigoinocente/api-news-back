@@ -18,10 +18,12 @@ const columnByCategoryRepositories = (category: string, offset: number, limit: n
 
 const countColumnByCategoryRepositories = (category: string): Promise<number> => ColumnModel.countDocuments({ category: category });
 
+const findColumnByIdRepositories = (columnId: Types.ObjectId): Promise<IColumn | null> => ColumnModel.findById(columnId).populate("authorId");
 
 export default {
     columnByJournalistRepositories,
     countColumnByJournalistRepositories,
     columnByCategoryRepositories,
-    countColumnByCategoryRepositories
+    countColumnByCategoryRepositories,
+    findColumnByIdRepositories
 };
