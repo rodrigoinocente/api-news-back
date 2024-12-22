@@ -19,8 +19,8 @@ const findColumnByJournalistService = async (jounalistId: Types.ObjectId, offset
     });
 };
 
-const findColumnByCategoryService = async (category: string, offset: number, limit: number): Promise<Paginated> => {
-    const column: IColumn[] = await columnRepositories.columnByCategoryRepositories(category, offset, limit);
+const findColumnByCategoryService = async (category: string, offset: number, limit: number, forWideCard: boolean): Promise<Paginated> => {
+    const column: IColumn[] = await columnRepositories.columnByCategoryRepositories(category, offset, limit, forWideCard);
     const total: number = await columnRepositories.countColumnByCategoryRepositories(category);
 
     const next = offset + limit;

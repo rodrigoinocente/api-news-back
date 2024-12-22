@@ -27,9 +27,10 @@ const columnByCategory = async (req: Request, res: Response): Promise<Response |
     let limit = req.query.limit ? Number(req.query.limit) : 5;
     let offset = req.query.offset ? Number(req.query.offset) : 0;
     const category = req.params.category;
+    const forWideCard = req.query.forWideCard === "true";
 
     try {
-        const { column, nextOffset, hasMore } = await columnService.findColumnByCategoryService(category, offset, limit);
+        const { column, nextOffset, hasMore } = await columnService.findColumnByCategoryService(category, offset, limit, forWideCard);
 
         res.status(200).send({
             hasMore,

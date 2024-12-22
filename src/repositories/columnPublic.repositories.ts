@@ -10,12 +10,15 @@ const columnByJournalistRepositories = (jounalistId: Types.ObjectId, offset: num
 
 const countColumnByJournalistRepositories = (jounalistId: Types.ObjectId): Promise<number> => ColumnModel.countDocuments({ authorId: jounalistId });
 
-const columnByCategoryRepositories = (category: string, offset: number, limit: number): Promise<IColumn[] | []> =>
-    ColumnModel.find({ category: category })
+const columnByCategoryRepositories = (category: string, offset: number, limit: number, forWideCard: boolean): Promise<IColumn[] | []> => {
+    const query = ColumnModel.find({ category: category })
         .sort({ _id: -1 })
-        .select("_id title subtitle publishedAt")
-        .skip(offset).limit(limit);
+        .select("title publishedAt");
 
+    if (forWideCard) query.select("_id title subtitle publishedAt banner").populate("authorId", "name profilePicture");
+
+    return query.skip(offset).limit(limit);
+};
 const countColumnByCategoryRepositories = (category: string): Promise<number> => ColumnModel.countDocuments({ category: category });
 
 const findColumnByIdRepositories = (columnId: Types.ObjectId): Promise<IColumn | null> => ColumnModel.findById(columnId).populate("authorId");
