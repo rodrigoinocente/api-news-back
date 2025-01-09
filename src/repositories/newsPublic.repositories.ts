@@ -1,6 +1,44 @@
-import { IJournalist, INews } from "../../custom";
+import { IColumn, IJournalist, INews } from "../../custom";
 import { JournalistModel, NewsModel } from "../database/db";
 import { Types } from 'mongoose';
+
+
+const getHomePageDataServiceRepositories = () => NewsModel.aggregate(
+    [{
+        $facet: {
+            newsFull: [
+                { $project: { title: 1, subtitle: 1, banner: 1, publishedAt: 1 } },
+                { $sort: { publishedAt: -1 } },
+                { $skip: 0 },
+                { $limit: 5 }
+            ],
+            newsMini: [
+                { $project: { title: 1, banner: 1, publishedAt: 1 } },
+                { $sort: { publishedAt: -1 } },
+                { $skip: 5 },
+                { $limit: 5 }
+            ]
+        }
+    },
+    {
+        $unionWith: {
+            coll: "column",
+            pipeline: [
+                {
+                    $facet: {
+                        column: [
+                            { $project: { title: 1 } },
+                            { $sort: { _id: -1 } },
+                            { $skip: 0 },
+                            { $limit: 5 }
+                        ]
+                    }
+                }
+            ]
+        }
+    }]
+);
+
 
 const findAllNewsRepositories = (offset: number, limit: number): Promise<INews[] | []> => NewsModel.find()
     .sort({ _id: -1 })
@@ -39,6 +77,7 @@ const findJournalistRepositories = (jounalistId: Types.ObjectId): Promise<IJourn
 
 
 export default {
+    getHomePageDataServiceRepositories,
     findAllNewsRepositories,
     countNewsRepositories,
     findNewsByCategoryRepositories,

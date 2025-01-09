@@ -4,6 +4,7 @@ import newsPublicController from "../controllers/newsPublic.controller";
 import { validateAndConvertIds } from "../middlewares/global.middlewares";
 
 
+route.get("/home", newsPublicController.getHomePageData);
 route.get("/findAll", newsPublicController.findAllNews);
 route.get("/category/:category", newsPublicController.findNewsByCategory);
 // route.get("/top", newsController.topNews);

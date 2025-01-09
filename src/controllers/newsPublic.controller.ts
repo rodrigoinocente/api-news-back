@@ -2,6 +2,18 @@ import { INews } from "../../custom";
 import newsService from "../services/newsPublic.service";
 import { Request, Response } from "express"
 
+const getHomePageData = async (req: Request, res: Response): Promise<Response | void> => {
+    try {
+        const response = await newsService.getHomePageDataService();
+
+        res.status(200).send(response);
+    } catch (err: any) {
+        if (err.message === "Home data not loaded")
+            return res.status(500).send({ message: err.message });
+
+        return res.status(500).send({ message: "An unexpected error occurred" });
+    }
+};
 
 const findAllNews = async (req: Request, res: Response): Promise<Response | void> => {
     let limit = req.query.limit ? Number(req.query.limit) : 15;
@@ -111,7 +123,7 @@ const newsByJournalist = async (req: Request, res: Response): Promise<Response |
 };
 
 
-const findJournalist= async (req: Request, res: Response): Promise<Response | void> => {
+const findJournalist = async (req: Request, res: Response): Promise<Response | void> => {
     const journalistId = res.locals.journalistId;
 
     try {
@@ -128,6 +140,7 @@ const findJournalist= async (req: Request, res: Response): Promise<Response | vo
 
 
 export default {
+    getHomePageData,
     findAllNews,
     findNewsByCategory,
     //     topNews,

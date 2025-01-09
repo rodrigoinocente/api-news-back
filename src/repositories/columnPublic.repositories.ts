@@ -15,7 +15,7 @@ const columnByCategoryRepositories = (category: string, offset: number, limit: n
         .sort({ _id: -1 })
         .select("title publishedAt");
 
-    if (forWideCard) query.select("_id title subtitle publishedAt banner").populate("authorId", "name profilePicture");
+    if (forWideCard) query.select("_id title subtitle publishedAt banner category").populate("authorId", "name profilePicture");
 
     return query.skip(offset).limit(limit);
 };

@@ -2,6 +2,13 @@ import { Types } from "mongoose";
 import { IJournalist, INews, Paginated } from "../../custom";
 import newsRepositories from "../repositories/newsPublic.repositories";
 
+const getHomePageDataService = async () => {
+    const response = await newsRepositories.getHomePageDataServiceRepositories();
+    if(!response) throw new Error("Home data not loaded")
+        
+    return response
+}
+
 const findAllNewsService = async (offset: number, limit: number, fullUrl: string): Promise<Paginated> => {
     const news: INews[] = await newsRepositories.findAllNewsRepositories(offset, limit);
     const total: number = await newsRepositories.countNewsRepositories();
@@ -92,6 +99,7 @@ const findJournalistService= async (jounalistId: Types.ObjectId): Promise<IJourn
 };
 
 export default {
+    getHomePageDataService,
     findAllNewsService,
     findNewsByCategoryService,
     topNewsService,
