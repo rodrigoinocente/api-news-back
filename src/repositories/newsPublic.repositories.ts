@@ -1,22 +1,40 @@
-import { IColumn, IJournalist, INews } from "../../custom";
+import { IJournalist, INews } from "../../custom";
 import { JournalistModel, NewsModel } from "../database/db";
 import { Types } from 'mongoose';
 
 
-const getHomePageDataServiceRepositories = () => NewsModel.aggregate(
-    [{
+const getHomePageDataServiceRepositories = () => NewsModel.aggregate([
+    {
         $facet: {
-            newsFull: [
+            bigHome: [
+                { $match: { position: "bigHome" } },
                 { $project: { title: 1, subtitle: 1, banner: 1, publishedAt: 1 } },
-                { $sort: { publishedAt: -1 } },
-                { $skip: 0 },
-                { $limit: 5 }
+                { $sort: { publishedAt: -1 } }, { $limit: 1 }
             ],
-            newsMini: [
+            littleBanner: [
+                { $match: { position: "littleBanner" } },
                 { $project: { title: 1, banner: 1, publishedAt: 1 } },
-                { $sort: { publishedAt: -1 } },
-                { $skip: 5 },
-                { $limit: 5 }
+                { $sort: { publishedAt: -1 } }, { $limit: 3 }
+            ],
+            thirdPartLittle: [
+                { $match: { position: "thirdPartLittle" } },
+                { $project: { title: 1, subtitle: 1, publishedAt: 1 } },
+                { $sort: { publishedAt: -1 } }, { $limit: 3 }
+            ],
+            thirdPartWithBanner: [
+                { $match: { position: "thirdPartWithBanner" } },
+                { $project: { title: 1, subtitle: 1, banner: 1, publishedAt: 1 } },
+                { $sort: { publishedAt: -1 } }, { $limit: 3 }
+            ],
+            fakeNewsSection: [
+                { $match: { position: "fakeNewsSection" } },
+                { $project: { title: 1, banner: 1, publishedAt: 1 } },
+                { $sort: { publishedAt: -1 } }, { $limit: 4 }
+            ],
+            fifthPart: [
+                { $match: { position: "fifthPart" } },
+                { $project: { title: 1, subtitle: 1, banner: 1, publishedAt: 1 } },
+                { $sort: { publishedAt: -1 } }, { $limit: 4 }
             ]
         }
     },
@@ -27,18 +45,16 @@ const getHomePageDataServiceRepositories = () => NewsModel.aggregate(
                 {
                     $facet: {
                         column: [
-                            { $project: { title: 1 } },
-                            { $sort: { _id: -1 } },
-                            { $skip: 0 },
+                            { $project: { title: 1, publishedAt: 1 } },
+                            { $sort: { publishedAt: -1 } },
                             { $limit: 5 }
                         ]
                     }
                 }
             ]
         }
-    }]
-);
-
+    }
+]);
 
 const findAllNewsRepositories = (offset: number, limit: number): Promise<INews[] | []> => NewsModel.find()
     .sort({ _id: -1 })

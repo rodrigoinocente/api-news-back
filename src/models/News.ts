@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { INews } from "../../custom";
-import { categories } from "../../enum";
+import { categories, positions } from "../../enum";
 
 const NewsSchema = new mongoose.Schema<INews>({
   title: {
@@ -44,6 +44,11 @@ const NewsSchema = new mongoose.Schema<INews>({
   commentCount: {
     type: Number,
     default: 0
+  },
+  position: {
+    type: String,
+    enum: positions,
+    default: null,
   },
   publishedAt: {
     type: Date,

@@ -12,6 +12,7 @@ export interface INews {
   category: string;
   tags: [string];
   commentCount: number;
+  position: string;
   publishedAt: Date;
   edited: Date;
 };
