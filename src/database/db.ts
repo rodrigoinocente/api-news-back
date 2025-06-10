@@ -7,7 +7,7 @@ import NewsSchema from "../models/News";
 import ColumnSchema from "../models/ColumnSchema";
 import { INews, IJournalist, IColumn } from "../../custom";
 
-const connectDb = mongoose.createConnection(process.env.MONGODB_URI as string);
+const connectDb = mongoose.createConnection(process.env.BACK_MONGODB_URI as string);
 
 export const JournalistModel = connectDb.model<IJournalist>("Journalist", JournalistSchema, "journalist");
 export const NewsModel = connectDb.model<INews>("News", NewsSchema, "news");
