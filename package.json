@@ -4,7 +4,7 @@
   "description": "Starting with MERN",
   "main": "server.js",
   "scripts": {
-    "build": "npm install && rm -rf ./built && tsc",
+    "build": "rm -rf ./built && tsc",
     "start": "node built/server.js",
     "dev": "ts-node-dev server.ts"
   },
