@@ -10,7 +10,7 @@ const app = express();
 app.use(
     express.json(),
     cors({
-        origin: process.env.CORS_ORIGIN || "http://localhost:8080",
+        origin: process.env.CORS_ORIGIN || "https://nginx-75mn.onrender.com",
         methods: ["GET", "POST", "PUT", "DELETE"],
         allowedHeaders: ["Content-Type", "Authorization"]
     })
