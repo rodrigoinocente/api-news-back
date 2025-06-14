@@ -19,4 +19,7 @@ router.use("/columnPublic", columnPublicRouter);
 router.use("/doc", swaggerRouter);
 router.use("/resete", reseteRouter);
 
+//Render, don't sleep
+router.use("/health", (req, res) => { res.sendStatus(200) });
+
 export default router;
