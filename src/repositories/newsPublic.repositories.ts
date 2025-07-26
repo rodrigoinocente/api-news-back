@@ -2,7 +2,6 @@ import { IJournalist, INews } from "../../custom";
 import { JournalistModel, NewsModel } from "../database/db";
 import { Types } from 'mongoose';
 
-
 const getHomePageDataServiceRepositories = () => NewsModel.aggregate([
     {
         $facet: {
@@ -14,7 +13,7 @@ const getHomePageDataServiceRepositories = () => NewsModel.aggregate([
             littleBanner: [
                 { $match: { position: "littleBanner" } },
                 { $project: { title: 1, banner: 1, publishedAt: 1 } },
-                { $sort: { publishedAt: -1 } }, { $limit: 3 }
+                { $sort: { publishedAt: -1 } }, { $limit: 4 }
             ],
             thirdPartLittle: [
                 { $match: { position: "thirdPartLittle" } },
@@ -33,7 +32,7 @@ const getHomePageDataServiceRepositories = () => NewsModel.aggregate([
             ],
             fifthPart: [
                 { $match: { position: "fifthPart" } },
-                { $project: { title: 1, subtitle: 1, banner: 1, publishedAt: 1 } },
+                { $project: { title: 1, banner: 1, publishedAt: 1 } },
                 { $sort: { publishedAt: -1 } }, { $limit: 4 }
             ]
         }
